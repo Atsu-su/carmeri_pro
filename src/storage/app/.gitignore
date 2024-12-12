@@ -1,3 +1,5 @@
 *
 !public/
 !.gitignore
+public/profile_images/profile_image*
+public/item_images/item_image*

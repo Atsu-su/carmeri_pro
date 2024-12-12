@@ -14,6 +14,6 @@ class UserSeeder extends Seeder
      */
     public function run()
     {
-        if(! User::exists()) User::factory(10)->create();
+        if (! User::exists()) User::factory(10)->create();
     }
 }
