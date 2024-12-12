@@ -1,0 +1,188 @@
+<?php
+
+// config/fortify.php
+return [
+    'guard' => 'web',
+    'passwords' => 'users',
+    'username' => 'email',
+    'email' => 'email',
+    'views' => true,
+    'home' => '/dashboard',
+];
+
+// app/Providers/FortifyServiceProvider.php
+namespace App\Providers;
+
+use App\Models\Admin;
+use App\Models\User;
+use Illuminate\Http\Request;
+use Laravel\Fortify\Fortify;
+use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Hash;
+
+class FortifyServiceProvider extends ServiceProvider
+{
+    public function register()
+    {
+        //
+    }
+
+    public function boot()
+    {
+        // 認証ロジックの書き換えをおこなっている
+        Fortify::authenticateUsing(function (Request $request) {
+            // adminルートの場合
+            if ($request->is('admin/*')) {
+                $admin = Admin::where('email', $request->email)->first();
+
+                if ($admin &&
+                    Hash::check($request->password, $admin->password)) {
+                    return $admin;
+                }
+            } 
+            // 通常のユーザーログインの場合
+            else {
+                $user = User::where('email', $request->email)->first();
+
+                if ($user &&
+                    Hash::check($request->password, $user->password)) {
+                    return $user;
+                }
+            }
+
+            return null;
+        });
+    }
+}
+
+// app/Models/Admin.php
+namespace App\Models;
+
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+
+class Admin extends Authenticatable
+{
+    use Notifiable;
+
+    protected $guard = 'admin';
+
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+    ];
+
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+}
+
+// config/auth.php
+return [
+    'guards' => [
+        'web' => [
+            'driver' => 'session',
+            'provider' => 'users',
+        ],
+        'admin' => [
+            'driver' => 'session',
+            'provider' => 'admins',
+        ],
+    ],
+
+    'providers' => [
+        'users' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\User::class,
+        ],
+        'admins' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Admin::class,
+        ],
+    ],
+];
+
+// routes/web.php
+use Illuminate\Support\Facades\Route;
+
+// ユーザー用ルート
+Route::middleware(['auth'])->group(function () {
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    });
+});
+
+// 管理者用ルート
+Route::prefix('admin')->group(function () {
+    Route::get('/login', function () {
+        return view('admin.login');
+    })->name('admin.login');
+    
+    Route::middleware(['auth:admin'])->group(function () {
+        Route::get('/dashboard', function () {
+            return view('admin.dashboard');
+        })->name('admin.dashboard');
+    });
+});
+
+// -------------------------------------------------------------------
+
+Laravelで管理者(Admin)とユーザー(User)の2つの認証システムを実装する方法を説明します。
+Laravel Fortify Multi-auth ImplementationClick to open code
+実装の手順を説明します：
+
+マイグレーションの作成
+まず、管理者用のテーブルを作成します：
+
+bashCopyphp artisan make:migration create_admins_table
+
+モデルの設定
+
+
+User モデルは既存のものを使用
+Admin モデルを新規作成（上記のコードを参照）
+
+
+認証の設定
+
+
+config/auth.php に管理者用の guard と provider を追加
+FortifyServiceProvider で認証ロジックをカスタマイズ
+
+
+ルーティング
+
+
+通常のユーザー用と管理者用で別々のルートグループを作成
+それぞれに適切なミドルウェアを設定
+
+
+ビューの作成
+以下のビューファイルが必要です：
+
+
+resources/views/auth/login.blade.php（ユーザーログイン）
+resources/views/admin/login.blade.php（管理者ログイン）
+resources/views/dashboard.blade.php（ユーザーダッシュボード）
+resources/views/admin/dashboard.blade.php（管理者ダッシュボード）
+
+この実装により：
+
+/login でユーザーログイン
+/admin/login で管理者ログイン
+が可能になります。
+
+認証後は：
+
+ユーザーは /dashboard にリダイレクト
+管理者は /admin/dashboard にリダイレクト
+されます。
+
+追加の機能や要件はありますか？例えば：
+
+パスワードリセット機能の追加
+ログイン試行回数の制限
+2要素認証の実装
+などについてもアドバイスできます。
