@@ -6,6 +6,8 @@
       <input class="search-input" type="text" name="keyword" value="{{ $keyword ?? '' }}" placeholder="なにをお探しですか？">
     </form>
     <nav class="nav">
+      <a class="nav-link" href="{{ route('index') }}">商品一覧</a>
+      <a class="nav-link" href="{{ route('mypage') }}">マイページ</a>
       @if (request()->headerType == 'logOut')
         <form action="{{ route('logout') }}" method="post">
           @csrf
@@ -14,7 +16,6 @@
       @else
         <a class="nav-link" href="{{ route('login') }}">ログイン</a>
       @endif
-      <a class="nav-link" href="{{ route('mypage') }}">マイページ</a>
       <a class="nav-btn c-btn c-btn--header" href="{{ route('sell.create') }}">出品</a>
     </nav>
     <nav class="nav-small">
