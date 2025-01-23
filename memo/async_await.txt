@@ -1,0 +1,30 @@
+try {
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-TOKEN': csrf
+    }
+  });
+  
+  if (!response.ok) {
+    throw new Error('Network response was not OK');
+  }
+
+  const data = await response.json();
+  
+  const likeIcon = document.getElementById('like-icon');
+  const likes = document.getElementById('number-of-likes');
+  
+  if (data.likeIt) {
+    likes.textContent = parseInt(likes.textContent) + 1;
+    likeIcon.classList.add('filled');
+  } else {
+    likes.textContent = parseInt(likes.textContent) - 1;
+    likeIcon.classList.remove('filled');
+  }
+} catch (error) {
+  console.error('There has been a problem with your fetch operation:', error);
+} finally {
+  icon.classList.remove('js-processing');
+}

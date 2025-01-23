@@ -772,6 +772,12 @@ body {
 
 #header .logo {
   width: 300px;
+  display: grid;
+  place-items: center;
+}
+
+#header .logo:hover {
+  opacity: 0.8;
 }
 
 #header .search {
