@@ -19,7 +19,48 @@ class ProfileRequest extends FormRequest
     public function prepareForValidation()
     {
         $this->merge([
-            'is_changed' => $this->boolean('is_changed'),]);
+            'is_changed' => $this->boolean('is_changed'),
+        ]);
+    }
+
+    public function validationData()
+    {
+        $all = parent::validationData();
+
+        if ($this->get('file_base64')) {
+            // base64をデコード。プレフィックスに「data:image/jpeg;base64,」のような文字列がついている場合は除去して処理する
+            $data = explode(',', $this->get('file_base64'));
+            if (isset($data[1])) {
+                $fileData = base64_decode($data[1]);
+            } else {
+                $fileData = base64_decode($data[0]);
+            }
+
+            // tmp領域に画像ファイルとして保存してUploadedFileとして扱う
+
+            // ?
+            $tmpFilePath = sys_get_temp_dir() . '/' . Str::uuid()->toString();
+
+            // ?
+            file_put_contents($tmpFilePath, $fileData);
+
+            // ?
+            $tmpFile = new File($tmpFilePath);
+            $filename = $tmpFile->getFilename();
+            if ($this->get('file_name_base64')) {
+                // ファイル名の指定があればセット
+                $filename = $this->get('file_name_base64');
+            }
+            $file = new UploadedFile(
+                $tmpFile->getPathname(),
+                $filename,
+                $tmpFile->getMimeType(),
+                0,
+                true
+            );
+            $all['file'] = $file;
+        }
+        return $all;
     }
 
     /**

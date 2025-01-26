@@ -46,6 +46,7 @@
           画像を選択する
         </label>
         <input class="img-upload-input" id="img-input" type="file" name="image" accept="image/*" style="display: none"/>
+				<input id="file-base64" type="hidden">
         <input id="is-changed" type="hidden" name="is_changed" value="false"/>
         <button class="img-upload-reset c-btn-img-reset c-btn-img-reset--profile" id="reset-btn" type="button">画像を削除</button>
       </div>
@@ -86,14 +87,16 @@
     const fileName = document.getElementById('file-name');
     const isChanged = document.getElementById('is-changed');
 
-    function showPreview() {
-      const file = event.target.files[0];
+		// eventはinput要素のchangeイベント
+    function showPreview(e) {
+      const file = e.target.files[0]; // input要素が保持するファイル
 
       if (file && file.type.startsWith('image/')) {
         const reader = new FileReader();
 
         reader.onload = function(e) {
           let preview = document.getElementById('preview');
+          const fileBase64 = document.getElementById('file-base64');
           const noImage = document.getElementById('no-image');
           const imgError = document.getElementById('img-error');
 
@@ -111,13 +114,17 @@
             background.appendChild(preview);
           }
 
-          preview.src = e.target.result;
-          preview.style.display = 'block';  // 選択された画像を表示
+					// base64のデータを追加
+          preview.src = e.target.result; // 画面表示
+          fileBase64.value = e.target.result; // inputのvalue
+
+          preview.style.display = 'block'; // 選択された画像を表示
 
           if (noImage) {
             noImage.style.display = 'none';
           }
 
+					// imageのバリデーションエラーが出力されていた場合は画像変更後に削除
           if (imgError !== null && imgError !== undefined) {
               imgError.style.display = 'none';
           }
@@ -126,6 +133,7 @@
         reader.readAsDataURL(file);
         resetBtn.style.display = 'block';
       } else {
+				// 画像ファイルが選択されていない場合、プレビューは灰色背景色になる
         if (preview) {
           preview.src = '';
           preview.style.display = 'none';
@@ -143,7 +151,7 @@
 
       if (preview) {
         preview.src = '';
-        preview.style.display = 'none';   // 削除された画像のimg要素を非表示
+        preview.style.display = 'none'; // 削除された画像のimg要素を非表示
         resetBtn.style.display = 'none';
         imgInput.value = ''; // ファイル入力をクリア（POSTされる値）
         fileName.textContent = ''; // ファイル名をクリア
@@ -162,6 +170,7 @@
 
     function switchResetBtn() {
       const preview = document.getElementById('preview');
+			// ページが読み込まれたときにプレビュー画像がない場合、削除ボタンを非表示にする
       if (!preview) {
         resetBtn.style.display = 'none';
       }
@@ -170,7 +179,6 @@
     document.addEventListener('DOMContentLoaded', switchResetBtn);
     imgInput.addEventListener('change', showPreview);
     resetBtn.addEventListener('click', resetPreview);
-
   </script>
 
   {{-- 画像選択後にファイル名を表示 --}}

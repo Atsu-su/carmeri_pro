@@ -1332,7 +1332,10 @@ body {
 
 #item-input .img-upload-reset {
   margin: 5px auto 0;
-  display: none;
+
+  /* jsでコントロールしているので不要 */
+  /* display: none; */
+
   text-align: center;
 }
 
