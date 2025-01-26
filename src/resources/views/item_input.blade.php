@@ -12,13 +12,14 @@
         <h2 class="img-upload-title">商品の画像</h2>
         <div class="img-upload-container">
           <div id="background" class="img-upload-background">
-            <img id="preview" src="" width="100" height="100">
+            <img id="preview" src="{{ old('file_base64', '') }}" width="100" height="100">
           </div>
           <label id="label" class="img-upload-img-select c-btn-img-select c-btn-img-select--profile" for="img-input">
             画像を選択する
           </label>
-          <input class="img-upload-input" id="img-input" type="file" name="image" accept="image/*"/>
-        </div>
+          <input class="img-upload-input" id="img-input" type="file" accept="image/*"/>
+			  	<input id="file-base64" type="hidden" name="file_base64" value=""/>
+      </div>
         @error('image')
           <p id="img-error" class="c-error-message">{{ $message }}</p>
         @enderror
@@ -81,11 +82,16 @@
     const preview = document.getElementById('preview');
     const background = document.querySelector('.img-upload-background');
     const resetBtn = document.getElementById('reset-btn');
+    const fileBase64 = document.getElementById('file-base64');
     const fileName = document.getElementById('file-name');
     const label = document.getElementById('label');
     const imgError = document.getElementById('img-error');
 
-    imgInput.addEventListener('change', function(e) {
+    // ------------------------------
+    // 関数
+    // ------------------------------
+
+    function showPreview(e) {
       const file = e.target.files[0];
 
       if (file && file.type.startsWith('image/')) {
@@ -95,38 +101,51 @@
         reader.onload = function(e) {
           preview.src = e.target.result;
           preview.style.display = 'block';
+          fileBase64.value = e.target.result;
           background.style.display = 'block';
           resetBtn.style.display = 'block';
           label.style.display = 'none';
-          fileName.textContent = `ファイル名：${file.name}`;
-          if (imgError !== null && imgError !== undefined) {
-              imgError.style.display = 'none';
-          }
         }
-
         reader.readAsDataURL(file);
       }
-    });
+
+      // バリデーションエラーメッセージ削除
+      if (imgError !== null && imgError !== undefined) {
+        imgError.style.display = 'none';
+      }
+
+      // ファイル名の表示
+      fileName.textContent = `ファイル名：${file.name}`;
+    }
 
     function resetPreview() {
       preview.src = '';
       preview.style.display = 'none';
-      background.style.backgroundColor = '#D9D9D9';
+      fileBase64.value = '';
+      background.style.display = 'none';
       resetBtn.style.display = 'none';
       imgInput.value = ''; // ファイル入力をクリア（POSTされる値）
       fileName.textContent = ''; // ファイル名をクリア
       label.style.display = 'grid';
-      background.style.display = 'none';
     }
 
-    resetBtn.addEventListener('click', resetPreview);
-  </script>
+    function switchResetBtn() {
+			// ページが読み込まれた時、base64のデータがある場合はプレビューを表示
+      if (preview.src.includes('data:image')) {
+        preview.style.display = 'block';
+        background.style.display = 'block';
+        resetBtn.style.display = 'block';
+        label.style.display = 'none';
+      }
+    }
 
-  {{-- 画像選択後にファイル名を表示 --}}
-  <script>
-    document.getElementById('img-input').addEventListener('change', function() {
-      var fileName = this.files[0] ? this.files[0].name : '';
-      document.getElementById('file-name').textContent = `ファイル：${fileName}`;
-    });
+    // ------------------------------
+    // イベント
+    // ------------------------------
+
+    document.addEventListener('DOMContentLoaded', switchResetBtn);
+    imgInput.addEventListener('change', showPreview);
+    resetBtn.addEventListener('click', resetPreview);
+
   </script>
 @endsection

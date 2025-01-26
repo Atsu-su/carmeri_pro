@@ -3,6 +3,9 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\File\File;
 
 class ProfileRequest extends FormRequest
 {
@@ -19,7 +22,61 @@ class ProfileRequest extends FormRequest
     public function prepareForValidation()
     {
         $this->merge([
-            'is_changed' => $this->boolean('is_changed'),]);
+            'is_changed' => $this->boolean('is_changed'),
+            'is_no_image' => $this->boolean('is_no_image'),
+        ]);
+    }
+
+    public function validationData()
+    {
+        $all = parent::validationData();
+
+        if ($this->input('is_changed')) {
+          // 画像に変更がある場合
+          if ($this->input('file_base64')) {
+              // base64をデコード。プレフィックスに「data:image/jpeg;base64,」のような文字列がついている場合は除去して処理する
+              $data = explode(',', $this->input('file_base64'));
+              if (isset($data[1])) {
+                  $fileData = base64_decode($data[1]);
+              } else {
+                  $fileData = base64_decode($data[0]);
+              }
+
+              // tmp領域に画像ファイルとして保存しFileでラップする
+              $tmpFilePath = sys_get_temp_dir() . '/' . Str::uuid()->toString();  // 一時ファイルパス（ファイル名を含む）
+              file_put_contents($tmpFilePath, $fileData); // ファイル保存
+              $tmpFile = new File($tmpFilePath);
+
+              $filename = $tmpFile->getFilename();
+
+              // 画像ファイル以外が送信された場合の対策
+              if (strpos($tmpFile->getMimeType(), 'image') !== false) {
+                  $file = new UploadedFile(
+                      $tmpFile->getPathname(),
+                      $filename,
+                      $tmpFile->getMimeType(),
+                      0,
+                      true
+                  );
+
+                  $all['image'] = $file;
+              } else {
+                  // 画像ファイルではない場合（jsで処理できなかった場合）
+                  $all['image'] = 'NOT_IMAGE';
+              }
+          } else if ($this->input('is_no_image')) {
+              // 画像がない場合
+              $all['image'] = null;
+          } else {
+              // 画像ファイルではない場合（jsで処理された場合）
+              $all['image'] = 'NOT_IMAGE';
+          }
+        } else {
+          // 画像に変更がない場合
+          $all['image'] = null;
+        }
+
+        return $all;
     }
 
     /**
@@ -42,8 +99,8 @@ class ProfileRequest extends FormRequest
     public function messages()
     {
         return [
-            'image.image' => '画像ファイルを選択してください',
-            'image.mimes' => 'jpegまたはpng形式の画像ファイルを選択してください',
+            'image.image' => '画像ファイル（jpeg/jpg, png）を選択してください',
+            'image.mimes' => 'jpeg（jpg）またはpng形式の画像ファイルを選択してください',
             'image.max' => 'ファイルサイズは2MB以内にしてください',
             'name.required' => '名前を入力してください',
             'postal_code.required' => '郵便番号を入力してください',

@@ -30,11 +30,14 @@
 
       <div class="img-upload">
         <div id="background" class="c-profile-outer-frame img-upload-preview">
-          {{-- 変更された画像を表示 --}}
-
-          {{-- 登録されている画像を表示 --}}
-          @if ($user->image && Storage::disk('public')->exists('profile_images/'.$user->image))
-            <img id="preview" class="c-profile-inner-frame" src="{{ asset('storage/profile_images/'.$user->image) }}" alt="プロフィールの画像">
+          @php
+            // 通常のプロフィール画像表示（画面遷移時など）
+            $showImage = !$errors->any() && $user->image && Storage::disk('public')->exists('profile_images/'.$user->image);
+            // バリデーションエラー時の表示
+            $validationError = $errors->any() && old('file_base64') && old('is_no_image') == 'false';
+          @endphp
+          @if ($showImage || $validationError)
+            <img id="preview" class="c-profile-inner-frame" src="{{ old('file_base64', asset('storage/profile_images/'.$user->image)) }}" alt="プロフィールの画像">
           @else
             <div id="no-image" class="c-profile-no-image">
               <p>NO</p>
@@ -45,8 +48,10 @@
         <label class="c-btn-img-select c-btn-img-select--profile" for="img-input">
           画像を選択する
         </label>
-        <input class="img-upload-input" id="img-input" type="file" name="image" accept="image/*" style="display: none"/>
+        <input class="img-upload-input" id="img-input" type="file" accept="image/*" style="display: none"/>
+				<input id="file-base64" type="hidden" name="file_base64" value=""/>
         <input id="is-changed" type="hidden" name="is_changed" value="false"/>
+        <input id="is-no-image" type="hidden" name="is_no_image" value="{{ is_null($user->image) ? 'true' : 'false' }}">
         <button class="img-upload-reset c-btn-img-reset c-btn-img-reset--profile" id="reset-btn" type="button">画像を削除</button>
       </div>
       {{-- ここまで c-default影響範囲外 --}}
@@ -84,17 +89,38 @@
     const background = document.getElementById('background');
     const resetBtn = document.getElementById('reset-btn');
     const fileName = document.getElementById('file-name');
+    const fileBase64 = document.getElementById('file-base64');
     const isChanged = document.getElementById('is-changed');
+    const isNoImage = document.getElementById('is-no-image');
 
-    function showPreview() {
-      const file = event.target.files[0];
+    // ------------------------------
+    // 関数
+    // ------------------------------
+
+		// eventはinput要素のchangeイベント
+    function showPreview(e) {
+      // ファイル選択がキャンセルされた場合は何もせず終了
+      if (!e.target.files || e.target.files.length === 0) {
+       return;
+      }
+
+      const file = e.target.files[0]; // input要素が保持するファイル
+      const fileNameText = file ? file.name : '';
+      const noImage = document.getElementById('no-image');
+      let preview = document.getElementById('preview');
+
+      // 背景の初期化（灰色だった場合、白に戻す）
+      background.style.backgroundColor = '#FFF';
 
       if (file && file.type.startsWith('image/')) {
+        // 画像ファイルが選択されたことを示すフラグを立てる
+        isNoImage.value = 'false';
+
+        // ファイルをブラウザに読み込む
         const reader = new FileReader();
 
+        // ファイル読込完了後の処理を定義
         reader.onload = function(e) {
-          let preview = document.getElementById('preview');
-          const noImage = document.getElementById('no-image');
           const imgError = document.getElementById('img-error');
 
           // 画像が変更されたことを示すフラグを立てる
@@ -111,13 +137,17 @@
             background.appendChild(preview);
           }
 
-          preview.src = e.target.result;
-          preview.style.display = 'block';  // 選択された画像を表示
+					// base64のデータを追加（e.targetから取っているだけ）
+          preview.src = e.target.result; // 画面表示
+          fileBase64.value = e.target.result; // inputのvalue
+
+          preview.style.display = 'block'; // 選択された画像を表示
 
           if (noImage) {
             noImage.style.display = 'none';
           }
 
+					// imageのバリデーションエラーが出力されていた場合は画像変更後に削除
           if (imgError !== null && imgError !== undefined) {
               imgError.style.display = 'none';
           }
@@ -126,28 +156,47 @@
         reader.readAsDataURL(file);
         resetBtn.style.display = 'block';
       } else {
+        // 画像ファイルが選択されたことを示すフラグを立てる
+        isNoImage.value = 'true';
+
+				// 画像ファイルが選択されていない場合、プレビューは灰色背景色になる
         if (preview) {
           preview.src = '';
           preview.style.display = 'none';
         }
+
+        if (noImage) {
+          noImage.style.display = 'none';
+        }
+
+        fileBase64.value = '';
+
         background.style.backgroundColor = '#D9D9D9';
+        resetBtn.style.display = 'block';
       }
+
+      fileName.textContent = `ファイル：${file.name}`;
     }
 
     function resetPreview() {
-      let preview = document.getElementById('preview');
+      const preview = document.getElementById('preview');
+      // const fileName = document.getElementById('file-name');
       let noImage = document.getElementById('no-image');
 
       // 画像が変更されたことを示すフラグを立てる
       isChanged.value = 'true';
 
+      // 画像が削除されたことを示すフラグを立てる
+      isNoImage.value = 'true';
+
       if (preview) {
         preview.src = '';
-        preview.style.display = 'none';   // 削除された画像のimg要素を非表示
-        resetBtn.style.display = 'none';
-        imgInput.value = ''; // ファイル入力をクリア（POSTされる値）
-        fileName.textContent = ''; // ファイル名をクリア
+        preview.style.display = 'none'; // 削除された画像のimg要素を非表示
       }
+
+      resetBtn.style.display = 'none';
+      fileBase64.value = ''; // ファイル入力をクリア（POSTされる値）
+      fileName.textContent = ''; // ファイル名をクリア
 
       if (!noImage) {
         noImage = document.createElement('div');
@@ -158,26 +207,25 @@
       } else {
         noImage.style.display = 'block';
       }
+
+      background.style.backgroundColor = '#FFF';
     }
 
     function switchResetBtn() {
       const preview = document.getElementById('preview');
+			// ページが読み込まれたときにプレビュー画像がない場合、削除ボタンを非表示にする
       if (!preview) {
         resetBtn.style.display = 'none';
       }
     }
 
+    // ------------------------------
+    // イベント
+    // ------------------------------
+
     document.addEventListener('DOMContentLoaded', switchResetBtn);
     imgInput.addEventListener('change', showPreview);
     resetBtn.addEventListener('click', resetPreview);
 
-  </script>
-
-  {{-- 画像選択後にファイル名を表示 --}}
-  <script>
-    document.getElementById('img-input').addEventListener('change', function() {
-        var fileName = this.files[0] ? this.files[0].name : '';
-        document.getElementById('file-name').textContent = `ファイル：${fileName}`;
-    });
   </script>
 @endsection

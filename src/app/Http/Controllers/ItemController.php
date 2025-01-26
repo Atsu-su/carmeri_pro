@@ -53,17 +53,20 @@ class ItemController extends Controller
     public function store(ExhibitionRequest $request)
     {
         $user = auth()->user();
+        $validated = $request->validated();
 
-        $extension = $request->file('image')->extension();
+        // $validated['image']を使う
+        $file = $validated['image'];
+
+        $extension = $file->extension();
         $fileName = 'item_image_'. time() . '.' . $extension;
 
         Storage::disk('public')->putFileAs(
             'item_images',
-            $request->file('image'),
+            $file,
             $fileName
         );
 
-        $validated = $request->validated();
         $itemData = array_merge($validated, [
             'seller_id' => $user->id,
             'image' => $fileName,
