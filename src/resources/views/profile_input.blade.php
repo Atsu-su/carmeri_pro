@@ -45,8 +45,8 @@
         <label class="c-btn-img-select c-btn-img-select--profile" for="img-input">
           画像を選択する
         </label>
-        <input class="img-upload-input" id="img-input" type="file" name="image" accept="image/*" style="display: none"/>
-				<input id="file-base64" type="hidden">
+        <input class="img-upload-input" id="img-input" type="file" accept="image/*" style="display: none"/>
+				<input id="file-base64" type="hidden" name="file_base64"/>
         <input id="is-changed" type="hidden" name="is_changed" value="false"/>
         <button class="img-upload-reset c-btn-img-reset c-btn-img-reset--profile" id="reset-btn" type="button">画像を削除</button>
       </div>

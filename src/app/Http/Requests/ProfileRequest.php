@@ -3,6 +3,9 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\File\File;
 
 class ProfileRequest extends FormRequest
 {
@@ -36,21 +39,18 @@ class ProfileRequest extends FormRequest
                 $fileData = base64_decode($data[0]);
             }
 
-            // tmp領域に画像ファイルとして保存してUploadedFileとして扱う
-
-            // ?
-            $tmpFilePath = sys_get_temp_dir() . '/' . Str::uuid()->toString();
-
-            // ?
-            file_put_contents($tmpFilePath, $fileData);
-
-            // ?
+            // tmp領域に画像ファイルとして保存しFileでラップする
+            $tmpFilePath = sys_get_temp_dir() . '/' . Str::uuid()->toString();  // 一時ファイルパス（ファイル名を含む）
+            file_put_contents($tmpFilePath, $fileData); // ファイル保存
             $tmpFile = new File($tmpFilePath);
+
             $filename = $tmpFile->getFilename();
+
             if ($this->get('file_name_base64')) {
                 // ファイル名の指定があればセット
                 $filename = $this->get('file_name_base64');
             }
+
             $file = new UploadedFile(
                 $tmpFile->getPathname(),
                 $filename,
