@@ -30,23 +30,24 @@
 
       <div class="img-upload">
         <div id="background" class="c-profile-outer-frame img-upload-preview">
-          {{-- 変更された画像を表示 --}}
-
-          {{-- 登録されている画像を表示 --}}
-          @if ($user->image && Storage::disk('public')->exists('profile_images/'.$user->image))
-            <img id="preview" class="c-profile-inner-frame" src="{{ asset('storage/profile_images/'.$user->image) }}" alt="プロフィールの画像">
-          @else
+          @php
+            $shouldShowImage = ($user->image && Storage::disk('public')->exists('profile_images/'.$user->image)) || old('file_base64');
+            $showNoImage = !$shouldShowImage || ($errors->any() && old('file_base64') === null);
+          @endphp
+          @if ($showNoImage)
             <div id="no-image" class="c-profile-no-image">
               <p>NO</p>
               <p>IMAGE</p>
             </div>
+          @else
+            <img id="preview" class="c-profile-inner-frame" src="{{ old('file_base64', asset('storage/profile_images/'.$user->image)) }}" alt="プロフィールの画像">
           @endif
         </div>
         <label class="c-btn-img-select c-btn-img-select--profile" for="img-input">
           画像を選択する
         </label>
         <input class="img-upload-input" id="img-input" type="file" accept="image/*" style="display: none"/>
-				<input id="file-base64" type="hidden" name="file_base64"/>
+				<input id="file-base64" type="hidden" name="file_base64" value=""/>
         <input id="is-changed" type="hidden" name="is_changed" value="false"/>
         <button class="img-upload-reset c-btn-img-reset c-btn-img-reset--profile" id="reset-btn" type="button">画像を削除</button>
       </div>
@@ -90,6 +91,9 @@
 		// eventはinput要素のchangeイベント
     function showPreview(e) {
       const file = e.target.files[0]; // input要素が保持するファイル
+
+      // 背景の初期化（灰色だった場合、白に戻す）
+      background.style.backgroundColor = '#FFF';
 
       if (file && file.type.startsWith('image/')) {
         const reader = new FileReader();

@@ -33,16 +33,18 @@ class ProfileController extends Controller
         $currentImage = $user->image;
         $validated = $request->validated();
 
+        // dd($validated, $request->file('image'), $request->input('image'), $validated['image'], $request->input('file_base64'), $request->get('file_base64'));
+
         if ($validated['is_changed']) {
-            if ($request->file('image')) {
+            if (isset($validated['image'])) {
                 // 新しく画像が登録される場合
-                $extension = $request->file('image')->extension();
+                $extension = explode('/', $validated['image']->getMimeType())[1];
                 $fileName = 'profile_image_'. time() . '.' . $extension;
 
                 // 画像を保存（storeAsはテスト時に保存先を変更できないため使用しない）
                 Storage::disk('public')->putFileAs(
                     'profile_images',
-                    $request->file('image'),
+                    $validated['image'],
                     $fileName
                 );
 

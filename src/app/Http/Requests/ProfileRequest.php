@@ -58,8 +58,10 @@ class ProfileRequest extends FormRequest
                 0,
                 true
             );
-            $all['file'] = $file;
+
+            $all['image'] = $file;
         }
+
         return $all;
     }
 
