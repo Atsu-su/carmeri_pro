@@ -178,6 +178,10 @@ return [
          * Fortify Service Providers...
          */
         App\Providers\FortifyServiceProvider::class,
+        /*
+         * Intervation Service Provider...
+         */
+        Intervention\Image\ImageServiceProvider::class,
     ],
 
     /*
@@ -212,6 +216,7 @@ return [
         'Gate' => Illuminate\Support\Facades\Gate::class,
         'Hash' => Illuminate\Support\Facades\Hash::class,
         'Http' => Illuminate\Support\Facades\Http::class,
+        'Image' => Intervention\Image\Facades\Image::class,
         'Js' => Illuminate\Support\Js::class,
         'Lang' => Illuminate\Support\Facades\Lang::class,
         'Log' => Illuminate\Support\Facades\Log::class,
@@ -232,7 +237,6 @@ return [
         'URL' => Illuminate\Support\Facades\URL::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
-
     ],
 
 ];

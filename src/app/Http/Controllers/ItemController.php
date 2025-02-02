@@ -8,16 +8,17 @@ use App\Models\Category;
 use App\Models\CategoryItem;
 use App\Models\Item;
 use App\Models\Like;
-use App\Models\Comment;
 use App\Models\Condition;
 use App\Messages\Session as MessageSession;
+use App\Traits\CompressImage;
 use Exception;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class ItemController extends Controller
 {
+    use CompressImage;
+
     public function show($item_id)
     {
         $item = Item::query()
@@ -56,15 +57,24 @@ class ItemController extends Controller
         $validated = $request->validated();
 
         // $validated['image']を使う
-        $file = $validated['image'];
+        $image = $validated['image'];
 
-        $extension = $file->extension();
+        $extension = $image->extension();
         $fileName = 'item_image_'. time() . '.' . $extension;
 
-        Storage::disk('public')->putFileAs(
-            'item_images',
-            $file,
-            $fileName
+        // 画像を圧縮
+        $resizedImage = $this->compressImage(
+            $image->getRealPath(),
+            700,
+            700,
+            $image->getMimeType(),
+            ['jpeg' => 75, 'png' => 75]
+        );
+
+        // メモリ上のImageインスタンスを保存するのでputメソッドを使用
+        Storage::disk('public')->put(
+            'item_images/'.$fileName,
+            $resizedImage,
         );
 
         $itemData = array_merge($validated, [

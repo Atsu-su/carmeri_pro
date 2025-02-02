@@ -5,14 +5,16 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ProfileRequest;
 use App\Messages\Message;
 use App\Messages\Session as MessageSession;
+use App\Traits\CompressImage;
 use Exception;
-use Illuminate\Http\Request;
+use Image;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Symfony\Component\HttpKernel\Profiler\Profile;
 
 class ProfileController extends Controller
 {
+    use CompressImage;
+
     public function edit()
     {
         $user = auth()->user();
@@ -32,18 +34,28 @@ class ProfileController extends Controller
         $user = auth()->user();
         $currentImage = $user->image;
         $validated = $request->validated();
+        $image = $validated['image'];
 
         if ($validated['is_changed']) {
-            if (isset($validated['image'])) {
+            if (isset($image)) {
                 // 新しく画像が登録される場合
-                $extension = explode('/', $validated['image']->getMimeType())[1];
-                $fileName = 'profile_image_'. time() . '.' . $extension;
+                $extension = explode('/', $image->getMimeType())[1];
+                $fileName = 'profile_image_'. time().'.'.$extension;
+
+                // 画像を圧縮
+                $resizedImage = $this->compressImage(
+                    $image->getRealPath(),
+                    102,
+                    102,
+                    $image->getMimeType(),
+                    ['jpeg' => 75, 'png' => 75]
+                );
 
                 // 画像を保存（storeAsはテスト時に保存先を変更できないため使用しない）
-                Storage::disk('public')->putFileAs(
-                    'profile_images',
-                    $validated['image'],
-                    $fileName
+                // メモリ上のImageインスタンスを保存するのでputメソッドを使用
+                Storage::disk('public')->put(
+                    'profile_images/'.$fileName,
+                    $resizedImage,
                 );
 
                 $validated['image'] = $fileName;

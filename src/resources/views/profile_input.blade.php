@@ -20,14 +20,6 @@
     <form class="form" action="{{ route('profile.update') }}" method="post" enctype="multipart/form-data">
       @csrf
       {{-- c-default影響範囲外 ここから --}}
-
-      {{--
-          画像関係の流れ
-          1. 登録済みの画像を表示する(done)
-          2. 画像に変更が発生しない場合、コントローラでimageのアップデートは行わない
-          3. 画像が変更された場合、画像を表示し、コントローラでimageのアップデートを行う
-      --}}
-
       <div class="img-upload">
         <div id="background" class="c-profile-outer-frame img-upload-preview">
           @php
