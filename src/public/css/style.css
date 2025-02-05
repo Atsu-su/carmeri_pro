@@ -1548,28 +1548,6 @@ body {
   border-bottom: 1px solid var(--color-border-gray);
 }
 
-#purchase .info-payment-title {
-  margin-left: 35px;
-  margin-bottom: 30px;
-  font-size: calc(20 / 24 * 1rem);
-  font-weight: 700;
-}
-
-#purchase .info-payment-type {
-  margin-left: 96px;
-  margin-bottom: 63px;
-
-}
-
-#purchase .info-payment-type select {
-  padding: 0 0 5px 10px;
-  width: 265px;
-  height: 30px;
-  line-height: 1;
-  border: 1px solid var(--color-border-gray);
-  border-radius: 4px;;
-}
-
 #purchase .info-delivery-header {
   margin-bottom: 30px;
   display: flex;

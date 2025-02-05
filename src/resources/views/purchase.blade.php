@@ -22,19 +22,6 @@
           <p class="info-item-value-price">¥ {{ number_format($item->price) }}</p>
         </div>
       </div>
-      <div class="info-payment">
-        <h2 class="info-payment-title">支払方法</h2>
-        <div class="info-payment-type">
-          <select id="select" name="payment_method_id">
-            <option value="" selected>未選択</option>
-            <option value="1">コンビニ払い</option>
-            <option value="2">カード払い</option>
-          </select>
-          @error('payment_method_id')
-            <p class="c-error-message">{{ $message }}</p>
-          @enderror
-        </div>
-      </div>
       <div class="info-delivery">
         <div class="info-delivery-header">
           <h2 class="info-delivery-header-title">配送先</h2>
@@ -53,10 +40,6 @@
           <th>商品代金</th>
           <td>¥ {{ number_format($item->price) }}</td>
         </tr>
-        <tr class="summary-payment-type">
-          <th>支払方法</th>
-          <td id="payment-type">未選択</td>
-        </tr>
       </table>
       @if (is_null($item->purchase))
         <button class="c-btn c-btn--red" type="submit">購入する</button>
@@ -69,13 +52,4 @@
     </div>
   </form>
 </div>
-<script>
-  const select = document.getElementById('select');
-  const paymentType = document.getElementById('payment-type');
-
-  select.addEventListener('change', (e) => {
-    const selectedPaymentType = e.target.selectedOptions[0].textContent;
-    paymentType.textContent = selectedPaymentType;
-  });
-</script>
 @endsection
