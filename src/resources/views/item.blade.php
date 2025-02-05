@@ -54,7 +54,7 @@
       <div class="item-detail-comment">
         <h2 class="item-detail-comment-title">コメント({{ $item->comments_count}})</h2>
 
-        {{-- ここからコメント --}}
+        {{-- ここからコメント表示 --}}
         @foreach ($item->comments as $comment)
           <div class="item-detail-comment-commenter">
             <div class="item-detail-comment-commenter-frame">
@@ -69,39 +69,48 @@
           </div>
           <pre class="c-pre item-detail-comment-body">{{ $comment->comment }}</pre>
         @endforeach
-        {{-- ここまでコメント --}}
+        {{-- ここまでコメント表示 --}}
 
+        {{-- ここからコメント作成 --}}
         <h3 class="item-detail-comment-title-form">商品へのコメント</h3>
         @if (auth()->check())
-        <div class="item-detail-comment-form">
-          <form action="{{ route('comment.store', $item->id)}}" method="post">
-            @csrf
-            <textarea name="comment" id="comment" cols="30" rows="10"></textarea>
-            @error('comment')
-              <p class="c-error-message">{{ $message }}</p>
-            @enderror
-            <button class="item-detail-comment-form-btn c-btn c-btn--item" type="submit">コメントを送信する</button>
-          </form>
-        </div>
+          <div class="item-detail-comment-form">
+            <form action="{{ route('comment.store', $item->id)}}" method="post">
+              @csrf
+              <textarea name="comment" id="comment" cols="30" rows="10"></textarea>
+              @error('comment')
+                <p class="c-error-message">{{ $message }}</p>
+              @enderror
+              <button id="submit-comment-btn" class="c-btn c-btn--item" type="submit">コメントを送信する</button>
+            </form>
+          </div>
         @else
-        <p class="item-detail-comment-login">コメントをするには<a href="{{route('login')}}">ログイン</a>が必要です。</p>
+          <p class="item-detail-comment-login">コメントをするには<a href="{{route('login')}}">ログイン</a>が必要です。</p>
         @endif
+        {{-- ここまでコメント作成 --}}
       </div>
     </div>
   </div>
   @if (auth()->check())
   <script>
-    function toggleLike(itemId, url) {
-      // 重複処理抑止用1
-      const csrf = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-      const icon = document.getElementById('like-icon');
+    // ------------------------------
+    // 関数
+    // ------------------------------
 
-      if (icon.classList.contains('js-processing')) {
+    // いいねの状態を変更するのみで、その時点でのいいねの数は取得していない
+    // その時点のいいねの数を取得するには画面のリロードが必要
+    function toggleLike(itemId, url) {
+      const csrf = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+      const likeIcon = document.getElementById('like-icon');
+      const likes = document.getElementById('number-of-likes');
+
+      // 重複処理抑止用1
+      if (likeIcon.classList.contains('js-processing')) {
         console.log('処理中です');
         return;
       }
 
-      icon.classList.add('js-processing');
+      likeIcon.classList.add('js-processing');
 
       // いいねの状態を変更
       fetch(url, {
@@ -115,8 +124,6 @@
           }
           return response.json();
       }).then(data => {
-          const likeIcon = document.getElementById('like-icon');
-          const likes = document.getElementById('number-of-likes');
           if (data.likeIt) {
             likes.textContent = parseInt(likes.textContent) + 1;  // いいねの数を増やす
             likeIcon.classList.add('filled'); // 星の色を黄色に変更
@@ -128,9 +135,30 @@
           console.error('There has been a problem with your fetch operation:', error);
       }).finally(() => {
         // 重複処理抑止用2
-        icon.classList.remove('js-processing');
+        likeIcon.classList.remove('js-processing');
       });
     }
+
+    // ------------------------------
+    // イベント
+    // ------------------------------
+
+    const textarea = document.getElementById('comment');
+    const submitButton = document.getElementById('submit-comment-btn');
+
+    // inputイベントは文字が入力されるたびに発火します
+    textarea.addEventListener('input', function() {
+        // 空白を除去した値の長さをチェック
+        if (this.value.trim().length > 0) {
+            submitButton.disabled = false;  // ボタンを有効化
+        } else {
+            submitButton.disabled = true;   // ボタンを無効化
+        }
+    });
+
+    // 初期状態では無効化しておく
+    submitButton.disabled = true;
+
   </script>
   @endif
 @endsection
