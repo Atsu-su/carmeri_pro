@@ -1012,8 +1012,11 @@ body {
 }
 
 #item .item-detail-icons-like {
-  cursor: pointer;
   background-image: url(../img/icon_like.svg);
+}
+
+#item .item-detail-icons-like.pointer {
+  cursor: pointer;
 }
 
 #item .item-detail-icons-like.filled {
@@ -1126,6 +1129,71 @@ body {
   border-radius: 5px;
   background-color: var(--color-bg-comment);
 }
+
+#item .item-detail-comment-body-container {
+  display: flex;
+  gap: 20px;
+  justify-content: flex-end;
+}
+
+#item .item-detail-comment-body-container a {
+  color: var(--color-font-blue);
+  cursor: pointer;
+}
+
+#item .item-detail-comment-body-container a:hover {
+  opacity: 0.6;
+}
+
+#item .item-detail-comment-body-error {
+  text-align: right;
+}
+
+/* コメント編集／削除モーダル */
+#item .item-detail-comment-edit-modal,
+#item .item-detail-comment-delete-modal {
+  padding: 30px;
+  width: 550px;
+  background-color: var(--color-bg-btn-white);
+  border: 1px solid var(--color-border-gray);
+}
+
+#item .item-detail-comment-edit-modal textarea {
+  padding: 10px;
+  width: 100%;
+  max-width: 500px;
+  height: 200px;
+  font-size: 1rem;
+  border: 1px solid var(--color-border-gray);
+  border-radius: 4px;
+}
+
+#item .item-detail-comment-edit-modal textarea:focus {
+  outline: none;
+  border: 2px solid var(--color-border-black);
+}
+
+#item .item-detail-comment-edit-modal button {
+  margin-top: 20px;
+}
+
+#item .item-detail-comment-edit-modal a,
+#item .item-detail-comment-delete-modal a {
+  margin-top: 20px;
+  display: block;
+  color: var(--color-font-blue);
+  cursor: pointer;
+  text-align: center;
+  /* hoverした際、1px分だけ高さが変わるため追加 */
+  border: 1px solid transparent;
+}
+
+#item .item-detail-comment-edit-modal a:hover,
+#item .item-detail-comment-delete-modal a:hover {
+  border: 1px solid var(--color-border-gray);
+  border-radius: 4px;
+}
+
 
 #item .item-detail-comment-title-form {
   font-size: 1.167rem;  /* 28px */

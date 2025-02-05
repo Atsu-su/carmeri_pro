@@ -10,6 +10,7 @@ use App\Models\Item;
 use App\Models\Like;
 use App\Models\Condition;
 use App\Messages\Session as MessageSession;
+use App\Models\Comment;
 use App\Traits\CompressImage;
 use Exception;
 use Illuminate\Support\Facades\DB;
@@ -22,26 +23,50 @@ class ItemController extends Controller
     public function show($item_id)
     {
         $item = Item::query()
-            ->with(['categoryItems.category', 'condition', 'comments.user'])
-            ->withCount('likes')
-            ->withCount('comments')
-            ->find($item_id);
+        ->with(['categoryItems.category', 'condition'])
+        ->withCount('likes')
+        ->withCount('comments')
+        ->find($item_id);
 
+        // ログインしていなくても商品情報は表示可能なため確認する
         if (auth()->check()) {
-            // いいねしているかどうかを判定（true or false）
             $user = auth()->user();
+
+            // ログインしているユーザのコメント
+            $myComment = Comment::query()
+                ->with('user')
+                ->where('item_id', $item_id)
+                ->where('user_id', $user->id)
+                ->first();
+
+            // 他のユーザのコメント
+            $comments = Comment::query()
+                ->with('user')
+                ->where('item_id', $item_id)
+                ->where('user_id', '!=', $user->id)
+                ->get();
+
+            // いいねしているかどうかを判定（true or false）
             $like = Like::query()
                 ->where('item_id', $item_id)
                 ->where('user_id', $user->id)
                 ->exists();
         } else {
+            // ログインしていない場合
+            $myComment = null;
+            $comments = Comment::query()
+                ->with('user')
+                ->where('item_id', $item_id)
+                ->get();
+
+            // ログインしていないのでいいねの表示は行わない
             $like = false;
         }
 
         // リダイレクトされた場合に存在する可能性のあるメッセージを処理
         $message = MessageSession::exists('message');
 
-        return view('item', compact('item', 'like', 'message'));
+        return view('item', compact('item', 'like', 'message', 'myComment', 'comments'));
     }
 
     public function create()

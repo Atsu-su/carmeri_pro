@@ -32,6 +32,8 @@ Route::middleware('header')->group(function () {
         Route::post('/mypage/profile', [ProfileController::class, 'update'])->name('profile.update');
         Route::post('/item/{item_id}/like', [LikeController::class, 'toggleLike'])->name('like');
         Route::post('/item/{item_id}/comment', [CommentController::class, 'store'])->name('comment.store');
+        Route::post('/item/{item_id}/comment/update/{comment_id}', [CommentController::class, 'update'])->name('comment.update');
+        Route::post('/item/{item_id}/comment/delete/{comment_id}', [CommentController::class, 'delete'])->name('comment.delete');
         Route::get('/purchase/address/{item_id}', [AddressController::class, 'edit'])->name('address.edit');
         Route::post('/purchase/address/{item_id}', [AddressController::class, 'update'])->name('address.update');
         Route::get('/purchase/{item_id}', [PurchaseController::class, 'index'])->name('purchase');

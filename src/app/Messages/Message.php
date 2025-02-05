@@ -57,10 +57,34 @@ class Message
         ],
 
         'comment' => [
+            'success' => [
+                'create' => [
+                    'status' => self::SUCCESS,
+                    'title' => 'コメントを投稿しました',
+                    'contents' => [''],
+                ],
+                'update' => [
+                    'status' => self::SUCCESS,
+                    'title' => 'コメントを更新しました',
+                    'contents' => [''],
+                ],
+                'delete' => [
+                    'status' => self::SUCCESS,
+                    'title' => 'コメントを削除しました',
+                    'contents' => [''],
+                ],
+            ],
             'failed' => [
-                'status' => self::ERROR,
-                'title' => 'コメントの登録に失敗しました',
-                'contents' => ['申し訳ございません', 'お手数ですが、しばらく時間をおいて再度お試しください'],
+                'create' => [
+                    'status' => self::ERROR,
+                    'title' => 'コメントの登録に失敗しました',
+                    'contents' => ['申し訳ございません', 'お手数ですが、しばらく時間をおいて再度お試しください'],
+                ],
+                'update' => [
+                    'status' => self::ERROR,
+                    'title' => 'コメントの更新に失敗しました',
+                    'contents' => ['申し訳ございません', 'お手数ですが、しばらく時間をおいて再度お試しください'],
+                ],
             ],
         ],
 
