@@ -717,6 +717,24 @@ html {
   margin-top: 10px;
 }
 
+/* ---------------------- */
+/* スピナー
+/* ---------------------- */
+.c-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #fff;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  box-sizing: border-box;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
 /* =========================== */
 /*
 /* js用クラス
@@ -874,6 +892,16 @@ body {
 /* ----------------------- */
 #index {
   margin-top: 50px;
+}
+
+#index .first-tab-img-container {
+  position: relative;
+}
+
+#index .c-spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
 }
 
 #index .second-tab-login {

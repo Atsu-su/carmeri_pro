@@ -45,4 +45,9 @@ Route::middleware('header')->group(function () {
         Route::get('/payment/success/{purchase_id}', [PurchaseController::class, 'success'])->name('payment.success');
         Route::get('/payment/cancel/{purchase_id}', [PurchaseController::class, 'cancel'])->name('payment.cancel');
     });
+
+    // 画像スクロールロードのためのルーティング
+    Route::get('test/scroll', function () {
+        return view('prototype.image_loader_v2');
+    });
 });

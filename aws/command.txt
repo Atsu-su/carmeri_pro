@@ -1,0 +1,5 @@
+mysql -h database-1.ch0q0im2kq23.ap-northeast-3.rds.amazonaws.com -P 3306 -u admin -p
+ALTER USER 'admin'@'%' IDENTIFIED BY 'laravel_pass';
+SELECT Host, User FROM mysql.user;
+
+koizumi.akira@example.com
