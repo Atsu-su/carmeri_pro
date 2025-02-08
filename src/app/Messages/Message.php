@@ -61,17 +61,17 @@ class Message
                 'create' => [
                     'status' => self::SUCCESS,
                     'title' => 'コメントを投稿しました',
-                    'contents' => [''],
+                    'contents' => ['引き続き、お買い物をお楽しみください'],
                 ],
                 'update' => [
                     'status' => self::SUCCESS,
                     'title' => 'コメントを更新しました',
-                    'contents' => [''],
+                    'contents' => ['引き続き、お買い物をお楽しみください'],
                 ],
                 'delete' => [
                     'status' => self::SUCCESS,
                     'title' => 'コメントを削除しました',
-                    'contents' => [''],
+                    'contents' => ['引き続き、お買い物をお楽しみください'],
                 ],
             ],
             'failed' => [
