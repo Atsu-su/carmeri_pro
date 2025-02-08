@@ -148,54 +148,6 @@
   </div>
   @if (auth()->check())
     <script>
-    // ---------------------------------------------------------
-    // 修正内容
-    // ---------------------------------------------------------
-    // async function toggleLike(itemId, url) {
-    //   const csrf = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-    //   const likeIcon = document.getElementById('like-icon');
-    //   const likes = document.getElementById('number-of-likes');
-
-    //   // 重複処理抑止用1
-    //   if (likeIcon.classList.contains('js-processing')) {
-    //     console.log('処理中です');
-    //     return;
-    //   }
-
-    //   likeIcon.classList.add('js-processing');
-
-    //   try {
-    //     const response = await fetch(url, {
-    //       method: 'POST',
-    //       headers: {
-    //         'Content-Type': 'application/json',
-    //         'X-CSRF-TOKEN': csrf
-    //       }
-    //     });
-
-    //     if (!response.ok) {
-    //       throw new Error('Network response was not OK');
-    //     }
-
-    //     const data = await response.json();
-
-    //     if (data.likeIt) {
-    //       likes.textContent = parseInt(likes.textContent) + 1;
-    //       likeIcon.classList.add('filled');
-    //     } else {
-    //       likes.textContent = parseInt(likes.textContent) - 1;
-    //       likeIcon.classList.remove('filled');
-    //     }
-    //   } catch (error) {
-    //     console.error('There has been a problem with your fetch operation:', error);
-    //   } finally {
-    //     likeIcon.classList.remove('js-processing');
-    //   }
-    // }
-    // ---------------------------------------------------------
-    </script>
-
-    <script>
       // ------------------------------
       // 関数
       // ------------------------------
@@ -205,7 +157,7 @@
       // ------------------
       // いいねの状態を変更するのみで、その時点でのいいねの数は取得していない
       // その時点のいいねの数を取得するには画面のリロードが必要
-      function toggleLike(itemId, url) {
+      async function toggleLike(itemId, url) {
         const csrf = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         const likeIcon = document.getElementById('like-icon');
         const likes = document.getElementById('number-of-likes');
@@ -218,95 +170,100 @@
 
         likeIcon.classList.add('js-processing');
 
-        // いいねの状態を変更
-        fetch(url, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': csrf}
-        }).then(response =>  {
-            if (!response.ok) {
-              throw new Error('Network response was not OK');
+        try {
+          const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRF-TOKEN': csrf
             }
-            return response.json();
-        }).then(data => {
-            if (data.likeIt) {
-              likes.textContent = parseInt(likes.textContent) + 1;  // いいねの数を増やす
-              likeIcon.classList.add('filled'); // 星の色を黄色に変更
-            } else {
-              likes.textContent = parseInt(likes.textContent) - 1;  // いいねの数を減らす
-              likeIcon.classList.remove('filled'); // 星の色を白色に変更
-            }
-        }).catch(error => {
-            console.error('There has been a problem with your fetch operation:', error);
-        }).finally(() => {
-          // 重複処理抑止用2
-          likeIcon.classList.remove('js-processing');
-        });
-      }
+          });
 
-      // ------------------
-      // コメント編集モーダル
-      // ------------------
-      // 変数名の修正から（削除が発生したため重複する）
-      const updateComment = document.getElementById('update-comment');
-      const closeEditModal = document.getElementById('close-edit-modal');
-      const editDialog = document.getElementById('edit-modal');
-
-      closeEditModal.addEventListener('click', function(event) {
-        event.preventDefault();
-        editDialog.close();
-      });
-
-      updateComment.addEventListener('click', function(event) {
-          event.preventDefault();
-          editDialog.showModal();
-
-          // textareaが空の場合、編集対象のコメントを取得
-          const preview = document.getElementById('comment-preview');
-          const editTextarea = document.getElementById('edit-textarea');
-          editTextarea.textContent ? null : editTextarea.textContent = preview.textContent;
-      });
-
-      // ------------------
-      // コメント削除モーダル
-      // ------------------
-      const deleteComment = document.getElementById('delete-comment');
-      const closeDeleteModal = document.getElementById('close-delete-modal');
-      const deleteDialog = document.getElementById('delete-modal');
-
-      closeDeleteModal.addEventListener('click', function(event) {
-        event.preventDefault();
-        deleteDialog.close();
-      });
-
-      deleteComment.addEventListener('click', function(event) {
-          event.preventDefault();
-          deleteDialog.showModal();
-      });
-    </script>
-
-  @elseif (auth()->check() && !isset($myComment)) {
-    <script>
-      // ------------------
-      // コメント入力チェック
-      // ------------------
-      const textarea = document.getElementById('comment');
-      const submitButton = document.getElementById('submit-comment-btn');
-
-      // inputイベントは文字が入力されるたびに発火します
-      textarea.addEventListener('input', function() {
-          // 空白を除去した値の長さをチェック
-          if (this.value.trim().length > 0) {
-              submitButton.disabled = false;  // ボタンを有効化
-          } else {
-              submitButton.disabled = true;   // ボタンを無効化
+          if (!response.ok) {
+            throw new Error('Network response was not OK');
           }
-      });
 
-      // 初期状態では無効化しておく
-      submitButton.disabled = true;
+          const data = await response.json();
+
+          if (data.likeIt) {
+            likes.textContent = parseInt(likes.textContent) + 1;  // いいねの数を増やす
+            likeIcon.classList.add('filled'); // 星の色を黄色に変更
+          } else {
+            likes.textContent = parseInt(likes.textContent) - 1;  // いいねの数を減らす
+            likeIcon.classList.remove('filled'); // 星の色を白色に変更
+          }
+        } catch (error) {
+          console.error('There has been a problem with your fetch operation:', error);
+        } finally {
+          likeIcon.classList.remove('js-processing');
+        }
+      }
     </script>
-  }
+
+    @if (!empty($myComment))
+      <script>
+        // ------------------
+        // コメント編集モーダル
+        // ------------------
+        // 変数名の修正から（削除が発生したため重複する）
+        const updateComment = document.getElementById('update-comment');
+        const closeEditModal = document.getElementById('close-edit-modal');
+        const editDialog = document.getElementById('edit-modal');
+
+        closeEditModal.addEventListener('click', function(event) {
+          event.preventDefault();
+          editDialog.close();
+        });
+
+        updateComment.addEventListener('click', function(event) {
+            event.preventDefault();
+            editDialog.showModal();
+
+            // textareaが空の場合、編集対象のコメントを取得
+            const preview = document.getElementById('comment-preview');
+            const editTextarea = document.getElementById('edit-textarea');
+            editTextarea.textContent ? null : editTextarea.textContent = preview.textContent;
+        });
+
+        // ------------------
+        // コメント削除モーダル
+        // ------------------
+        const deleteComment = document.getElementById('delete-comment');
+        const closeDeleteModal = document.getElementById('close-delete-modal');
+        const deleteDialog = document.getElementById('delete-modal');
+
+        closeDeleteModal.addEventListener('click', function(event) {
+          event.preventDefault();
+          deleteDialog.close();
+        });
+
+        deleteComment.addEventListener('click', function(event) {
+            event.preventDefault();
+            deleteDialog.showModal();
+        });
+      </script>
+
+    @else
+      <script>
+        // ------------------
+        // コメント入力チェック
+        // ------------------
+        const textarea = document.getElementById('comment');
+        const submitButton = document.getElementById('submit-comment-btn');
+
+        // inputイベントは文字が入力されるたびに発火します
+        textarea.addEventListener('input', function() {
+            // 空白を除去した値の長さをチェック
+            if (this.value.trim().length > 0) {
+                submitButton.disabled = false;  // ボタンを有効化
+            } else {
+                submitButton.disabled = true;   // ボタンを無効化
+            }
+        });
+
+        // 初期状態では無効化しておく
+        submitButton.disabled = true;
+      </script>
+    @endif
   @endif
 @endsection
