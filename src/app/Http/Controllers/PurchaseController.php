@@ -5,12 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Item;
 use App\Models\Purchase;
 use App\Models\User;
-use App\Http\Requests\PurchaseRequest;
 use App\Messages\Session as MessageSession;
 use App\Messages\Message;
 use Exception;
-use GuzzleHttp\Psr7\Message as Psr7Message;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Stripe\Stripe;
@@ -26,7 +23,7 @@ class PurchaseController extends Controller
         return view('purchase', compact('user', 'item', 'message'));
     }
 
-    public function store(PurchaseRequest $request, $item_id)
+    public function store($item_id)
     {
         $user = auth()->user();
 
@@ -49,7 +46,6 @@ class PurchaseController extends Controller
             $purchase = Purchase::create([
                 'item_id' => $item->id,
                 'buyer_id' => $user->id,
-                'payment_method_id' => $request->input('payment_method_id'),
                 'status' => 'processing',
             ]);
 
@@ -64,6 +60,7 @@ class PurchaseController extends Controller
         }
     }
 
+    // このクラスのstoreメソッドで呼び出される
     public function stripe(Item $item, User $user, Purchase $purchase)
     {
         Stripe::setApiKey(config('stripe.stripe_secret_key'));
