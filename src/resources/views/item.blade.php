@@ -78,30 +78,33 @@
           <div class="item-detail-comment-body">
             <pre id="comment-preview" class="c-pre">{{ $myComment->comment }}</pre>
             <div class="item-detail-comment-body-container">
-              <a id="update-comment" class="item-detail-comment-body-edit">編集</a>
-              <a id="delete-comment" class="item-detail-comment-body-delete">削除</a>
+              @if ($item->isOnSale())
+                <a id="update-comment" class="item-detail-comment-body-edit">編集</a>
+                <a id="delete-comment" class="item-detail-comment-body-delete">削除</a>
+                {{-- モーダル（dialog） --}}
+                {{-- 編集 --}}
+                <dialog id="edit-modal" class="item-detail-comment-edit-modal">
+                  <form action="{{ route('comment.update', ['item_id' => $item->id, 'comment_id' => $myComment->id ])}}" method="post">
+                    @csrf
+                    <textarea id="edit-textarea" name="comment" cols="30" rows="10">{{ old('comment') }}</textarea>
+                    <button class="c-btn c-btn--item" type="submit">コメントを更新する</button>
+                    <a id="close-edit-modal" class="">キャンセル</a>
+                  </form>
+                </dialog>
+                {{-- 削除 --}}
+                <dialog id="delete-modal" class="item-detail-comment-delete-modal">
+                  <form action="{{ route('comment.delete', ['item_id' => $item->id, 'comment_id' => $myComment->id ])}}" method="post">
+                    @csrf
+                    <button class="c-btn c-btn--item" type="submit">コメントを削除する</button>
+                    <a id="close-delete-modal">キャンセル</a>
+                  </form>
+                </dialog>
+              @endif
             </div>
             @error('comment')
               <p class="c-error-message item-detail-comment-body-error">{{ $message }}</p>
             @enderror
           </div>
-          {{-- 編集 --}}
-          <dialog id="edit-modal" class="item-detail-comment-edit-modal">
-            <form action="{{ route('comment.update', ['item_id' => $item->id, 'comment_id' => $myComment->id ])}}" method="post">
-              @csrf
-              <textarea id="edit-textarea" name="comment" cols="30" rows="10">{{ old('comment') }}</textarea>
-              <button class="c-btn c-btn--item" type="submit">コメントを更新する</button>
-              <a id="close-edit-modal" class="">キャンセル</a>
-            </form>
-          </dialog>
-          {{-- 削除 --}}
-          <dialog id="delete-modal" class="item-detail-comment-delete-modal">
-            <form action="{{ route('comment.delete', ['item_id' => $item->id, 'comment_id' => $myComment->id ])}}" method="post">
-              @csrf
-              <button class="c-btn c-btn--item" type="submit">コメントを削除する</button>
-              <a id="close-delete-modal">キャンセル</a>
-            </form>
-          </dialog>
         @endif
         @if (isset($comments))
           @foreach ($comments as $comment)
