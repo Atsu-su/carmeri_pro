@@ -5,21 +5,27 @@
 @endsection
 @section('content')
   <div id="item-input">
-    <h1 class="title">商品の出品</h1>
-    <form class="form" action="{{ route('sell.store') }}" method="post" enctype="multipart/form-data">
+    @if (!isset($item))
+      <h1 class="title">商品の出品</h1>
+      <form class="form" action="{{ route('sell.store') }}" method="post" enctype="multipart/form-data">
+    @else
+      <h1 class="title">商品情報の変更</h1>
+      <form class="form" action="{{ route('sell.update', $item->id) }}" method="post" enctype="multipart/form-data">
+    @endif
       @csrf
       <div class="img-upload">
         <h2 class="img-upload-title">商品の画像</h2>
         <div class="img-upload-container">
           <div id="background" class="img-upload-background">
-            <img id="preview" src="{{ old('file_base64', '') }}" width="100" height="100">
+            <img id="preview" src="{{ !isset($item) ? old('file_base64') : old('file_base64') ?? asset('storage/item_images/'.$item->image) }}" width="100" height="100">
           </div>
           <label id="label" class="img-upload-img-select c-btn-img-select c-btn-img-select--profile" for="img-input">
             画像を選択する
           </label>
           <input class="img-upload-input" id="img-input" type="file" accept="image/*"/>
-			  	<input id="file-base64" type="hidden" name="file_base64" value=""/>
-      </div>
+          <input id="file-base64" type="hidden" name="file_base64" value="{{ old('file_base64') }}"/>
+          <input id="is-changed" type="hidden" name="is_changed" value="{{ old('is_changed', 'false') }}"/>
+        </div>
         @error('image')
           <p id="img-error" class="c-error-message">{{ $message }}</p>
         @enderror
@@ -30,7 +36,7 @@
       <label class="form-name form-name-category">カテゴリ</label>
       <div class="form-category">
         @foreach ($categories as $category)
-          <input type="checkbox" id="{{ $loop->iteration }}" value="{{ $category->id }}" name="category_id[]" {{in_array($category->id, old('category_id', [])) ? 'checked' : '' }}>
+          <input type="checkbox" id="{{ $loop->iteration }}" value="{{ $category->id }}" name="category_id[]" {{in_array($category->id, old('category_id', $categoryIdArray ?? [])) ? 'checked' : '' }}>
           <label for="{{ $loop->iteration }}">{{ $category->category }}</label>
         @endforeach
       </div>
@@ -42,38 +48,54 @@
         <select class="form-condition" name="condition_id">
           <option value="">選択してください</option>
           @foreach ($conditions as $condition)
-            <option value="{{ $condition->id }}" {{ old('condition') == $condition->id ? 'selected' : '' }}>{{ $condition->condition}}</option>
+              <option value="{{ $condition->id }}" {{ old('condition_id', $item->condition_id ?? '') == $condition->id ? 'selected' : '' }}>{{ $condition->condition}}</option>
           @endforeach
         </select>
-        @error('condition')
+        @error('condition_id')
           <p class="c-error-message">{{ $message }}</p>
         @enderror
       </div>
       <h2 class="form-title form-title-detail">商品名と説明</h2>
       <label class="form-name">商品名</label>
-      <input class="form-input" type="text" name="name" value="{{ old('name') }}">
+      <input class="form-input" type="text" name="name" value="{{ old('name', $item->name ?? '') }}">
       @error('name')
         <p class="c-error-message">{{ $message }}</p>
       @enderror
       <label class="form-name form-name-brand">ブランド</label>
-      <input class="form-input" type="text" name="brand" value="{{ old('brand') }}">
+      <input class="form-input" type="text" name="brand" value="{{ old('brand', $item->brand ?? '') }}">
       @error('brand')
         <p class="c-error-message">{{ $message }}</p>
       @enderror
       <label class="form-name form-name-description">商品の説明</label>
-      <textarea class="form-textarea" name="description"> {{ old('description') }}</textarea>
+      <textarea class="form-textarea" name="description"> {{ old('description', $item->description ?? '') }}</textarea>
       @error('description')
         <p class="c-error-message">{{ $message }}</p>
       @enderror
       <label class="form-name form-name-price">販売価格</label>
       <div class="form-price-wrapper">
-        <input class="form-input form-input-price" type="text" name="price" value="{{ old('price') }}">
+        <input class="form-input form-input-price" type="text" name="price" value="{{ old('price', $item->price ?? '')}}">
       </div>
       @error('price')
         <p class="c-error-message">{{ $message }}</p>
       @enderror
-      <button class="form-btn c-btn c-btn--red" type="submit">登録する</button>
+      @if (!isset($item))
+        <button class="form-btn c-btn c-btn--red" type="submit">登録する</button>
+      @else
+        <button class="form-btn c-btn c-btn--red" type="submit">変更する</button>
+        <button id="withdraw-btn" class="c-btn c-btn--delete">出品を取り下げる</button>
+      @endif
     </form>
+    @if (isset($item))
+    <dialog id="withdraw-modal" class="form-modal">
+      <form action="{{ route('sell.delete', ['item_id' => $item->id]) }}" method="POST">
+        @csrf
+        @method('DELETE')
+        <p>出品を取り下げますか？</p>
+        <button class="form-modal-btn c-btn c-btn--red" type="submit">はい</button>
+        <a id="close-withdraw-modal" class="form-modal-cancel c-cancel-btn">いいえ</a>
+      </form>
+    </dialog>
+    @endif
   </div>
 
   {{-- 画像プレビュー --}}
@@ -86,6 +108,9 @@
     const fileName = document.getElementById('file-name');
     const label = document.getElementById('label');
     const imgError = document.getElementById('img-error');
+    const imagePath = ({{ Js::from(asset('storage/item_images')) }});
+    // 新しく画像が追加された場合、または画像が削除された場合にtrueになる
+    const isChanged = document.getElementById('is-changed');
 
     // ------------------------------
     // 関数
@@ -105,6 +130,9 @@
           background.style.display = 'block';
           resetBtn.style.display = 'block';
           label.style.display = 'none';
+
+          // 画像が変更されたことを示すフラグを立てる
+          isChanged.value = 'true';
         }
         reader.readAsDataURL(file);
       }
@@ -127,11 +155,14 @@
       imgInput.value = ''; // ファイル入力をクリア（POSTされる値）
       fileName.textContent = ''; // ファイル名をクリア
       label.style.display = 'grid';
+
+      // 画像が削除されたことを示すフラグを立てる
+      isChanged.value = 'true';
     }
 
     function switchResetBtn() {
 			// ページが読み込まれた時、base64のデータがある場合はプレビューを表示
-      if (preview.src.includes('data:image')) {
+      if (preview.src.includes('data:image') || preview.src.includes(imagePath)) {
         preview.style.display = 'block';
         background.style.display = 'block';
         resetBtn.style.display = 'block';
@@ -147,5 +178,19 @@
     imgInput.addEventListener('change', showPreview);
     resetBtn.addEventListener('click', resetPreview);
 
+    // 出品取り下げ確認モーダル
+    const withdrawBtn = document.getElementById('withdraw-btn');
+    const withdrawModal = document.getElementById('withdraw-modal');
+    const closeWithdrawModal = document.getElementById('close-withdraw-modal');
+
+    withdrawBtn.addEventListener('click', function(event) {
+        event.preventDefault();
+        withdrawModal.showModal();
+    });
+
+    closeWithdrawModal.addEventListener('click', function(event) {
+      event.preventDefault();
+      withdrawModal.close();
+    });
   </script>
 @endsection

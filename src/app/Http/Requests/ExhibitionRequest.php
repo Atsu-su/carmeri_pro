@@ -56,7 +56,7 @@ class ExhibitionRequest extends FormRequest
             }
         } else {
             // 画像ファイルではない場合（jsで処理済み）またはデータが空の場合
-            $all['image'] = 'NOT_IMAGE';
+                $all['image'] = 'NOT_IMAGE';
         }
 
         return $all;
@@ -69,7 +69,8 @@ class ExhibitionRequest extends FormRequest
      */
     public function rules()
     {
-        return [
+        $rules = [
+            'is_changed' => 'required',
             'name' => 'required|string|max:30',
             'brand' => 'nullable|string|max:30',
             'category_id' => 'required|array',
@@ -79,6 +80,13 @@ class ExhibitionRequest extends FormRequest
             'condition_id' => 'required',
             'description' => 'required|string|max:255',
         ];
+
+        // 商品情報編集時に画像が変更されていない場合はimageのチェックを行わない
+        if ($this->is_changed === 'false' && $this->is('sell/update/*')) {
+            unset($rules['image']);
+        }
+
+        return $rules;
     }
 
     public function messages()

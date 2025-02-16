@@ -348,6 +348,13 @@ html {
   display: block;
 }
 
+.c-btn--delete, 
+.c-btn--cancel {
+  width: 100%;
+  height: 60px;
+  border: 1px solid var(--color-border-gray);
+}
+
 /* ---------------------- */
 /* プロフィール画像選択用のボタン
 /* ---------------------- */
@@ -387,6 +394,24 @@ html {
   font-size: 20px;
 }
 
+/* c-btnは付与しなくてよい */
+.c-cancel-btn {
+  width: 100%;
+  height: 38px;
+  display: block;
+  color: var(--color-font-blue);
+  line-height: 1.8;
+  cursor: pointer;
+  text-align: center;
+  /* hoverした際、1px分だけ高さが変わるため追加 */
+  border: 1px solid transparent;
+}
+
+.c-cancel-btn:hover {
+  border: 1px solid var(--color-border-gray);
+  border-radius: 4px;
+}
+
 /* ---------------------- */
 /* 商品紹介（写真＋商品名）
 /* ---------------------- */
@@ -395,20 +420,41 @@ html {
   display: block;
 }
 
-.c-item:hover {
-  opacity: 0.8;
-}
-
 .c-item img {
   width: 100%;
   height: 281px;
   object-fit: cover;
 }
 
+.c-item img:hover {
+  opacity: 0.8;
+}
+
 .c-item p {
-  margin-top: 8px;
+  width: calc(100% - 45px);
   font-size: 25px;
   line-height: 1;
+}
+
+.c-item .text {
+  margin-top: 8px;
+  display: flex;
+  justify-content: space-between;
+  gap: 5px;
+  line-height: 1;
+}
+
+.c-item .text a {
+  width: 45px;
+  color: var(--color-font-blue);
+}
+
+.c-item .text a:hover {
+  opacity: 0.8;
+}
+
+.c-item .sold {
+  margin-top: 8px;
 }
 
 .c-item .sold::before {
@@ -1164,12 +1210,12 @@ body {
   justify-content: flex-end;
 }
 
-#item .item-detail-comment-body-container a {
+#item .item-detail-comment-body-container > a {
   color: var(--color-font-blue);
   cursor: pointer;
 }
 
-#item .item-detail-comment-body-container a:hover {
+#item .item-detail-comment-body-container > a:hover {
   opacity: 0.6;
 }
 
@@ -1208,20 +1254,7 @@ body {
 #item .item-detail-comment-edit-modal a,
 #item .item-detail-comment-delete-modal a {
   margin-top: 20px;
-  display: block;
-  color: var(--color-font-blue);
-  cursor: pointer;
-  text-align: center;
-  /* hoverした際、1px分だけ高さが変わるため追加 */
-  border: 1px solid transparent;
 }
-
-#item .item-detail-comment-edit-modal a:hover,
-#item .item-detail-comment-delete-modal a:hover {
-  border: 1px solid var(--color-border-gray);
-  border-radius: 4px;
-}
-
 
 #item .item-detail-comment-title-form {
   font-size: 1.167rem;  /* 28px */
@@ -1462,11 +1495,6 @@ body {
   border: 1px solid var(--color-border-gray)
 }
 
-#item-input .form-btn {
-  margin-top: 118px;
-  margin-bottom: 35px;
-}
-
 #item-input .login-link {
   display: block;
   color: var(--color-font-blue);
@@ -1574,7 +1602,7 @@ body {
 #item-input .form-price-wrapper::before {
   content: "¥";
   position: absolute;
-  top: 20px;
+  top: 23px;
   left: 10px;
   transform: translateY(-50%);
   font-weight: 700;
@@ -1583,6 +1611,27 @@ body {
 
 #item-input .form-input-price {
   padding-left: 50px;
+}
+
+#item-input .form-btn {
+  margin-top: 90px;
+  margin-bottom: 50px;
+}
+
+#item-input .form-modal {
+  padding: 30px;
+  width: 350px;
+  text-align: center;
+  background-color: var(--color-bg-btn-white);
+  border: 1px solid var(--color-border-gray);
+}
+
+#item-input .form-modal-btn {
+  margin-top: 30px;
+}
+
+#item-input .form-modal-cancel {
+  margin-top: 20px;
 }
 
 /* ----------------------- */

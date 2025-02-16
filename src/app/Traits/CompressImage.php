@@ -26,10 +26,10 @@ trait CompressImage
     )
     {
         $resizedImage = Image::make($imagePath)
-        ->resize($width, $height, function ($constraint) {
-          $constraint->aspectRatio();
-          $constraint->upsize();
-        });
+            ->resize($width, $height, function ($constraint) {
+            $constraint->aspectRatio();
+            $constraint->upsize();
+            });
 
         switch ($mime) {
             case 'image/jpeg':

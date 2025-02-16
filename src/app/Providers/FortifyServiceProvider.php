@@ -46,6 +46,26 @@ class FortifyServiceProvider extends ServiceProvider
         //     return Limit::perMinute(5)->by($request->session()->get('login.id'));
         // });
 
+        // ================================
+        // ユーザの論理削除に伴う変更
+        // ================================
+
+        // Fortify::authenticateUsing(function (Request $request) {
+        //     if ($request->is('admin/*')) {
+        //         $admin = Admin::where('email', $request->email)->first();
+
+        //         if ($admin && Hash::check($request->password, $admin->password)) {
+        //             return $admin;
+        //         }
+        //     } else {
+        //         $user = User::where('email', $request->email)->first();
+
+        //         if ($user && Hash::check($request->password, $user->password)) {
+        //             return $user;
+        //         }
+        //     }
+        // });
+
         Fortify::registerView(function () {
             return view('auth.register');
         });

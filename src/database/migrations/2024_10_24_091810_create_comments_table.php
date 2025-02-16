@@ -20,7 +20,7 @@ class CreateCommentsTable extends Migration
             $table->string('comment', 255);
             $table->timestamps();
 
-            $table->foreign('item_id')->references('id')->on('items');
+            $table->foreign('item_id')->references('id')->on('items')->onDelete('cascade');
             $table->foreign('user_id')->references('id')->on('users');
 
             $table->unique(['item_id', 'user_id']);

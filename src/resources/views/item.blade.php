@@ -92,7 +92,7 @@
                     @csrf
                     <textarea id="edit-textarea" name="comment" cols="30" rows="10">{{ old('comment') }}</textarea>
                     <button class="c-btn c-btn--item" type="submit">コメントを更新する</button>
-                    <a id="close-edit-modal" class="">キャンセル</a>
+                    <a id="close-edit-modal" class="c-cancel-btn" class="">キャンセル</a>
                   </form>
                 </dialog>
                 {{-- 削除 --}}
@@ -100,7 +100,7 @@
                   <form action="{{ route('comment.delete', ['item_id' => $item->id, 'comment_id' => $myComment->id ])}}" method="post">
                     @csrf
                     <button class="c-btn c-btn--item" type="submit">コメントを削除する</button>
-                    <a id="close-delete-modal">キャンセル</a>
+                    <a id="close-delete-modal" class="c-cancel-btn">キャンセル</a>
                   </form>
                 </dialog>
               @endif
@@ -208,7 +208,7 @@
         }
       }
     </script>
-
+    {{-- $myComment変数は定義はされていて値がない場合nullが入る --}}
     @if (!empty($myComment))
       <script>
         // ------------------
@@ -275,4 +275,14 @@
       </script>
     @endif
   @endif
+  <script>
+        window.addEventListener('pageshow', function(event) {
+          console.log(event.persisted);
+          if (event.persisted) {
+            console.log('キャッシュから表示')
+          } else {
+            console.log('サーバにアクセスした')
+          }
+        });
+  </script>
 @endsection

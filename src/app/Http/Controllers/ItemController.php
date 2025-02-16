@@ -11,14 +11,40 @@ use App\Models\Like;
 use App\Models\Condition;
 use App\Messages\Session as MessageSession;
 use App\Models\Comment;
+use App\Models\User;
 use App\Traits\CompressImage;
 use Exception;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class ItemController extends Controller
 {
     use CompressImage;
+
+    public function saveItemImage($image, $fileName): void
+    {
+        $resizedImage = $this->compressImage(
+            $image->getRealPath(),
+            700,
+            700,
+            $image->getMimeType(),
+            ['jpeg' => 75, 'png' => 75]
+        );
+
+        // メモリ上のImageインスタンスを保存するのでputメソッドを使用
+        Storage::disk('public')->put(
+            'item_images/'.$fileName,
+            $resizedImage,
+        );
+    }
+
+    public function checkUser(Item $item, User $user)
+    {
+        if ($item->seller_id !== $user->id) {
+            abort(403);
+        }
+    }
 
     public function show($item_id)
     {
@@ -76,6 +102,96 @@ class ItemController extends Controller
         return view('item_input', compact('categories', 'conditions'));
     }
 
+    public function edit($item_id)
+    {
+        $user = auth()->user();
+        $categories = Category::all();
+        $conditions = Condition::all();
+        $item = Item::query()
+            ->with('categoryItems')
+            ->where('id', $item_id)
+            ->first();
+
+        // 出品者のみ編集可能
+        $this->checkUser($item, $user);
+
+        $categoryIdArray = $item->categoryItems->pluck('category_id')->toArray();
+
+        return view('item_input', compact('categories', 'conditions', 'item', 'categoryIdArray'));
+    }
+
+    public function update(ExhibitionRequest $request, $item_id)
+    {
+        $user = auth()->user();
+        $validated = $request->validated();
+
+        // itemsテーブル更新のための準備
+        if ($validated['is_changed'] === 'true') {
+            // $validated['image']を使う
+            $image = $validated['image'];
+            $extension = $image->extension();
+            $fileName = 'item_image_'. time() . '.' . $extension;
+
+            // 画像を圧縮・保存
+            $this->saveItemImage($image, $fileName);
+
+            $itemData =array_merge($validated, [
+                'image' => $fileName,
+            ]);
+        } else {
+            $itemData = $validated;
+        }
+
+        // category_itemテーブル更新のための準備
+        $oldCategory = CategoryItem::where('item_id', $item_id)
+            ->pluck('category_id')->toArray();
+        $newCategory = $validated['category_id'];
+
+        // 削除対象と追加対象を取得
+        $toDelete = array_diff($oldCategory, $newCategory);
+        $toInsert = array_diff($newCategory, $oldCategory);
+
+        try {
+            DB::beginTransaction();
+
+            // itemsテーブル更新
+            $item = Item::find($item_id);
+
+            // 出品者のみ編集可能
+            $this->checkUser($item, $user);
+
+            $item->fill($itemData)->save();
+
+            // category_itemテーブル更新
+            // カテゴリーID削除
+            foreach ($toDelete as $id) {
+                CategoryItem::where('item_id', $item_id)
+                    ->where('category_id', $id)
+                    ->delete();
+            }
+
+            foreach ($toInsert as $id) {
+                CategoryItem::create([
+                    'item_id' => $item_id,
+                    'category_id' => $id,
+                ]);
+            }
+
+            DB::commit();
+
+            return redirect()
+                ->route('item.show', ['item_id' => $item_id])
+                ->with('message', Message::get('list.update.success'));
+
+        } catch (Exception $e) {
+            Log::error($e->getMessage());
+            DB::rollBack();
+            return redirect()
+                ->route('item.show', ['item_id' => $item_id])
+                ->with('message', Message::get('list.update.failed'));
+        }
+    }
+
     public function store(ExhibitionRequest $request)
     {
         $user = auth()->user();
@@ -83,24 +199,11 @@ class ItemController extends Controller
 
         // $validated['image']を使う
         $image = $validated['image'];
-
         $extension = $image->extension();
         $fileName = 'item_image_'. time() . '.' . $extension;
 
         // 画像を圧縮
-        $resizedImage = $this->compressImage(
-            $image->getRealPath(),
-            700,
-            700,
-            $image->getMimeType(),
-            ['jpeg' => 75, 'png' => 75]
-        );
-
-        // メモリ上のImageインスタンスを保存するのでputメソッドを使用
-        Storage::disk('public')->put(
-            'item_images/'.$fileName,
-            $resizedImage,
-        );
+        $this->saveItemImage($image, $fileName);
 
         $itemData = array_merge($validated, [
             'seller_id' => $user->id,
@@ -120,13 +223,45 @@ class ItemController extends Controller
             }
 
             DB::commit();
-            return redirect()->route('mypage')
-                ->with('message', Message::get('list.success'));
+
+            return redirect()
+                ->route('mypage')
+                ->with('message', Message::get('list.create.success'));
         } catch (Exception $e) {
+            Log::error($e->getMessage());
             Storage::disk('public')->delete('item_images/' . $fileName);
             DB::rollBack();
-            return redirect()->route('mypage')
-                ->with('message', Message::get('list.failed'));
+            return redirect()
+                ->route('mypage')
+                ->with('message', Message::get('list.create.failed'));
+        }
+    }
+
+    public function delete($item_id)
+    {
+        $user = auth()->user();
+
+        // 削除可能条件
+        // ・出品者であること
+        // ・購入可能な状態であること（on_sale: 1/true）
+        $item = Item::where('seller_id', $user->id)
+            ->where('on_sale', true)
+            ->where('id', $item_id)
+            ->first();
+        $image = $item->image;
+
+        try {
+            $item->delete();
+            Storage::disk('public')->delete('item_images/'.$image);
+
+            return redirect()
+                ->route('mypage')
+                ->with('message', Message::get('list.delete.success'));
+        } catch (Exception $e) {
+            Log::error($e->getMessage());
+            return redirect()
+                ->route('mypage')
+                ->with('message', Message::get('list.delete.failed'));
         }
     }
 }

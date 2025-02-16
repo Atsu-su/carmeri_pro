@@ -6,6 +6,6 @@ class Session
 {
     public static function exists($key)
     {
-        return !empty(session($key)) ? session($key) : null;
+        return session($key) ?? null;
     }
 }

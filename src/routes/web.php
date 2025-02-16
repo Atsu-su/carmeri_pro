@@ -40,6 +40,9 @@ Route::middleware('header')->group(function () {
         Route::post('/purchase/{item_id}', [PurchaseController::class, 'store'])->name('purchase.store');
         Route::get('/sell', [ItemController::class, 'create'])->name('sell.create');
         Route::post('/sell', [ItemController::class, 'store'])->name('sell.store');
+        Route::get('/sell/edit/{item_id}', [ItemController::class, 'edit'])->name('sell.edit');
+        Route::post('/sell/update/{item_id}', [ItemController::class, 'update'])->name('sell.update');
+        Route::delete('/sell/delete/{item_id}', [ItemController::class, 'delete'])->name('sell.delete');
 
         // stripeの成功・キャンセル用ルーティング
         Route::get('/payment/success/{purchase_id}', [PurchaseController::class, 'success'])->name('payment.success');

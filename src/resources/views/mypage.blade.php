@@ -34,18 +34,23 @@
           <p class="no-listed-item">出品された商品はありません</p>
         @else
           @foreach ($listedItems as $item)
-            <a class="c-item" href="{{ route('item.show', $item->id) }}">
-              @if ($item->image && Storage::disk('public')->exists('item_images/'.$item->image))
-                <img src="{{ asset('storage/item_images/'.$item->image) }}" width="290" height="281" alt="{{ $item->name }}の画像">
-              @else
-                <img class="c-no-image" src="{{ asset('img/'.'no_image.jpg') }}" width="290" height="281" alt="商品の画像がありません">
-              @endif
+            <div class="c-item">
+              <a href="{{ route('item.show', $item->id) }}">
+                @if ($item->image && Storage::disk('public')->exists('item_images/'.$item->image))
+                  <img src="{{ asset('storage/item_images/'.$item->image) }}" width="290" height="281" alt="{{ $item->name }}の画像">
+                @else
+                  <img class="c-no-image" src="{{ asset('img/'.'no_image.jpg') }}" width="290" height="281" alt="商品の画像がありません">
+                @endif
+              </a>
               @if ($item->on_sale)
-                <p>{{ $item->name }}</p>
+                <div class="text">
+                  <p>{{ $item->name }}</p>
+                  <a class="text-edit" href="{{ route('sell.edit', ['item_id' => $item->id]) }}">編集</a>
+                </div>
               @else
                 <p class="sold">{{ $item->name }}</p>
               @endif
-            </a>
+            </div>
           @endforeach
         @endif
       </div>
@@ -67,6 +72,7 @@
       </div>
     </div>
   </div>
+  {{ session()->forget('message') }}
 
   {{-- タブ切り替え --}}
   <script>
