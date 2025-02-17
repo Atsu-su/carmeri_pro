@@ -6,7 +6,7 @@
     </div>
   </div>
   <script>
-    const imagePath = @json(asset('storage/item_images/').'/');
+    const imagePath = {{ Js::from(asset('storage/item_images/').'/') }};
 
     class InfiniteImageLoader {
         constructor(options = {}) {

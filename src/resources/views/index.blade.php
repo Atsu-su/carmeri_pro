@@ -72,9 +72,9 @@
   </script>
   <script>
     // 一旦item_idを0に設定し後程修正する
-    const itemRoute = @json(route('item.show', ['item_id' => '0']));
-    const imagePath = @json(asset('storage/item_images/').'/');
-    const noImagePath = @json(asset('img/').'/'.'no_image.jpg');
+    const itemRoute = {{ Js::from(route('item.show', ['item_id' => '0'])) }};
+    const imagePath = {{ Js::from(asset('storage/item_images/').'/') }};
+    const noImagePath = {{Js::from(asset('img/').'/'.'no_image.jpg') }};
 
     class InfiniteImageLoader {
       constructor(options = {}) {
