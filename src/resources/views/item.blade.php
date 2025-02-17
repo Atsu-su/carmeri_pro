@@ -24,7 +24,11 @@
       <p class="item-detail-brand">{{ $item->brand ?? '' }}</p>
       <p class="item-detail-price">¥<span>{{ number_format($item->price) }}</span> (税込)</p>
       <div class="item-detail-icons">
-        <div id="like-icon" class="item-detail-icons-icon item-detail-icons-like {{ $like ? 'filled' : '' }} {{ auth()->check() ? 'pointer' : ''}}" onclick="toggleLike({{ $item->id }}, '{{ route('like', $item->id) }}')">
+        @if (auth()->check())
+          <div id="like-icon" class="item-detail-icons-icon item-detail-icons-like {{ $like ? 'filled' : '' }} pointer" onclick="toggleLike({{ $item->id }}, '{{ route('like', $item->id) }}')">
+        @else
+          <div id="like-icon" class="item-detail-icons-icon item-detail-icons-like {{ $like ? 'filled' : '' }}">
+        @endif
           <span id="number-of-likes">{{ $item->likes_count }}</span>
         </div>
         <div class="item-detail-icons-icon item-detail-icons-comment">
@@ -164,6 +168,8 @@
         const csrf = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         const likeIcon = document.getElementById('like-icon');
         const likes = document.getElementById('number-of-likes');
+
+        console.log(url)
 
         // 重複処理抑止用1
         if (likeIcon.classList.contains('js-processing')) {

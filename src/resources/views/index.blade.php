@@ -75,6 +75,7 @@
     const itemRoute = {{ Js::from(route('item.show', ['item_id' => '0'])) }};
     const imagePath = {{ Js::from(asset('storage/item_images/').'/') }};
     const noImagePath = {{Js::from(asset('img/').'/'.'no_image.jpg') }};
+    const url = {{ Js::from(route('index')) }};
 
     class InfiniteImageLoader {
       constructor(options = {}) {
@@ -106,7 +107,6 @@
         const bodyHeight = document.documentElement.scrollHeight;
 
         if (bodyHeight - scrollPosition < threshold) {
-            console.log('ローディング開始');
             await this.loadImages();
         }
       }
@@ -119,7 +119,7 @@
         // ローディング中にスクロールしても処理を行わない
         this.loading = true;
 
-        const count = await fetch(`/api/count?page=${this.currentPage}&limit=${this.pageSize}`);
+        const count = await fetch(`${url}/api/count?page=${this.currentPage}&limit=${this.pageSize}`);
         const countJson = await count.json();
 
         for (let i = 0; i < countJson; i++) {
@@ -146,7 +146,7 @@
         }
 
         try {
-          const response = await fetch(`/api/images?page=${this.currentPage}&limit=${this.pageSize}`);
+          const response = await fetch(`${url}/api/images?page=${this.currentPage}&limit=${this.pageSize}`);
           const json = await response.json();
 
           if (!json.data || json.data.length < this.pageSize) {
