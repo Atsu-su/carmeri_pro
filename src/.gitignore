@@ -1,6 +1,6 @@
 /node_modules
 /public/hot
-# /public/storage
+/public/storage
 /resources/views/ignore
 /storage/*.key
 /storage/app/public/item_images/item_image*
