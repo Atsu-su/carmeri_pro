@@ -161,7 +161,7 @@ return [
         'login' => RouteServiceProvider::HOME,
         'logout' => RouteServiceProvider::HOME,
         'register' => function() {
-            return route('profile.edit');
+            return route('register.profile.edit');
         },
     ]
 

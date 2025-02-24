@@ -7,6 +7,7 @@ use App\Http\Controllers\ItemController;
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PurchaseController;
+use App\Http\Controllers\UserController;
 use GuzzleHttp\Psr7\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -21,6 +22,12 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+// Route::get('/test/mail', function () {
+//     $user = \App\Models\User::find(1);
+//     $user->sendEmailVerificationNotification();
+//     return 'メールを送信しました';
+// });
+
 Route::middleware('header')->group(function () {
     Route::get('/', [HomeController::class, 'index'])->name('index');
     Route::post('/', [HomeController::class, 'search'])->name('index.search');
@@ -28,6 +35,7 @@ Route::middleware('header')->group(function () {
 
     Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/mypage', [HomeController::class, 'myPageIndex'])->name('mypage');
+        Route::get('/register/profile', [ProfileController::class, 'edit'])->name('register.profile.edit');
         Route::get('/mypage/profile', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::post('/mypage/profile', [ProfileController::class, 'update'])->name('profile.update');
         Route::post('/item/{item_id}/like', [LikeController::class, 'toggleLike'])->name('like');
@@ -43,6 +51,12 @@ Route::middleware('header')->group(function () {
         Route::get('/sell/edit/{item_id}', [ItemController::class, 'edit'])->name('sell.edit');
         Route::post('/sell/update/{item_id}', [ItemController::class, 'update'])->name('sell.update');
         Route::delete('/sell/delete/{item_id}', [ItemController::class, 'delete'])->name('sell.delete');
+
+        // 最終的にPOSTにする
+        Route::delete('/user/deactivate', [UserController::class, 'deactivateUser'])->name('user.deactivate');
+        Route::get('/test/thanks', function () {
+            return view('thanks');
+        });
 
         // stripeの成功・キャンセル用ルーティング
         Route::get('/payment/success/{purchase_id}', [PurchaseController::class, 'success'])->name('payment.success');

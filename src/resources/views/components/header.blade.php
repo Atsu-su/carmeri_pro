@@ -1,7 +1,13 @@
 <div id="header">
-  <a class="logo" href="{{ route('index')}}">
-    <img src="{{ asset('img/logo.svg') }}" alt="carmeriのロゴ">
-  </a>
+  @if (isset(request()->headerType))
+    <a class="logo" href="{{ route('index')}}">
+      <img src="{{ asset('img/logo.svg') }}" alt="carmeriのロゴ">
+    </a>
+  @else
+    <span class="logo">
+      <img src="{{ asset('img/logo.svg') }}" alt="carmeriのロゴ">
+    </span>
+  @endif
   @if (request()->headerType == 'logOut' || request()->headerType == 'logIn')
     <form class="search" action="{{ route('index.search') }}" method="post">
       @csrf

@@ -13,6 +13,7 @@ use App\Messages\Session as MessageSession;
 use App\Models\Comment;
 use App\Models\User;
 use App\Traits\CompressImage;
+use App\Traits\DeleteItem;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -21,6 +22,7 @@ use Illuminate\Support\Facades\Storage;
 class ItemController extends Controller
 {
     use CompressImage;
+    use DeleteItem;
 
     public function saveItemImage($image, $fileName): void
     {
@@ -239,26 +241,15 @@ class ItemController extends Controller
 
     public function delete($item_id)
     {
-        $user = auth()->user();
+        $result = $this->deleteItem($item_id);
 
-        // 削除可能条件
-        // ・出品者であること
-        // ・購入可能な状態であること（on_sale: 1/true）
-        $item = Item::where('seller_id', $user->id)
-            ->where('on_sale', true)
-            ->where('id', $item_id)
-            ->first();
-        $image = $item->image;
-
-        try {
-            $item->delete();
-            Storage::disk('public')->delete('item_images/'.$image);
-
+        if ($result) {
+            $item = Item::find($item_id);
+            Storage::disk('public')->delete('item_images/' . $item->image);
             return redirect()
                 ->route('mypage')
                 ->with('message', Message::get('list.delete.success'));
-        } catch (Exception $e) {
-            Log::error($e->getMessage());
+        } else {
             return redirect()
                 ->route('mypage')
                 ->with('message', Message::get('list.delete.failed'));

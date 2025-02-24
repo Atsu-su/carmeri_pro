@@ -763,6 +763,22 @@ html {
   margin-top: 10px;
 }
 
+.c-confirm-modal {
+  padding: 30px;
+  width: 350px;
+  text-align: center;
+  background-color: var(--color-bg-btn-white);
+  border: 1px solid var(--color-border-gray);
+}
+
+.c-confirm-modal-btn {
+  margin-top: 30px;
+}
+
+.c-confirm-modal-cancel {
+  margin-top: 20px;
+}
+
 /* ---------------------- */
 /* スピナー
 /* ---------------------- */
@@ -840,7 +856,7 @@ body {
   place-items: center;
 }
 
-#header .logo:hover {
+#header a.logo:hover {
   opacity: 0.8;
 }
 
@@ -1764,4 +1780,29 @@ body {
 #card .error-message {
   margin-top: 20px;
   color: var(--color-font-red);
+}
+
+/* ----------------------- */
+/* thanks.blade.php
+/* 商品購入画面（#thanks）
+/* ----------------------- */
+
+#thanks {
+  width: 100%;
+  height: calc(100vh - 65px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+}
+
+#thanks p {
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+#thanks a {
+  color: var(--color-font-blue);
 }

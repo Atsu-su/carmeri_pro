@@ -72,7 +72,6 @@
       </div>
     </div>
   </div>
-  {{ session()->forget('message') }}
 
   {{-- タブ切り替え --}}
   <script>

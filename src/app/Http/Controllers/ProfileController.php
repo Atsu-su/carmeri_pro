@@ -19,6 +19,10 @@ class ProfileController extends Controller
     {
         $user = auth()->user();
         $message = MessageSession::exists('message');
+        if (request()->url() === route('register.profile.edit')) {
+            request()->offsetUnset('headerType');
+            return view('register_profile_input', compact('user'));
+        }
         return view('profile_input', compact('user', 'message'));
     }
 

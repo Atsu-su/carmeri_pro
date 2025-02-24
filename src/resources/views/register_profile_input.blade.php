@@ -1,8 +1,5 @@
 @extends('layouts.base')
 @section('title', 'プロフィール入力')
-@section('modal')
-  @include('components.modal')
-@endsection
 @section('header')
   @include('components.header')
 @endsection
@@ -11,7 +8,7 @@
     @error('is_changed')
       <p class="c-error-message">{{ $message }}</p>
     @enderror
-    <h1 class="title">プロフィール編集</h1>
+    <h1 class="title">プロフィール設定</h1>
     <form class="form" action="{{ route('profile.update') }}" method="post" enctype="multipart/form-data">
       @csrf
       {{-- c-default影響範囲外 ここから --}}
@@ -66,18 +63,8 @@
       @error('building_name')
         <p class="c-error-message">{{ $message }}</p>
       @enderror
-      <button class="form-btn c-btn c-btn--red" type="submit">更新する</button>
-      <button id="user-deactivation-btn" class="c-btn c-btn--delete">退会する</button>
+      <button class="form-btn c-btn c-btn--red" type="submit">登録する</button>
     </form>
-    <dialog id="user-deactivation-modal" class="c-confirm-modal">
-      <form action="{{ route('user.deactivate')}}" method="POST">
-        @csrf
-        @method('DELETE')
-        <p>退会しますか？</p>
-        <button class="c-confirm-modal-btn c-btn c-btn--red" type="submit">はい</button>
-        <a id="close-user-deactivation-modal" class="c-confirm-modal-cancel c-cancel-btn">いいえ</a>
-      </form>
-    </dialog>
   </div>
 
   {{-- 画像プレビュー --}}
@@ -223,24 +210,5 @@
     document.addEventListener('DOMContentLoaded', switchResetBtn);
     imgInput.addEventListener('change', showPreview);
     resetBtn.addEventListener('click', resetPreview);
-
-    // 出品取り下げ確認モーダル
-    const userDeactivationBtn = document.getElementById('user-deactivation-btn');
-    const userDeactivationModal = document.getElementById('user-deactivation-modal');
-    const closeUserDeactivationModal = document.getElementById('close-user-deactivation-modal');
-
-    console.log(userDeactivationBtn);
-    console.log(userDeactivationModal);
-    console.log(closeUserDeactivationModal);
-
-    userDeactivationBtn.addEventListener('click', function(event) {
-        event.preventDefault();
-        userDeactivationModal.showModal();
-    });
-
-    closeUserDeactivationModal.addEventListener('click', function(event) {
-      event.preventDefault();
-      userDeactivationModal.close();
-    });
   </script>
 @endsection

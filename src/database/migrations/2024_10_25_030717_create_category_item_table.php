@@ -19,7 +19,7 @@ class CreateCategoryItemTable extends Migration
             $table->unsignedBigInteger('category_id');
             $table->timestamps();
 
-            $table->foreign('item_id')->references('id')->on('items');
+            $table->foreign('item_id')->references('id')->on('items')->onDelete('cascade');
             $table->foreign('category_id')->references('id')->on('categories');
         });
     }

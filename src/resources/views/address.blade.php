@@ -7,7 +7,7 @@
   @include('components.header')
 @endsection
 @section('content')
-  <div class="c-default-form" id="login">
+  <div class="c-default-form" id="address">
     <h1 class="title">住所の変更</h1>
     <form class="form" action="{{ route('address.update', $item_id)}}" method="post">
       @csrf
