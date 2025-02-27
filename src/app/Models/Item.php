@@ -16,6 +16,11 @@ class Item extends Model
         return $this->on_sale;
     }
 
+    public function isOwnItem()
+    {
+        return auth()->check() ? $this->seller_id === auth()->user()->id : false;
+    }
+
     public function categoryItems()
     {
         return $this->hasMany(CategoryItem::class);

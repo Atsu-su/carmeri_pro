@@ -24,7 +24,7 @@
       <p class="item-detail-brand">{{ $item->brand ?? '' }}</p>
       <p class="item-detail-price">¥<span>{{ number_format($item->price) }}</span> (税込)</p>
       <div class="item-detail-icons">
-        @if (auth()->check())
+        @if (auth()->check() && !$item->isOwnItem())
           <div id="like-icon" class="item-detail-icons-icon item-detail-icons-like {{ $like ? 'filled' : '' }} pointer" onclick="toggleLike({{ $item->id }}, '{{ route('like', $item->id) }}')">
         @else
           <div id="like-icon" class="item-detail-icons-icon item-detail-icons-like {{ $like ? 'filled' : '' }}">
@@ -35,7 +35,7 @@
           <span>{{ $item->comments_count }}</span>
         </div>
       </div>
-      @if ($item->isOnSale())
+      @if ($item->isOnSale() && !$item->isOwnItem())
         <a class="item-detail-btn c-btn c-btn--item" href="{{ route('purchase', $item->id) }}">購入手続きへ</a>
       @endif
       <h2 class="item-detail-title-about">商品説明</h2>
@@ -131,23 +131,27 @@
         {{-- ここまでコメント表示 --}}
 
         {{-- ここからコメント作成 --}}
-        @if ((auth()->check() && !isset($myComment)) || !auth()->check())
-          <h3 class="item-detail-comment-title-form">商品へのコメント</h3>
-        @endif
-        {{-- ログインしていてコメントを投稿していない場合に可能 --}}
-        @if (auth()->check() && !isset($myComment))
-          <div class="item-detail-comment-form">
-            <form action="{{ route('comment.store', $item->id)}}" method="post">
-              @csrf
-              <textarea name="comment" id="comment" cols="30" rows="10"></textarea>
-              @error('comment')
-                <p class="c-error-message">{{ $message }}</p>
-              @enderror
-              <button id="submit-comment-btn" class="c-btn c-btn--item" type="submit">コメントを送信する</button>
-            </form>
-          </div>
-        @elseif (!auth()->check())
-          <p class="item-detail-comment-login">コメントをするには<a href="{{route('login')}}">ログイン</a>が必要です。</p>
+        {{-- 自身が出品している商品の場合コメント不可 --}}
+        @if (!$item->isOwnItem())
+          {{-- ログインしていない場合、タイトルだけ必要（!auth()->check()） --}}
+          @if ((auth()->check() && !isset($myComment)) || !auth()->check())
+            <h3 class="item-detail-comment-title-form">商品へのコメント</h3>
+          @endif
+          {{-- ログインしていてコメントを投稿していない場合に可能 --}}
+          @if (auth()->check() && !isset($myComment))
+            <div class="item-detail-comment-form">
+              <form action="{{ route('comment.store', $item->id)}}" method="post">
+                @csrf
+                <textarea name="comment" id="comment" cols="30" rows="10"></textarea>
+                @error('comment')
+                  <p class="c-error-message">{{ $message }}</p>
+                @enderror
+                <button id="submit-comment-btn" class="c-btn c-btn--item" type="submit">コメントを送信する</button>
+              </form>
+            </div>
+          @elseif (!auth()->check())
+            <p class="item-detail-comment-login">コメントをするには<a href="{{route('login')}}">ログイン</a>が必要です。</p>
+          @endif
         @endif
         {{-- ここまでコメント作成 --}}
       </div>

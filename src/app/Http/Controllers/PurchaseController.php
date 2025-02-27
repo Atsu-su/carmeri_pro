@@ -19,6 +19,11 @@ class PurchaseController extends Controller
     {
         $user = auth()->user();
         $item = Item::with('purchase')->findOrFail($item_id);
+        if ($item->isOwnItem()) {
+            return redirect()
+                ->route('item.show', ['item_id' => $item_id])
+                ->with('message', Message::get('purchase.own'));
+        }
         $message = MessageSession::exists('message');
         return view('purchase', compact('user', 'item', 'message'));
     }
