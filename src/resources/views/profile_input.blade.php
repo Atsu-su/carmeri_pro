@@ -19,12 +19,12 @@
         <div id="background" class="c-profile-outer-frame img-upload-preview">
           @php
             // 通常のプロフィール画像表示（画面遷移時など）
-            $showImage = !$errors->any() && $user->image && Storage::disk('public')->exists('profile_images/'.$user->image);
+            $showImage = !$errors->any() && $user->image && Storage::exists('profile_images/'.$user->image);
             // バリデーションエラー時の表示
             $validationError = $errors->any() && old('file_base64') && old('is_no_image') == 'false';
           @endphp
           @if ($showImage || $validationError)
-            <img id="preview" class="c-profile-inner-frame" src="{{ old('file_base64', asset('storage/profile_images/'.$user->image)) }}" alt="プロフィールの画像">
+            <img id="preview" class="c-profile-inner-frame" src="{{ old('file_base64', Storage::url('item_images/').$user->image) }}" alt="プロフィールの画像">
           @else
             <div id="no-image" class="c-profile-no-image">
               <p>NO</p>

@@ -57,7 +57,7 @@ class ProfileController extends Controller
 
                 // 画像を保存（storeAsはテスト時に保存先を変更できないため使用しない）
                 // メモリ上のImageインスタンスを保存するのでputメソッドを使用
-                Storage::disk('public')->put(
+                Storage::put(
                     'profile_images/'.$fileName,
                     $resizedImage,
                 );

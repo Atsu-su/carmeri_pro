@@ -35,7 +35,7 @@ class ItemRegisterTest extends TestCase
 
         // テスト用ストレージの作成
         Storage::fake('public');
-        Storage::disk('public')->makeDirectory('item_images');
+        Storage::makeDirectory('item_images');
 
         // アップロードファイルの作成
         $file = new UploadedFile(
@@ -65,7 +65,7 @@ class ItemRegisterTest extends TestCase
 
         // Assert
         $response->assertStatus(302);
-        Storage::disk('public')->assertExists('item_images/'.$registeredItem->image);
+        Storage::assertExists('item_images/'.$registeredItem->image);
         $this->get('/item/'.$registeredItem->id)
             ->assertSee($registeredItem->image)
             ->assertSee($fakeItem->name)

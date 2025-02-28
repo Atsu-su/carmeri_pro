@@ -11,8 +11,8 @@
     <div class="user">
       <div class="user-info">
         <div class="c-profile-outer-frame user-info-icon">
-          @if ($user->image && Storage::disk('public')->exists('profile_images/'.$user->image))
-            <img class="c-profile-inner-frame" src="{{ asset('storage/profile_images/'.$user->image) }}" alt="プロフィールの画像">
+          @if ($user->image && Storage::exists('profile_images/'.$user->image))
+            <img class="c-profile-inner-frame" src="{{ Storage::url('profile_images/').$user->image }}" alt="プロフィールの画像">
           @else
             <div class="c-profile-no-image">
               <p>NO</p>
@@ -36,8 +36,8 @@
           @foreach ($listedItems as $item)
             <div class="c-item">
               <a href="{{ route('item.show', $item->id) }}">
-                @if ($item->image && Storage::disk('public')->exists('item_images/'.$item->image))
-                  <img src="{{ asset('storage/item_images/'.$item->image) }}" width="290" height="281" alt="{{ $item->name }}の画像">
+                @if ($item->image && Storage::exists('item_images/'.$item->image))
+                  <img src="{{ Storage::url('item_images/').$item->image }}" width="290" height="281" alt="{{ $item->name }}の画像">
                 @else
                   <img class="c-no-image" src="{{ asset('img/'.'no_image.jpg') }}" width="290" height="281" alt="商品の画像がありません">
                 @endif
@@ -60,8 +60,8 @@
         @else
           @foreach ($purchasedItems as $item)
             <a class="c-item" href="{{ route('item.show', $item->item->id) }}">
-              @if ($item->item->image && Storage::disk('public')->exists('item_images/'.$item->item->image))
-                <img src="{{ asset('storage/item_images/'.$item->item->image) }}" width="290" height="281" alt="{{ $item->name }}の画像">
+              @if ($item->item->image && Storage::exists('item_images/'.$item->item->image))
+                <img src="{{ Storage::url('item_images/').$item->item->image }}" width="290" height="281" alt="{{ $item->name }}の画像">
               @else
                 <img class="c-no-image" src="{{ asset('img/'.'no_image.jpg') }}" width="290" height="281" alt="商品の画像がありません">
               @endif

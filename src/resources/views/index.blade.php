@@ -18,8 +18,8 @@
       @if (auth()->check())
         @foreach ($likedItems as $like)
           <a class="c-item" href="{{ route('item.show', $like->item_id) }}">
-            @if ($like->item->image && Storage::disk('public')->exists('item_images/'.$like->item->image))
-              <img src="{{ asset('storage/item_images/'.$like->item->image) }}" width="290" height="281" alt="【商品名】の画像">
+            @if ($like->item->image && Storage::exists('item_images/'.$like->item->image))
+              <img src="{{ Storage::url('item_images/').$like->item->image }}" width="290" height="281" alt="【商品名】の画像">
             @else
               <img class="c-no-image" src="{{ asset('img/'.'no_image.jpg') }}" width="290" height="281" alt="商品の画像がありません">
             @endif
@@ -73,7 +73,7 @@
   <script>
     // 一旦item_idを0に設定し後程修正する
     const itemRoute = {{ Js::from(route('item.show', ['item_id' => '0'])) }};
-    const imagePath = {{ Js::from(asset('storage/item_images/').'/') }};
+    const imagePath = {{ Js::from(Storage::url('item_images/')) }};
     const noImagePath = {{Js::from(asset('img/').'/'.'no_image.jpg') }};
     const url = {{ Js::from(route('index')) }};
 

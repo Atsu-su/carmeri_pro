@@ -50,7 +50,7 @@ class UserController extends Controller
 
             // 画像削除
             foreach ($items as $item) {
-                Storage::disk('public')->delete('item_images/'.$item->image);
+                Storage::delete('item_images/'.$item->image);
             }
 
             // ログアウト処理を実行

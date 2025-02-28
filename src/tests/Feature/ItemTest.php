@@ -9,9 +9,7 @@ use App\Models\Condition;
 use App\Models\Item;
 use App\Models\Like;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Str;
-use Stringable;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class ItemTest extends TestCase
@@ -72,7 +70,7 @@ class ItemTest extends TestCase
             ->assertSee($selectedItem->condition->condition)
             ->assertSee($comment->user->name)
             ->assertSee($comment->comment)
-            ->assertSee('<img src="'. asset('storage/item_images/'.$selectedItem->image).'" width="600" height="600"', false);
+            ->assertSee('<img src="'.Storage::url('item_images/').$selectedItem->image.'" width="600" height="600"', false);
     }
 
     public function test_複数カテゴリ表示()

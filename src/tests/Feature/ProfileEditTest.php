@@ -31,7 +31,7 @@ class ProfileEditTest extends TestCase
 
         // テスト用ストレージの作成
         Storage::fake('public');
-        Storage::disk('public')->makeDirectory('profile_images');
+        Storage::makeDirectory('profile_images');
 
         // アップロードファイルの作成
         $file = new UploadedFile(
@@ -56,7 +56,7 @@ class ProfileEditTest extends TestCase
 
         // Assert
         $response->assertStatus(302);
-        Storage::disk('public')->assertExists('profile_images/'.$newUser->image);
+        Storage::assertExists('profile_images/'.$newUser->image);
         $this->get('mypage/profile')
             ->assertSee($newUser->image)
             ->assertSee($newUser->name)

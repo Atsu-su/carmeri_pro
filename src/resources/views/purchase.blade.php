@@ -12,8 +12,8 @@
     @csrf
     <div class="info">
       <div class="info-item">
-        @if ($item->image && Storage::disk('public')->exists('item_images/'.$item->image))
-          <img class="info-item-img" src="{{ asset('storage/item_images/'.$item->image) }}" width="600" height="600" alt="{{ $item->name }}の画像">
+        @if ($item->image && Storage::exists('item_images/'.$item->image))
+          <img class="info-item-img" src="{{ Storage::url('item_images/').$item->image }}" width="600" height="600" alt="{{ $item->name }}の画像">
         @else
           <img class="c-no-image info-item-img" src="{{ asset('img/'.'no_image.jpg') }}" width="600" height="600" alt="商品の画像がありません">
         @endif

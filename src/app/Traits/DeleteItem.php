@@ -16,7 +16,7 @@ trait DeleteItem
      * @return boolean
      */
 
-    public function deleteItem($itemId): bool
+    public function deleteItem($itemId)
     {
         $user = auth()->user();
 
@@ -27,7 +27,7 @@ trait DeleteItem
 
         try {
             $item->delete();
-            return true;
+            return $item;
         } catch (Exception $e) {
             Log::error($e->getMessage());
             return false;

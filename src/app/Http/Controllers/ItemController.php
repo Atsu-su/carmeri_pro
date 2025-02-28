@@ -35,10 +35,7 @@ class ItemController extends Controller
         );
 
         // メモリ上のImageインスタンスを保存するのでputメソッドを使用
-        Storage::disk('public')->put(
-            'item_images/'.$fileName,
-            $resizedImage,
-        );
+        Storage::put('item_images/'.$fileName, $resizedImage);
     }
 
     public function checkUser(Item $item, User $user)
@@ -231,7 +228,7 @@ class ItemController extends Controller
                 ->with('message', Message::get('list.create.success'));
         } catch (Exception $e) {
             Log::error($e->getMessage());
-            Storage::disk('public')->delete('item_images/' . $fileName);
+            Storage::delete('item_images/' . $fileName);
             DB::rollBack();
             return redirect()
                 ->route('mypage')
@@ -241,11 +238,11 @@ class ItemController extends Controller
 
     public function delete($item_id)
     {
+        // $resultはItemインスタンスかfalseを返す
         $result = $this->deleteItem($item_id);
 
         if ($result) {
-            $item = Item::find($item_id);
-            Storage::disk('public')->delete('item_images/' . $item->image);
+            Storage::delete('item_images/' . $result->image);
             return redirect()
                 ->route('mypage')
                 ->with('message', Message::get('list.delete.success'));

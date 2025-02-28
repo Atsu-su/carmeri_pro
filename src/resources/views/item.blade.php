@@ -9,8 +9,8 @@
 @section('content')
   <div id="item">
     <div class="item-img">
-      @if ($item->image && Storage::disk('public')->exists('item_images/'.$item->image))
-        <img src="{{ asset('storage/item_images/'.$item->image) }}" width="600" height="600" alt="{{ $item->name }}の画像">
+      @if ($item->image && Storage::exists('item_images/'.$item->image))
+        <img src="{{ Storage::url('item_images/').$item->image }}" width="600" height="600" alt="{{ $item->name }}の画像">
       @else
         <img class="c-no-image" src="{{ asset('img/'.'no_image.jpg') }}">
       @endif
@@ -70,8 +70,8 @@
         @if (isset($myComment))
           <div class="item-detail-comment-commenter">
             <div class="item-detail-comment-commenter-frame">
-              @if ($myComment->user->image && Storage::disk('public')->exists('profile_images/'.$myComment->user->image))
-                <img src="{{ asset('storage/profile_images/'.$myComment->user->image) }}" alt="プロフィールの画像">
+              @if ($myComment->user->image && Storage::exists('profile_images/'.$myComment->user->image))
+                <img src="{{ Storage::url('profile_images/').$myComment->user->image }}" alt="プロフィールの画像">
               @else
                 <p>NO</p>
                 <p>IMAGE</p>
@@ -114,8 +114,8 @@
           @foreach ($comments as $comment)
             <div class="item-detail-comment-commenter">
               <div class="item-detail-comment-commenter-frame">
-                @if ($comment->user->image && Storage::disk('public')->exists('profile_images/'.$comment->user->image))
-                  <img src="{{ asset('storage/profile_images/'.$comment->user->image) }}" alt="プロフィールの画像">
+                @if ($comment->user->image && Storage::exists('profile_images/'.$comment->user->image))
+                  <img src="{{ Storage::url('profile_images/').$comment->user->image }}" alt="プロフィールの画像">
                 @else
                   <p>NO</p>
                   <p>IMAGE</p>

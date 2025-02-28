@@ -2,7 +2,7 @@
 <img src="{{ asset('storage/' . $item->image_path) }}">
 
 {{-- 存在チェック付き --}}
-@if(Storage::disk('public')->exists($item->image_path))
+@if(Storage::exists($item->image_path))
     <img src="{{ asset('storage/' . $item->image_path) }}">
 @else
     <img src="{{ asset('images/no-image.png') }}">

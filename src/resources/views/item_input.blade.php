@@ -17,7 +17,7 @@
         <h2 class="img-upload-title">商品の画像</h2>
         <div class="img-upload-container">
           <div id="background" class="img-upload-background">
-            <img id="preview" src="{{ !isset($item) ? old('file_base64') : old('file_base64') ?? asset('storage/item_images/'.$item->image) }}" width="100" height="100">
+            <img id="preview" src="{{ !isset($item) ? old('file_base64') : old('file_base64') ?? Storage::url('item_images/').$item->image }}" width="100" height="100">
           </div>
           <label id="label" class="img-upload-img-select c-btn-img-select c-btn-img-select--profile" for="img-input">
             画像を選択する
@@ -108,7 +108,7 @@
     const fileName = document.getElementById('file-name');
     const label = document.getElementById('label');
     const imgError = document.getElementById('img-error');
-    const imagePath = ({{ Js::from(asset('storage/item_images')) }});
+    const imagePath = ({{ Js::from(Storage::url('item_images/')) }});
     // 新しく画像が追加された場合、または画像が削除された場合にtrueになる
     const isChanged = document.getElementById('is-changed');
 

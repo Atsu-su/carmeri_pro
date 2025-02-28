@@ -36,7 +36,7 @@
   </style>
   <div id="image-container" class="container"></div>
   <script>
-    const imagePath = {{ Js::from(asset('storage/item_images/').'/') }};
+    const imagePath = {{ Js::from(Storage::url('item_images/')) }};
 
     class InfiniteImageLoader {
         constructor(options = {}) {
