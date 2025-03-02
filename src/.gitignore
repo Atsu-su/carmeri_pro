@@ -3,8 +3,8 @@
 /public/storage
 /resources/views/ignore
 /storage/*.key
-/storage/app/public/item_images/item_image*
-/storage/app/public/profile_images/profile_image*
+/storage/app/public/item_images/*
+/storage/app/public/profile_images/*
 /vendor
 .env
 .env.backup

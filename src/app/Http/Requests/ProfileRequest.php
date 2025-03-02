@@ -103,6 +103,7 @@ class ProfileRequest extends FormRequest
             'image.mimes' => 'jpeg（jpg）またはpng形式の画像ファイルを選択してください',
             'image.max' => 'ファイルサイズは2MB以内にしてください',
             'name.required' => '名前を入力してください',
+            'name.max' => '名前は30文字以内で入力してください',
             'postal_code.required' => '郵便番号を入力してください',
             'postal_code.regex' => '郵便番号はXXX-XXXX（半角ハイフンあり）の形式で入力してください',
             'address.required' => '住所を入力してください',

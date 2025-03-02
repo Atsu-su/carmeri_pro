@@ -24,7 +24,7 @@
             $validationError = $errors->any() && old('file_base64') && old('is_no_image') == 'false';
           @endphp
           @if ($showImage || $validationError)
-            <img id="preview" class="c-profile-inner-frame" src="{{ old('file_base64', Storage::url('item_images/').$user->image) }}" alt="プロフィールの画像">
+            <img id="preview" class="c-profile-inner-frame" src="{{ old('file_base64', Storage::url('profile_images/').$user->image) }}" alt="プロフィールの画像">
           @else
             <div id="no-image" class="c-profile-no-image">
               <p>NO</p>
