@@ -160,9 +160,12 @@ return [
     'redirects' => [
         'login' => RouteServiceProvider::HOME,
         'logout' => RouteServiceProvider::HOME,
-        'register' => function() {
-            return route('register.profile.edit');
-        },
+        // 'register' => function() {
+        //     return route('register.profile.edit');
+        // },
+        'register' => 'email/verify',
+        'verified' => 'register/profile',
+        'activated' => 'activate/profile/password',
     ]
 
 ];

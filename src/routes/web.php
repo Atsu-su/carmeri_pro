@@ -22,44 +22,39 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// Route::get('/test/mail', function () {
-//     $user = \App\Models\User::find(1);
-//     $user->sendEmailVerificationNotification();
-//     return 'メールを送信しました';
-// });
-
 Route::middleware('header')->group(function () {
     Route::get('/', [HomeController::class, 'index'])->name('index');
     Route::post('/', [HomeController::class, 'search'])->name('index.search');
     Route::get('/item/{item_id}', [ItemController::class, 'show'])->name('item.show');
+    Route::get('activate', [UserController::class, 'inputEmail'])->name('activate.index');
+    Route::post('activate', [UserController::class, 'activateUser'])->name('activate');
 
     Route::middleware(['auth', 'verified'])->group(function () {
-        Route::get('/mypage', [HomeController::class, 'myPageIndex'])->name('mypage');
-        Route::get('/register/profile', [ProfileController::class, 'edit'])->name('register.profile.edit');
-        Route::get('/mypage/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-        Route::post('/mypage/profile', [ProfileController::class, 'update'])->name('profile.update');
-        Route::post('/item/{item_id}/like', [LikeController::class, 'toggleLike'])->name('like');
-        Route::post('/item/{item_id}/comment', [CommentController::class, 'store'])->name('comment.store');
-        Route::post('/item/{item_id}/comment/update/{comment_id}', [CommentController::class, 'update'])->name('comment.update');
-        Route::post('/item/{item_id}/comment/delete/{comment_id}', [CommentController::class, 'delete'])->name('comment.delete');
-        Route::get('/purchase/address/{item_id}', [AddressController::class, 'edit'])->name('address.edit');
-        Route::post('/purchase/address/{item_id}', [AddressController::class, 'update'])->name('address.update');
-        Route::get('/purchase/{item_id}', [PurchaseController::class, 'index'])->name('purchase');
-        Route::post('/purchase/{item_id}', [PurchaseController::class, 'store'])->name('purchase.store');
-        Route::get('/sell', [ItemController::class, 'create'])->name('sell.create');
-        Route::post('/sell', [ItemController::class, 'store'])->name('sell.store');
-        Route::get('/sell/edit/{item_id}', [ItemController::class, 'edit'])->name('sell.edit');
-        Route::post('/sell/update/{item_id}', [ItemController::class, 'update'])->name('sell.update');
-        Route::delete('/sell/delete/{item_id}', [ItemController::class, 'delete'])->name('sell.delete');
+        Route::get('mypage', [HomeController::class, 'myPageIndex'])->name('mypage');
+        Route::get('register/profile', [ProfileController::class, 'edit'])->name('register.profile.edit');
+        Route::get('mypage/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::post('mypage/profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::post('item/{item_id}/like', [LikeController::class, 'toggleLike'])->name('like');
+        Route::post('item/{item_id}/comment', [CommentController::class, 'store'])->name('comment.store');
+        Route::post('item/{item_id}/comment/update/{comment_id}', [CommentController::class, 'update'])->name('comment.update');
+        Route::post('item/{item_id}/comment/delete/{comment_id}', [CommentController::class, 'delete'])->name('comment.delete');
+        Route::get('purchase/address/{item_id}', [AddressController::class, 'edit'])->name('address.edit');
+        Route::post('purchase/address/{item_id}', [AddressController::class, 'update'])->name('address.update');
+        Route::get('purchase/{item_id}', [PurchaseController::class, 'index'])->name('purchase');
+        Route::post('purchase/{item_id}', [PurchaseController::class, 'store'])->name('purchase.store');
+        Route::get('sell', [ItemController::class, 'create'])->name('sell.create');
+        Route::post('sell', [ItemController::class, 'store'])->name('sell.store');
+        Route::get('sell/edit/{item_id}', [ItemController::class, 'edit'])->name('sell.edit');
+        Route::post('sell/update/{item_id}', [ItemController::class, 'update'])->name('sell.update');
+        Route::delete('sell/delete/{item_id}', [ItemController::class, 'delete'])->name('sell.delete');
 
-        // 最終的にPOSTにする
-        Route::delete('/user/deactivate', [UserController::class, 'deactivateUser'])->name('user.deactivate');
-        Route::get('/test/thanks', function () {
-            return view('thanks');
-        });
+        // ユーザ無効化・有効化
+        Route::delete('user/deactivate', [UserController::class, 'deactivateUser'])->name('user.deactivate');
+        Route::get('activate/profile/password', [UserController::class, 'editPassword'])->name('activate.profile.edit');
+        Route::put('activate/profile/password', [UserController::class, 'updatePassword'])->name('activate.profile.update');
 
         // stripeの成功・キャンセル用ルーティング
-        Route::get('/payment/success/{purchase_id}', [PurchaseController::class, 'success'])->name('payment.success');
-        Route::get('/payment/cancel/{purchase_id}', [PurchaseController::class, 'cancel'])->name('payment.cancel');
+        Route::get('payment/success/{purchase_id}', [PurchaseController::class, 'success'])->name('payment.success');
+        Route::get('payment/cancel/{purchase_id}', [PurchaseController::class, 'cancel'])->name('payment.cancel');
     });
 });

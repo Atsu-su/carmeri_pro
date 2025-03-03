@@ -6,6 +6,7 @@ use App\Actions\Fortify\CreateNewUser;
 use App\Actions\Fortify\ResetUserPassword;
 use App\Actions\Fortify\UpdateUserPassword;
 use App\Actions\Fortify\UpdateUserProfileInformation;
+use App\Http\Responses\CustomVerifyEmailResponse;
 use App\Http\Requests\LoginRequest;
 use App\Http\Responses\LogoutResponse;
 use App\Models\User;
@@ -17,7 +18,7 @@ use Illuminate\Support\Str;
 use Laravel\Fortify\Contracts\LogoutResponse as LogoutResponseContract;
 use Laravel\Fortify\Fortify;
 use Laravel\Fortify\Http\Requests\LoginRequest as FortifyLoginRequest;
-
+use Laravel\Fortify\Http\Responses\VerifyEmailResponse;
 
 class FortifyServiceProvider extends ServiceProvider
 {
@@ -27,6 +28,7 @@ class FortifyServiceProvider extends ServiceProvider
     public function register(): void
     {
         app()->bind(FortifyLoginRequest::class, LoginRequest::class);
+        app()->bind(VerifyEmailResponse::class, CustomVerifyEmailResponse::class);
     }
 
     /**

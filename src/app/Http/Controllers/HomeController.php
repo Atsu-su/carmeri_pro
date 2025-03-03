@@ -29,7 +29,9 @@ class HomeController extends Controller
                 ->orderBy('item_id', 'desc')
                 ->get();
 
-            return view('index', compact('items', 'likedItems'));
+            $message = MessageSession::exists('message');
+
+            return view('index', compact('items', 'likedItems', 'message'));
         } else {
             $items = Item::orderBy('id', 'desc')->get();
             return view('index', compact('items'));

@@ -119,6 +119,23 @@ class Message
                     'お手数ですが、しばらく時間をおいて再度お試しください'
                 ],
             ],
+            'password' => [
+                'updated' => [
+                    'success' => [
+                        'status' => self::SUCCESS,
+                        'title' => 'パスワード変更完了',
+                        'contents' => ['パスワードを変更しました'],
+                    ],
+                    'failed' => [
+                        'status' => self::ERROR,
+                        'title' => 'パスワードの変更に失敗しました',
+                        'contents' => [
+                            '申し訳ございません',
+                            'お手数ですが、しばらく時間をおいて再度お試しください'
+                        ],
+                    ]
+                ]
+            ]
         ],
 
         'list' => [

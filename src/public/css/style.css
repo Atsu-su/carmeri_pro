@@ -540,6 +540,10 @@ html {
   text-align: center;
 }
 
+.c-default-form .login-link:hover {
+  opacity: 0.6;
+}
+
 /* ---------------------- */
 /* 商品一覧
 /* ---------------------- */
@@ -1517,6 +1521,8 @@ body {
   text-align: center;
 }
 
+
+
 #item-input .form-name-category {
   margin-bottom: 31px;
 }
@@ -1805,4 +1811,22 @@ body {
 
 #thanks a {
   color: var(--color-font-blue);
+}
+
+/* ----------------------- */
+/* login.blade.php
+/* 商品購入画面（#thanks）
+/* ----------------------- */
+#login .links {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 30px;
+  color: var(--color-font-blue);
+}
+
+#login .links-register:hover,
+#login .links-activate:hover {
+  opacity: 0.6;
 }
