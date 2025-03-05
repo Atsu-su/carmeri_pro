@@ -25,7 +25,7 @@ class CustomVerifyEmail extends VerifyEmail
             $this->user->name . ' さん';
 
         return (new MailMessage)
-            ->subject('CoachTech メールアドレス確認')
+            ->subject('メールアドレス確認')
             ->greeting($greeting)
             ->line('以下のボタンをクリックしてメールアドレスを確認してください。')
             ->line('ボタンを押すと自動的にログインします。')

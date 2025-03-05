@@ -18,6 +18,8 @@ class ResetUserPassword implements ResetsUserPasswords
      */
     public function reset(User $user, array $input): void
     {
+        // バリデーションのルール変更
+        // remember_tokenをカラムに追加
         Validator::make($input, [
             'password' => $this->passwordRules(),
         ])->validate();

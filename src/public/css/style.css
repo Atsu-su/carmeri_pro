@@ -633,6 +633,7 @@ html {
 /* ---------------------- */
 .c-error-message {
   margin-top: 8px;
+  width: 50%;
   color: var(--color-font-red);
   font-size: 0.75rem;
   line-height: 1;
@@ -713,7 +714,7 @@ html {
   background-color: var(--color-bg-btn-white);
   border: 1px solid var(--color-border-gray);
   border-radius: 5px;
-  animation: modalScale 0.5s ease forwards;
+  /* animation: modalScale 0.5s ease forwards; */
 }
 
 @keyframes modalScale {
@@ -727,6 +728,9 @@ html {
   }
 }
 
+.c-modal .message--animation {
+  animation: modalScale 0.5s ease forwards;
+}
 
 @media screen and (max-width: 1000px) {
   .c-modal .message {
@@ -1817,6 +1821,25 @@ body {
 /* login.blade.php
 /* 商品購入画面（#thanks）
 /* ----------------------- */
+#login .container {
+  display: flex;
+  justify-content: space-around;
+}
+
+#login .transparent {
+  width: 50%;
+  color: transparent;
+}
+
+#login .forgot-email {
+  margin-top: 8px;
+  width: 50%;
+  display: block;
+  font-size: 0.75rem;
+  color: var(--color-font-blue);
+  text-align: right;
+}
+
 #login .links {
   display: flex;
   flex-direction: column;
@@ -1829,4 +1852,13 @@ body {
 #login .links-register:hover,
 #login .links-activate:hover {
   opacity: 0.6;
+}
+
+/* ----------------------- */
+/* forgot_password.blade.php
+/* 商品購入画面（#forgot-password）
+/* ----------------------- */
+#forgot-password .form-status {
+  margin-top: 10px;
+  font-size: 0.75rem;
 }

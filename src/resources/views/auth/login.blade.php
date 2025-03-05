@@ -3,6 +3,9 @@
 @section('header')
   @include('components.header')
 @endsection
+@section('modal')
+  @include('components.password_reset_modal')
+@endsection
 @section('content')
   <div class="c-default-form" id="login">
     <h1 class="title">ログイン</h1>
@@ -15,9 +18,14 @@
       @enderror
       <label class="form-title">パスワード</label>
       <input class="form-input" type="password" name="password" value="{{ old('password') ?? 'password' }}">
-      @error('password')
-        <p class="c-error-message">{{ $message }}</p>
-      @enderror
+      <div class="container">
+        @if ($errors->has('password'))
+          <p class="c-error-message">{{ $errors->first('password') }}</p>
+        @else
+          <p class="transparent">###</p>
+        @endif
+        <a class="forgot-email" href="{{ route('password.email') }}">パスワードを忘れた場合</a>
+      </div>
       <button class="form-btn c-btn c-btn--red" type="submit">ログインする</button>
     </form>
     <div class="links">

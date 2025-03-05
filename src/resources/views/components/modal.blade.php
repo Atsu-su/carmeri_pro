@@ -1,6 +1,6 @@
 @if (isset($message))
 <div id="modal" class="c-modal">
-  <div class="message">
+  <div class="message message--animation">
     <div class="message-wrapper">
       @if ($message['status'] == 'success' || $message['status'] == 'info')
         <h1 class="title">{{ $message['title'] }}</h1>
