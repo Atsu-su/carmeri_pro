@@ -11,16 +11,17 @@ use App\Models\Like;
 use App\Models\User;
 use App\Http\Requests\ActivateUserRequest;
 use App\Http\Requests\PasswordRequest;
+use App\Http\Requests\RatingRequest;
 use App\Traits\DeleteItem;
 use Exception;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
-use Laravel\Fortify\Contracts\RegisterResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Laravel\Fortify\Contracts\RegisterResponse;
 
 class UserController extends Controller
 {
@@ -124,6 +125,35 @@ class UserController extends Controller
             return redirect()
                 ->route('index')
                 ->with('message', Message::get('profile.password.updated.failed'));
+        }
+    }
+
+    // （chat view）
+    // ・[done] ボタンクリックでモーダルが開く
+    // ・送信で評価を送る
+    //  (purchasecontroller)
+    // ・[done] 取引完了ボタン押下でAPIでpurchaseテーブルのstatusをcompleteに変更する
+    //  (usercontroller)
+    // ・評価を送るボタンで評価を保存する（total_rating, total_evaluations）
+    //  (homecontroller)
+    // ・purchasesテーブルのstatusがprocessingの時表示
+    //  (mypage view)
+    // ・評価を計算する
+
+    public function rating(RatingRequest $request, $seller_id)
+    {
+        // $seller_idは出品者のID
+        $user = User::find($seller_id);
+
+        try {
+            $user->update([
+                'rating_sum' => $user->rating_sum + $request->input('rating'),
+                'evaluations' => $user->evaluations + 1,
+            ]);
+        } catch (Exception $e) {
+            Log::error($e->getMessage());
+        } finally {
+            return redirect()->route('index');
         }
     }
 }

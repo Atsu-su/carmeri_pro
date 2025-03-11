@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Notifications\CustomCompleteEmail;
 use App\Notifications\CustomVerifyEmail;
 use App\Notifications\CustomResetPasswordNotification;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -51,9 +52,14 @@ class User extends Authenticatable implements MustVerifyEmail
         $this->notify(new CustomResetPasswordNotification($token, $this));
     }
 
+    public function sendEmailCompleteNotification()
+    {
+        $this->notify(new CustomCompleteEmail($this));
+    }
+
     public function items()
     {
-        return $this->hasMany(Item::class);
+        return $this->hasMany(Item::class, 'seller_id');
     }
 
     public function purchases()
@@ -69,5 +75,10 @@ class User extends Authenticatable implements MustVerifyEmail
     public function likes()
     {
         return $this->hasMany(Like::class);
+    }
+
+    public function chats()
+    {
+        return $this->hasMany(Chat::class, sender_id);
     }
 }

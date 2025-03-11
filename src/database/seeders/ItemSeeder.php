@@ -67,7 +67,7 @@ class ItemSeeder extends Seeder
                     'description' => '高音質のレコーディング用マイク',
                     'image' => 'Music+Mic+4632231.jpg',
                     'condition_id' => 2,
-                    'seller_id' => 6,
+                    'seller_id' => 1,
                     'brand' => 'マイクロマイク',
                 ],
                 [
@@ -76,7 +76,7 @@ class ItemSeeder extends Seeder
                     'description' => 'おしゃれなショルダーバッグ',
                     'image' => 'Purse+fashion+pocket.jpg',
                     'condition_id' => 3,
-                    'seller_id' => 7,
+                    'seller_id' => 2,
                     'brand' => 'ぐっちっち',
                 ],
                 [
@@ -85,7 +85,7 @@ class ItemSeeder extends Seeder
                     'description' => '使いやすいタンブラー',
                     'image' => 'Tumbler+souvenir.jpg',
                     'condition_id' => 4,
-                    'seller_id' => 8,
+                    'seller_id' => 3,
                     'brand' => '金属探知機',
                 ],
                 [
@@ -94,7 +94,7 @@ class ItemSeeder extends Seeder
                     'description' => '手動のコーヒーミル',
                     'image' => 'Waitress+with+Coffee+Grinder.jpg',
                     'condition_id' => 1,
-                    'seller_id' => 9,
+                    'seller_id' => 4,
                     'brand' => '久保田',
                 ],
                 [
@@ -103,7 +103,7 @@ class ItemSeeder extends Seeder
                     'description' => '便利なメイクアップセット',
                     'image' => 'makeup+set.jpg',
                     'condition_id' => 2,
-                    'seller_id' => 10,
+                    'seller_id' => 5,
                     'brand' => '魚油産業',
                 ],
                 [

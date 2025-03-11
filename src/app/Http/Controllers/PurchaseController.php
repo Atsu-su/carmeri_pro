@@ -8,8 +8,10 @@ use App\Models\User;
 use App\Messages\Session as MessageSession;
 use App\Messages\Message;
 use Exception;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 use Stripe\Stripe;
 use Stripe\Checkout\Session;
 
@@ -138,5 +140,97 @@ class PurchaseController extends Controller
         return redirect()
             ->route('mypage')
             ->with('message', Message::get('purchase.cancel'));
+    }
+
+    public function complete(Request $request, $purchase_id)
+    {
+        // notBuyer:true => 出品者が取引完了ボタンを押した
+        // notBuyer:false => 購入者が取引完了ボタンを押した
+        $input = [
+            'purchaseId' => $purchase_id,
+            'notBuyer' => $request->query('notBuyer'),
+            'receiverId' => $request->query('receiverId')
+        ];
+
+        $rules = [
+            'purchaseId' => 'required|integer|exists:purchases,id',
+            'notBuyer' => 'required|boolean',
+            'receiverId' => 'required|integer'
+        ];
+
+        $messages = [
+            'purchaseId.required' => '値がありません',
+            'purchaseId.integer' => '値が不正です',
+            'purchaseId.exists' => '取引情報が見つかりません',
+            'notBuyer.required' => '値がありません',
+            'notBuyer.boolean' => '値が不正です',
+            'receiverId.required' => '値がありません',
+            'receiverId.integer' => '値が不正です'
+        ];
+
+        $validator = Validator::make($input, $rules, $messages);
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        // 時間があれば実装
+        //
+        // $user = auth()->user();
+        // $isSeller = $request->query('notBuyer');    // true: 自分が出品者, false: 自分が購入者
+        // $receiverId = $request->query('receiverId');
+        // if ($isSeller) {
+        //     // 出品者
+        //     // 対象の商品が自分が出品し相手が購入しているか確認
+        //     try {
+        //         Purchase::query()
+        //             ->whereHas('item', function ($query) use ($receiverId, $user) {
+        //                 $query->where('seller_id', $user->id);
+        //             })
+        //             ->where('id', $purchase_id)
+        //             ->where('buyer_id', $receiverId)
+        //             ->findOrFail();
+        //     } catch (Exception $e) {
+        //         abort(403);
+        //     }
+        // } else {
+        //     // 購入者
+        //     // 対象の商品が自分が購入し相手が出品しているか確認
+        //     try {
+        //         Purchase::query()
+        //             ->whereHas('item', function ($query) use ($receiverId) {
+        //                 $query->where('seller_id', $receiverId);
+        //             })
+        //             ->where('buyer_id', $user->id)
+        //             ->where('id', $purchase_id)
+        //             ->findOrFail();
+        //     } catch (Exception $e) {
+        //         abort(403);
+        //     }
+        // }
+
+        \Log::info('取引完了ボタンが押されました');
+
+        $isSeller = $request->query('notBuyer');
+        $receiverId = $request->query('receiverId');
+        // 出品者メールを送る処理
+        if (!$isSeller) {
+            // 出品者にメールを送る
+            $seller = User::find($receiverId);
+            $seller->sendEmailCompleteNotification();
+            \Log::info('出品者にメールを送信しました');
+        }
+
+        try {
+            // Purchase::query()
+            //     ->where('id', $purchase_id)
+            //     ->update(['status' => 'complete']);
+            return response()->json(['success' => true]);
+        } catch(Exception $e) {
+            Log::error($e->getMessage());
+            return response()->json(['success' => false], 500);
+        }
     }
 }
