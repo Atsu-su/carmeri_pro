@@ -42,16 +42,11 @@ Route::middleware('header')->group(function () {
         Route::post('item/{item_id}/comment', [CommentController::class, 'store'])->name('comment.store');
         Route::post('item/{item_id}/comment/update/{comment_id}', [CommentController::class, 'update'])->name('comment.update');
         Route::post('item/{item_id}/comment/delete/{comment_id}', [CommentController::class, 'delete'])->name('comment.delete');
+        Route::post('/purchase/{purchase_id}/complete/{is_seller}/{receiver_id}', [PurchaseController::class, 'complete'])->name('purchase.complete');
         Route::get('purchase/address/{item_id}', [AddressController::class, 'edit'])->name('address.edit');
         Route::post('purchase/address/{item_id}', [AddressController::class, 'update'])->name('address.update');
         Route::get('purchase/{item_id}', [PurchaseController::class, 'index'])->name('purchase');
         Route::post('purchase/{item_id}', [PurchaseController::class, 'store'])->name('purchase.store');
-        
-        // ---------------------------------
-        // （修正）クエリパラメータを使わない
-        // ---------------------------------
-        // チャット終了後の処理
-        Route::post('/purchase/complete/{purchase_id}', [PurchaseController::class, 'complete'])->name('purchase.complete');
         Route::get('sell', [ItemController::class, 'create'])->name('sell.create');
         Route::post('sell', [ItemController::class, 'store'])->name('sell.store');
         Route::get('sell/edit/{item_id}', [ItemController::class, 'edit'])->name('sell.edit');
@@ -65,16 +60,6 @@ Route::middleware('header')->group(function () {
         Route::put('activate/profile/password', [UserController::class, 'updatePassword'])->name('activate.profile.update');
         // チャット関連
         Route::get('chat/{purchase_id}', [ChatController::class, 'index'])->name('chat');
-
-        // // API用ルーティング
-        // Route::post('chat/{chat_id}/read/{purchase_id}/{receiver_id}', [ChatController::class, 'read'])->name('chat.read');
-        // Route::post('chat/{chat_id}/update/{receiver_id}', [ChatController::class, 'update'])->name('chat.update');
-        // Route::post('chat/{chat_id}/delete/{receiver_id}', [ChatController::class, 'delete'])->name('chat.delete');
-        // Route::post('chat/image/{purchase_id}/{receiver_id}', [ChatController::class, 'sendImage'])->name('chat.send.image');
-        // Route::post('chat/{purchase_id}/{receiver_id}', [ChatController::class, 'sendMessage'])->name('chat.send')
-        //     ->whereNumber('purchase_id')
-        //     ->whereNumber('receiver_id');
-
         // ------------------------------------------------------------------------------------------------
         // stripeの成功・キャンセル用ルーティング
         Route::get('payment/success/{purchase_id}', [PurchaseController::class, 'success'])->name('payment.success');

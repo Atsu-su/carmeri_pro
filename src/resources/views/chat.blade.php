@@ -30,7 +30,7 @@
     data-chatread="{{ route("chat.read", ['chat_id' => ':chatid', 'purchase_id' => $purchase->id, 'receiver_id' => $receiverId]) }}"
     data-chatupdate="{{ route("chat.update", ['receiver_id' => $receiverId, 'chat_id' => ':chatid']) }}"
     data-chatdelete="{{ route("chat.delete", ['receiver_id' => $receiverId, 'chat_id' => ':chatid']) }}"
-    data-transactioncomplete="{{ route('purchase.complete', $purchase->id) }}?notBuyer={{ (int) $isSeller }}&receiverId={{ $receiverId }}"
+    data-transactioncomplete="{{ route('purchase.complete', ['purchase_id' => $purchase->id, 'is_seller' => $isSeller ? 1 : 0, 'receiver_id' => $receiverId]) }}"
     data-chatsendimage="{{ route('chat.send.image', ['purchase_id' => $purchase->id, 'receiver_id' => $receiverId]) }}"
     ></div>
   <div id="chat" data-purchaseid="{{ $purchase->id }}" data-receiverid="{{ $receiverId }}">
