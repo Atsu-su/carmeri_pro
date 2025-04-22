@@ -16,6 +16,7 @@ class CreateUsersTable extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->boolean('is_active')->default(true)->comment('1: active, 0: inactive');
+            $table->datetime('user_status_changed_at')->nullable()->comment('有効／無効化日時');
             $table->unsignedBigInteger('rating_sum')->default(0)->comment('評価の合計');
             $table->unsignedBigInteger('evaluations')->default(0)->comment('評価数');
             $table->string('name');

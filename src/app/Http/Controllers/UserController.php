@@ -12,6 +12,7 @@ use App\Models\User;
 use App\Http\Requests\ActivateUserRequest;
 use App\Http\Requests\PasswordRequest;
 use App\Http\Requests\RatingRequest;
+use App\Models\Purchase;
 use App\Traits\DeleteItem;
 use Exception;
 use Illuminate\Auth\Events\Registered;
@@ -31,38 +32,39 @@ class UserController extends Controller
     {
         $user = auth()->user();
 
-        try {
-            DB::beginTransaction();
+        $validItems = Item::query()
+            ->filterByUserStatusWithoutSelect('items', 'seller_id')
+            ->select('items.id', 'items.seller_id');
 
+        $sellingImtems = Purchase::query()
+            ->joinSub($validItems, 'valid_items', function ($join) {
+                $join->on('valid_items.id', '=', 'purchases.item_id');
+            })
+            ->where('status', '!=', 'completed')
+            ->where('valid_items.seller_id', $user->id)
+            ->get();
+
+        $purchasingItems = Purchase::query()
+            ->filterByUserStatus('purchases', 'buyer_id')
+            ->where('status', '!=', 'completed')
+            ->where('buyer_id', $user->id)
+            ->get();
+
+        // 取引中の商品がある場合は退会できない
+        if ($sellingImtems->isNotEmpty() || $purchasingItems->isNotEmpty()) {
+            return back()
+                ->with('message', Message::get('user.deactivate.invalid'));
+        }
+
+        try {
             // ユーザを無効化
             $user->update([
                 'is_active' => 0,
+                'rating_sum' => 0,
+                'evaluations' => 0,
                 'email_verified_at' => null,
+                'user_status_changed_at' => now(),
             ]);
-
-            // 出品商品（未購入）の全削除
-            // カテゴリー、コメント、いいねも同時に削除される
-            $items = Item::where('seller_id', $user->id)
-                ->where('on_sale', true)
-                ->get();
-            $itemIds = $items->pluck('id')
-                ->toArray();
-
-            foreach ($itemIds as $itemId) {
-                $result = $this->deleteItem($itemId);
-                if (!$result) {
-                    throw new Exception('Failed to delete item. The item ID is '.$itemId);
-                }
-            }
-            Comment::where('user_id', $user->id)->delete();
-            Like::where('user_id', $user->id)->delete();
-
-            DB::commit();
-
-            // 画像削除
-            foreach ($items as $item) {
-                Storage::delete('item_images/'.$item->image);
-            }
 
             // ログアウト処理を実行
             Auth::guard('web')->logout();
@@ -74,7 +76,6 @@ class UserController extends Controller
             return view('thanks');
         } catch (Exception $e) {
             Log::error($e->getMessage());
-            DB::rollBack();
             return redirect()
                 ->route('mypage')
                 ->with('message', Message::get('user.deactivate.failed'));
@@ -87,19 +88,18 @@ class UserController extends Controller
         return view('auth.input_email');
     }
 
-    public function activateUser(
-            Request $request,
-            ActivateUserRequest $activateUserRequest
-        )
+    public function activateUser(ActivateUserRequest $activateUserRequest)
     {
-        $request->merge(['activate' => true]);
         $user = User::where('email', $activateUserRequest->input('email'))
             ->where('is_active', 0)
             ->first();
 
         event(new Registered($user));
 
-        $user->update(['is_active' => 1]);
+        $user->update([
+            'is_active' => 1,
+            'user_status_changed_at' => now(),
+        ]);
         Auth::guard('web')->login($user);
 
         return app(RegisterResponse::class);
@@ -127,18 +127,6 @@ class UserController extends Controller
                 ->with('message', Message::get('profile.password.updated.failed'));
         }
     }
-
-    // （chat view）
-    // ・[done] ボタンクリックでモーダルが開く
-    // ・送信で評価を送る
-    //  (purchasecontroller)
-    // ・[done] 取引完了ボタン押下でAPIでpurchaseテーブルのstatusをcompleteに変更する
-    //  (usercontroller)
-    // ・評価を送るボタンで評価を保存する（total_rating, total_evaluations）
-    //  (homecontroller)
-    // ・purchasesテーブルのstatusがprocessingの時表示
-    //  (mypage view)
-    // ・評価を計算する
 
     public function rating(RatingRequest $request, $seller_id)
     {

@@ -492,10 +492,6 @@ html {
   position: relative;
 }
 
-.c-item:hover {
-  opacity: 0.8;
-}
-
 .c-item .image-container {
   position: relative;
 }
@@ -507,7 +503,7 @@ html {
 }
 
 .c-item img:hover {
-  opacity: 0.8;
+  opacity: 0.6;
 }
 
 .c-item .new-message-icon2 {
@@ -1159,7 +1155,7 @@ body {
   top: 50%;
   left: 50%;
 }
-
+#index .second-tab-no-item,
 #index .second-tab-login {
   width: 100%;
   text-align: center;

@@ -191,6 +191,31 @@ class Message
                 ],
             ],
         ],
+        'user' => [
+            'deactivate' => [
+                'success' => [
+                    'status' => self::SUCCESS,
+                    'title' => 'ユーザ無効化完了',
+                    'contents' => ['ユーザを無効化しました'],
+                ],
+                'failed' => [
+                    'status' => self::ERROR,
+                    'title' => 'ユーザ無効化に失敗しました',
+                    'contents' => [
+                        '申し訳ございません',
+                        'お手数ですが、しばらく時間をおいて再度お試しください'
+                    ],
+                ],
+                'invalid' => [
+                    'status' => self::ERROR,
+                    'title' => '退会処理を実行できません',
+                    'contents' => [
+                        '申し訳ございません',
+                        '取引中の商品があるため、退会はできません'
+                    ],
+                ],
+            ],
+        ],
     ];
 
     // メッセージを取得するメソッド

@@ -18,13 +18,26 @@ class ItemApiController extends Controller
         ]);
 
         if ($request->is('api/count*')) {
+            $user = auth()->user();
             try {
-                $items = Item::query()
-                    ->select('id', 'name', 'image', 'on_sale')
-                    ->orderBy('id', 'asc')
-                    ->paginate($request->limit);
+                if (auth()->check()) {
+                    $items = Item::query()
+                        ->filterByUserStatusWithoutSelect('items', 'seller_id')
+                        ->where('seller_id', '!=', $user->id)
+                        ->select('items.id', 'items.name', 'items.image', 'items.on_sale')
+                        ->orderBy('id', 'asc')
+                        ->paginate($request->limit);
 
-                return response()->json($items->count());
+                    return response()->json($items->count());
+                } else {
+                    $items = Item::query()
+                        ->filterByUserStatus('items', 'seller_id')
+                        ->select('items.id', 'items.name', 'items.image', 'items.on_sale')
+                        ->orderBy('id', 'asc')
+                        ->paginate($request->limit);
+
+                    return response()->json($items->count());
+                }
             } catch (Exception $e) {
                 Log::error($e->getMessage());
                 return response()->json([
@@ -36,10 +49,21 @@ class ItemApiController extends Controller
 
         if ($request->is('api/images*')) {
             try {
-                $items = Item::query()
-                    ->select('id', 'name', 'image', 'on_sale')
-                    ->orderBy('id', 'asc')
-                    ->paginate($request->limit);
+                if (auth()->check()) {
+                    $user = auth()->user();
+                    $items = Item::query()
+                        ->filterByUserStatusWithoutSelect('items', 'seller_id')
+                        ->where('seller_id', '!=', $user->id)
+                        ->select('items.id', 'items.name', 'items.image', 'items.on_sale')
+                        ->orderBy('id', 'asc')
+                        ->paginate($request->limit);
+                } else {
+                    $items = Item::query()
+                        ->filterByUserStatus('items', 'seller_id')
+                        ->select('items.id', 'items.name', 'items.image', 'items.on_sale')
+                        ->orderBy('id', 'asc')
+                        ->paginate($request->limit);
+                }
 
                 return response()->json($items);
             } catch (Exception $e) {

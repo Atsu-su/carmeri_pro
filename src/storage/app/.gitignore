@@ -3,3 +3,4 @@
 !.gitignore
 public/profile_images/profile_image*
 public/item_images/item_image*
+public/chat_images/chat_image*

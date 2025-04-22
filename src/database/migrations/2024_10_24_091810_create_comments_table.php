@@ -23,7 +23,7 @@ class CreateCommentsTable extends Migration
             $table->foreign('item_id')->references('id')->on('items')->onDelete('cascade');
             $table->foreign('user_id')->references('id')->on('users');
 
-            $table->unique(['item_id', 'user_id']);
+            // $table->unique(['item_id', 'user_id']);
         });
     }
 

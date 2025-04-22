@@ -29,10 +29,10 @@
         @else
           <div id="like-icon" class="item-detail-icons-icon item-detail-icons-like {{ $like ? 'filled' : '' }}">
         @endif
-          <span id="number-of-likes">{{ $item->likes_count }}</span>
+          <span id="number-of-likes">{{ $item->likes_count ?? 0 }}</span>
         </div>
         <div class="item-detail-icons-icon item-detail-icons-comment">
-          <span>{{ $item->comments_count }}</span>
+          <span>{{ $item->comments_count ?? 0 }}</span>
         </div>
       </div>
       @if ($item->isOnSale() && !$item->isOwnItem())

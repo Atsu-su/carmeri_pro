@@ -24,7 +24,9 @@ class ItemSeeder extends Seeder
                     'image' => 'Armani+Mens+Clock.jpg',
                     'condition_id' => 1,
                     'seller_id' => 1,
-                    'brand' => 'アルマーニ'
+                    'brand' => 'アルマーニ',
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ],
                 [
                     'name' => 'HDD',
@@ -33,7 +35,10 @@ class ItemSeeder extends Seeder
                     'image' => 'HDD+Hard+Disk.jpg',
                     'condition_id' => 2,
                     'seller_id' => 2,
-                    'brand' => '日田日立'                ],
+                    'brand' => '日田日立',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ],
                 [
                     'name' => '玉ねぎ3束',
                     'price' => 300,
@@ -42,6 +47,8 @@ class ItemSeeder extends Seeder
                     'condition_id' => 3,
                     'seller_id' => 3,
                     'brand' => '春日井農園',
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ],
                 [
                     'name' => '革靴',
@@ -51,6 +58,8 @@ class ItemSeeder extends Seeder
                     'condition_id' => 4,
                     'seller_id' => 4,
                     'brand' => '牛の皮',
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ],
                 [
                     'name' => 'ノートPC',
@@ -60,6 +69,8 @@ class ItemSeeder extends Seeder
                     'condition_id' => 1,
                     'seller_id' => 5,
                     'brand' => 'NEEC',
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ],
                 [
                     'name' => 'マイク',
@@ -69,6 +80,8 @@ class ItemSeeder extends Seeder
                     'condition_id' => 2,
                     'seller_id' => 1,
                     'brand' => 'マイクロマイク',
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ],
                 [
                     'name' => 'ショルダーバッグ',
@@ -78,6 +91,8 @@ class ItemSeeder extends Seeder
                     'condition_id' => 3,
                     'seller_id' => 2,
                     'brand' => 'ぐっちっち',
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ],
                 [
                     'name' => 'タンブラー',
@@ -87,6 +102,8 @@ class ItemSeeder extends Seeder
                     'condition_id' => 4,
                     'seller_id' => 3,
                     'brand' => '金属探知機',
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ],
                 [
                     'name' => 'コーヒーミル',
@@ -96,6 +113,8 @@ class ItemSeeder extends Seeder
                     'condition_id' => 1,
                     'seller_id' => 4,
                     'brand' => '久保田',
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ],
                 [
                     'name' => 'メイクセット',
@@ -105,6 +124,8 @@ class ItemSeeder extends Seeder
                     'condition_id' => 2,
                     'seller_id' => 5,
                     'brand' => '魚油産業',
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ],
                 [
                     'name' => '腕時計',
@@ -113,7 +134,9 @@ class ItemSeeder extends Seeder
                     'image' => 'Armani+Mens+Clock.jpg',
                     'condition_id' => 1,
                     'seller_id' => 1,
-                    'brand' => 'アルマーニ'
+                    'brand' => 'アルマーニ',
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ],
                 [
                     'name' => 'HDD',
@@ -122,7 +145,10 @@ class ItemSeeder extends Seeder
                     'image' => 'HDD+Hard+Disk.jpg',
                     'condition_id' => 2,
                     'seller_id' => 2,
-                    'brand' => '日田日立'                ],
+                    'brand' => '日田日立',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ],
                 [
                     'name' => '玉ねぎ3束',
                     'price' => 300,
@@ -131,6 +157,8 @@ class ItemSeeder extends Seeder
                     'condition_id' => 3,
                     'seller_id' => 3,
                     'brand' => '春日井農園',
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ],
                 [
                     'name' => '革靴',
@@ -140,6 +168,8 @@ class ItemSeeder extends Seeder
                     'condition_id' => 4,
                     'seller_id' => 4,
                     'brand' => '牛の皮',
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ],
                 [
                     'name' => 'ノートPC',
@@ -149,6 +179,8 @@ class ItemSeeder extends Seeder
                     'condition_id' => 1,
                     'seller_id' => 5,
                     'brand' => 'NEEC',
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ],
                 [
                     'name' => 'マイク',
@@ -158,6 +190,8 @@ class ItemSeeder extends Seeder
                     'condition_id' => 2,
                     'seller_id' => 6,
                     'brand' => 'マイクロマイク',
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ],
                 [
                     'name' => 'ショルダーバッグ',
@@ -167,6 +201,8 @@ class ItemSeeder extends Seeder
                     'condition_id' => 3,
                     'seller_id' => 7,
                     'brand' => 'ぐっちっち',
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ],
                 [
                     'name' => 'タンブラー',
@@ -176,6 +212,8 @@ class ItemSeeder extends Seeder
                     'condition_id' => 4,
                     'seller_id' => 8,
                     'brand' => '金属探知機',
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ],
                 [
                     'name' => 'コーヒーミル',
@@ -185,6 +223,8 @@ class ItemSeeder extends Seeder
                     'condition_id' => 1,
                     'seller_id' => 9,
                     'brand' => '久保田',
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ],
                 [
                     'name' => 'メイクセット',
@@ -194,6 +234,8 @@ class ItemSeeder extends Seeder
                     'condition_id' => 2,
                     'seller_id' => 10,
                     'brand' => '魚油産業',
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ],
                                 [
                     'name' => '腕時計',
@@ -202,7 +244,9 @@ class ItemSeeder extends Seeder
                     'image' => 'Armani+Mens+Clock.jpg',
                     'condition_id' => 1,
                     'seller_id' => 1,
-                    'brand' => 'アルマーニ'
+                    'brand' => 'アルマーニ',
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ],
                 [
                     'name' => 'HDD',
@@ -211,7 +255,10 @@ class ItemSeeder extends Seeder
                     'image' => 'HDD+Hard+Disk.jpg',
                     'condition_id' => 2,
                     'seller_id' => 2,
-                    'brand' => '日田日立'                ],
+                    'brand' => '日田日立',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ],
                 [
                     'name' => '玉ねぎ3束',
                     'price' => 300,
@@ -220,6 +267,8 @@ class ItemSeeder extends Seeder
                     'condition_id' => 3,
                     'seller_id' => 3,
                     'brand' => '春日井農園',
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ],
                 [
                     'name' => '革靴',
@@ -229,6 +278,8 @@ class ItemSeeder extends Seeder
                     'condition_id' => 4,
                     'seller_id' => 4,
                     'brand' => '牛の皮',
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ],
                 [
                     'name' => 'ノートPC',
@@ -238,6 +289,8 @@ class ItemSeeder extends Seeder
                     'condition_id' => 1,
                     'seller_id' => 5,
                     'brand' => 'NEEC',
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ],
                 [
                     'name' => 'マイク',
@@ -247,6 +300,8 @@ class ItemSeeder extends Seeder
                     'condition_id' => 2,
                     'seller_id' => 6,
                     'brand' => 'マイクロマイク',
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ],
                 [
                     'name' => 'ショルダーバッグ',
@@ -256,6 +311,8 @@ class ItemSeeder extends Seeder
                     'condition_id' => 3,
                     'seller_id' => 7,
                     'brand' => 'ぐっちっち',
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ],
                 [
                     'name' => 'タンブラー',
@@ -265,6 +322,8 @@ class ItemSeeder extends Seeder
                     'condition_id' => 4,
                     'seller_id' => 8,
                     'brand' => '金属探知機',
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ],
                 [
                     'name' => 'コーヒーミル',
@@ -274,6 +333,8 @@ class ItemSeeder extends Seeder
                     'condition_id' => 1,
                     'seller_id' => 9,
                     'brand' => '久保田',
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ],
                 [
                     'name' => 'メイクセット',
@@ -283,6 +344,8 @@ class ItemSeeder extends Seeder
                     'condition_id' => 2,
                     'seller_id' => 10,
                     'brand' => '魚油産業',
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ],
                                 [
                     'name' => '腕時計',
@@ -291,7 +354,9 @@ class ItemSeeder extends Seeder
                     'image' => 'Armani+Mens+Clock.jpg',
                     'condition_id' => 1,
                     'seller_id' => 1,
-                    'brand' => 'アルマーニ'
+                    'brand' => 'アルマーニ',
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ],
                 [
                     'name' => 'HDD',
@@ -300,7 +365,10 @@ class ItemSeeder extends Seeder
                     'image' => 'HDD+Hard+Disk.jpg',
                     'condition_id' => 2,
                     'seller_id' => 2,
-                    'brand' => '日田日立'                ],
+                    'brand' => '日田日立',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ],
                 [
                     'name' => '玉ねぎ3束',
                     'price' => 300,
@@ -309,6 +377,8 @@ class ItemSeeder extends Seeder
                     'condition_id' => 3,
                     'seller_id' => 3,
                     'brand' => '春日井農園',
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ],
                 [
                     'name' => '革靴',
@@ -318,6 +388,8 @@ class ItemSeeder extends Seeder
                     'condition_id' => 4,
                     'seller_id' => 4,
                     'brand' => '牛の皮',
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ],
                 [
                     'name' => 'ノートPC',
@@ -327,6 +399,8 @@ class ItemSeeder extends Seeder
                     'condition_id' => 1,
                     'seller_id' => 5,
                     'brand' => 'NEEC',
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ],
                 [
                     'name' => 'マイク',
@@ -336,6 +410,8 @@ class ItemSeeder extends Seeder
                     'condition_id' => 2,
                     'seller_id' => 6,
                     'brand' => 'マイクロマイク',
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ],
                 [
                     'name' => 'ショルダーバッグ',
@@ -345,6 +421,8 @@ class ItemSeeder extends Seeder
                     'condition_id' => 3,
                     'seller_id' => 7,
                     'brand' => 'ぐっちっち',
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ],
                 [
                     'name' => 'タンブラー',
@@ -354,6 +432,8 @@ class ItemSeeder extends Seeder
                     'condition_id' => 4,
                     'seller_id' => 8,
                     'brand' => '金属探知機',
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ],
                 [
                     'name' => 'コーヒーミル',
@@ -363,6 +443,8 @@ class ItemSeeder extends Seeder
                     'condition_id' => 1,
                     'seller_id' => 9,
                     'brand' => '久保田',
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ],
                 [
                     'name' => 'メイクセット',
@@ -372,6 +454,8 @@ class ItemSeeder extends Seeder
                     'condition_id' => 2,
                     'seller_id' => 10,
                     'brand' => '魚油産業',
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ],
             ]);
           }

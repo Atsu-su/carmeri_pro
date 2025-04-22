@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Like;
 use Illuminate\Database\Seeder;
 use Faker\Factory as Faker;
 use Illuminate\Support\Facades\DB;
@@ -17,7 +18,7 @@ class LikeSeeder extends Seeder
     {
         foreach (range(1, 5) as $index) {
             for ($i = 0; $i < 3; ++$i) {
-                DB::table('likes')->insert([
+                Like::create([
                     'item_id' => $index,
                     'user_id' => $i + $index,
                 ]);

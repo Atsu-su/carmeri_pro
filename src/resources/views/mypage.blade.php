@@ -67,7 +67,7 @@
               </a>
               @if ($item->on_sale)
                 <div class="text">
-                  <p>{{ $item->name }}</p>
+                  <p>{{ $item->id }}{{ $item->name }}</p>
                   <a class="text-edit" href="{{ route('sell.edit', ['item_id' => $item->id]) }}">編集</a>
                 </div>
               @else
@@ -97,7 +97,7 @@
         @if ($sellingItems->isEmpty())
           <p class="no-purchased-item">出品している商品のうち、取引中の商品はありません</p>
         @else
-          @foreach ($sellingItems as $index => $purchase)
+          @foreach ($sellingItems as $purchase)
             <a class="c-item" href="{{ route('chat', $purchase->id) }}">
               <div class="image-container">
                 @if ($purchase->item->image && Storage::disk('public')->exists('item_images/'.$purchase->item->image))
@@ -110,13 +110,13 @@
                   <span class="new-message-icon2">{{ $result < 100 ? $result : '99+' }}</span>
                 @endif
               </div>
-              <p>{{ $purchase->item->name }}</p>
+              <p>pid {{ $purchase->id }}:iid {{ $purchase->item->id }}:{{ $purchase->item->name }}</p>
             </a>
           @endforeach
         @endif
       </div>
       <div class="tab fourth-tab js-hidden">
-        @if ($purchasedItems->isEmpty())
+        @if ($purchasingItems->isEmpty())
           <p class="no-purchased-item">購入した商品のうち、取引中の商品はありません</p>
         @else
           @foreach ($purchasingItems as $index => $purchase)

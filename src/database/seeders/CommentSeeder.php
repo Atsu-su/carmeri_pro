@@ -23,6 +23,8 @@ class CommentSeeder extends Seeder
                   'item_id' => $index,
                   'user_id' => $i + $index,
                   'comment' => $faker->realText(100),
+                  'created_at' => now()->add('minutes', 1),
+                  'updated_at' => now()->add('minutes', 1),
               ]);
           }
       }

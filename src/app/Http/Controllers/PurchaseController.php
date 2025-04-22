@@ -20,7 +20,11 @@ class PurchaseController extends Controller
     public function index($item_id)
     {
         $user = auth()->user();
-        $item = Item::with('purchase')->findOrFail($item_id);
+        $item = Item::with('purchase')
+            ->filterByUserStatus('items', 'seller_id')
+            ->findOrFail($item_id);
+
+        // 自分が出品した商品の場合は購入できない（リダイレクト）
         if ($item->isOwnItem()) {
             return redirect()
                 ->route('item.show', ['item_id' => $item_id])

@@ -38,8 +38,12 @@ class ItemController extends Controller
         Storage::put('item_images/'.$fileName, $resizedImage);
     }
 
-    public function checkUser(Item $item, User $user)
+    public function checkUser($item, User $user)
     {
+        // 画面上にない商品は編集できない
+        if (!$item) {
+            abort(403);
+        }
         if ($item->seller_id !== $user->id) {
             abort(403);
         }
@@ -48,10 +52,15 @@ class ItemController extends Controller
     public function show($item_id)
     {
         $item = Item::query()
-        ->with(['categoryItems.category', 'condition'])
-        ->withCount('likes')
-        ->withCount('comments')
-        ->find($item_id);
+            ->with(['categoryItems.category', 'condition'])
+            ->withCount(['likes' => function ($query) {     // filterByUserStatusメソッドの引数が異なるので2つ必要
+                $query->filterByUserStatusWithOutSelect('likes');
+            }])
+            ->withCount(['comments' => function ($query) {
+                $query->filterByUserStatusWithoutSelect('comments');
+            }])
+            ->filterByUserStatusWithoutSelect('items', 'seller_id')
+            ->findOrFail($item_id);
 
         // ログインしていなくても商品情報は表示可能なため確認する
         if (auth()->check()) {
@@ -60,19 +69,22 @@ class ItemController extends Controller
             // ログインしているユーザのコメント
             $myComment = Comment::query()
                 ->with('user')
-                ->where('item_id', $item_id)
-                ->where('user_id', $user->id)
+                ->filterByUserStatus('comments')
+                ->where('comments.item_id', $item_id)
+                ->where('comments.user_id', $user->id)
                 ->first();
 
             // 他のユーザのコメント
             $comments = Comment::query()
                 ->with('user')
+                ->filterByUserStatus('comments')
                 ->where('item_id', $item_id)
                 ->where('user_id', '!=', $user->id)
                 ->get();
 
             // いいねしているかどうかを判定（true or false）
             $like = Like::query()
+                ->filterByUserStatus('likes')
                 ->where('item_id', $item_id)
                 ->where('user_id', $user->id)
                 ->exists();
@@ -108,10 +120,12 @@ class ItemController extends Controller
         $conditions = Condition::all();
         $item = Item::query()
             ->with('categoryItems')
-            ->where('id', $item_id)
+            ->filterByUserStatus('items', 'seller_id')
+            ->where('items.id', $item_id)
             ->first();
 
-        // 出品者のみ編集可能
+        // 出品者かつマイページに表示された商品のみ編集可能
+        // （退会時に登録されていた商品は編集不可）
         $this->checkUser($item, $user);
 
         $categoryIdArray = $item->categoryItems->pluck('category_id')->toArray();
@@ -154,9 +168,11 @@ class ItemController extends Controller
             DB::beginTransaction();
 
             // itemsテーブル更新
-            $item = Item::find($item_id);
+            $item = Item::query()
+                ->filterByUserStatus('items', 'seller_id')
+                ->find($item_id);
 
-            // 出品者のみ編集可能
+            // 出品者かつ画面に表示されている商品のみ編集可能
             $this->checkUser($item, $user);
 
             $item->fill($itemData)->save();

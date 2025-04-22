@@ -55,9 +55,9 @@ Route::middleware('header')->group(function () {
         // 評価のためのルート
         Route::post('rating/{seller_id}', [UserController::class, 'rating'])->name('user.rating');
         // ユーザ無効化・有効化
-        Route::delete('user/deactivate', [UserController::class, 'deactivateUser'])->name('user.deactivate');
         Route::get('activate/profile/password', [UserController::class, 'editPassword'])->name('activate.profile.edit');
         Route::put('activate/profile/password', [UserController::class, 'updatePassword'])->name('activate.profile.update');
+        Route::put('user/deactivate', [UserController::class, 'deactivateUser'])->name('user.deactivate');
         // チャット関連
         Route::get('chat/{purchase_id}', [ChatController::class, 'index'])->name('chat');
         // ------------------------------------------------------------------------------------------------

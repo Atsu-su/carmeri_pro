@@ -13,7 +13,7 @@ trait DeleteItem
      * Delete item
      *
      * @param int $itemId
-     * @return boolean
+     * @return mix
      */
 
     public function deleteItem($itemId)

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Events\MessageSent;
 use App\Library\Message;
 use App\Models\Chat;
+use App\Models\Item;
 use App\Models\Purchase;
 use App\Traits\CompressImage;
 use Carbon\Carbon;
@@ -95,6 +96,8 @@ class ChatController extends Controller
         $isBuyer = false; // true: 購入者, false: 出品者
         $isSeller = false;  // true: 出品者, false: 購入者
 
+        // 購入IDが不正な場合
+
         // このユーザが出品者かどうかを判定
         try {
             // 出品者
@@ -124,6 +127,22 @@ class ChatController extends Controller
         // このユーザが出品者または購入者ではない場合はアクセスを拒否
         if ($isBuyer && $isSeller || !$isBuyer && !$isSeller) {
             abort(403);
+        }
+
+        // 表示されていない商品にアクセスした際は404を返す（findOrFail）
+        if (!$isBuyer && $isSeller) {
+            $validItems = Item::query()
+                ->filterByUserStatus('items', 'seller_id');
+            Purchase::query()
+                ->joinSub($validItems, 'valid_items', function ($query) {
+                    $query->on('purchases.item_id', '=', 'valid_items.id');
+                })
+                ->select('purchases.*')
+                ->findOrFail($purchase_id);
+        } elseif ($isBuyer && !$isSeller) {
+            Purchase::query()
+                ->filterByUserStatus('purchases', 'buyer_id')
+                ->findOrFail($purchase_id);
         }
 
         // チャット情報を取得
@@ -164,7 +183,8 @@ class ChatController extends Controller
         $sellingItems = Purchase::query()
             ->with('item:id,name')
             ->whereHas('item', function ($query) use ($user) {
-                $query->where('seller_id', $user->id);
+                $query->filterByUserStatusWithoutSelect('items', 'seller_id')
+                    ->where('seller_id', $user->id);
             })
             ->where('status', Purchase::PROCESSING)
             ->where('id', '!=', $purchase_id)
@@ -181,10 +201,11 @@ class ChatController extends Controller
         // 現在取引中の購入商品
         $purchasingItems = Purchase::query()
             ->with('item:id,name')
-            ->where('buyer_id', $user->id)
-            ->where('status', Purchase::PROCESSING)
-            ->where('id', '!=', $purchase_id)
-            ->select('id', 'item_id')
+            ->filterByUserStatusWithoutSelect('purchases', 'buyer_id')
+            ->where('purchases.buyer_id', $user->id)
+            ->where('purchases.status', Purchase::PROCESSING)
+            ->where('purchases.id', '!=', $purchase_id)
+            ->select('purchases.id', 'purchases.item_id')
             ->get();
 
         // 商品名が長い場合は省略する
