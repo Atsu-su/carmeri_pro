@@ -24,73 +24,227 @@ class ChatSeeder extends Seeder
      */
     public function run()
     {
-        if (! Chat::exists()) {
-            $faker = Faker::create('ja_JP');
+        $faker = Faker::create('ja_JP');
 
-            $max = 3;
-            for($i = 1; $i <= 5; ++$i ) {
-                $item = Item::find($i);
-
-                for ($j = 0; $j < $max; ++$j) {
-                    // 購入者
-                    Chat::insert([
-                        [
-                            'purchase_id' => $i,
-                            'sender_id' => $i + 1,
-                            'is_read' => false,
-                            'is_text' => false,
-                            'message' => $this->imageArray[array_rand($this->imageArray)],
-                            'created_at' => now()->addMinutes($j),
-                            'updated_at' => now()->addMinutes($j)
-                        ],
-                    ]);
-
-                    // 出品者
-                    Chat::insert([
-                        [
-                            'purchase_id' => $i,
-                            'sender_id' => $item->seller_id,
-                            'is_read' => false,
-                            'message' => $faker->realText(100),
-                            'created_at' => now()->addMinutes($j),
-                            'updated_at' => now()->addMinutes($j)
-                        ],
-                    ]);
-                }
-                ++$max;
+        for ($i = 1; $i <= 5; ++$i) {
+            if ($i <= 2) {
+                Chat::create([
+                    'purchase_id' => 1,
+                    'sender_id' => 1,
+                    'is_read' => false,
+                    'is_text' => false,
+                    'message' => $this->imageArray[array_rand($this->imageArray)],
+                ]);
+            } else {
+                Chat::create([
+                    'purchase_id' => 1,
+                    'sender_id' => 1,
+                    'is_read' => false,
+                    'is_text' => true,
+                    'message' => $faker->realText(100),
+                ]);
             }
 
-            $max = 8;
-            for($i = 1; $i <= 3; ++$i ) {
-                $item = Item::find($i);
-
-                for ($j = 0; $j < $max; ++$j) {
-                    // 購入者
-                    Chat::insert([
-                        [
-                            'purchase_id' => $i + 5,
-                            'sender_id' => $i + 1,
-                            'is_read' => false,
-                            'message' => $faker->realText(100),
-                            'created_at' => now()->addMinutes($j),
-                            'updated_at' => now()->addMinutes($j)
-                        ],
-                    ]);
-
-                    // 出品者
-                    Chat::insert([
-                        [
-                            'purchase_id' => $i + 5,
-                            'sender_id' => $item->seller_id,
-                            'is_read' => false,
-                            'message' => $faker->realText(100),
-                            'created_at' => now()->addMinutes($j),
-                            'updated_at' => now()->addMinutes($j)
-                        ],
-                    ]);
-                }
-                ++$max;
+            if ($i <= 2) {
+                Chat::create([
+                    'purchase_id' => 1,
+                    'sender_id' => 2,
+                    'is_read' => false,
+                    'is_text' => false,
+                    'message' => $this->imageArray[array_rand($this->imageArray)],
+                ]);
+            } else {
+                Chat::create([
+                    'purchase_id' => 1,
+                    'sender_id' => 2,
+                    'is_read' => false,
+                    'is_text' => true,
+                    'message' => $faker->realText(100),
+                ]);
             }
         }
+
+        for ($i = 1; $i <= 5; ++$i) {
+            if ($i <= 2) {
+                Chat::create([
+                    'purchase_id' => 2,
+                    'sender_id' => 2,
+                    'is_read' => false,
+                    'is_text' => false,
+                    'message' => $this->imageArray[array_rand($this->imageArray)],
+                ]);
+            } else {
+                Chat::create([
+                    'purchase_id' => 2,
+                    'sender_id' => 2,
+                    'is_read' => false,
+                    'is_text' => true,
+                    'message' => $faker->realText(100),
+                ]);
+            }
+
+            if ($i <= 2) {
+                Chat::create([
+                    'purchase_id' => 2,
+                    'sender_id' => 1,
+                    'is_read' => false,
+                    'is_text' => false,
+                    'message' => $this->imageArray[array_rand($this->imageArray)],
+                ]);
+            } else {
+                Chat::create([
+                    'purchase_id' => 2,
+                    'sender_id' => 1,
+                    'is_read' => false,
+                    'is_text' => true,
+                    'message' => $faker->realText(100),
+                ]);
+            }
+        }
+
+        for ($i = 1; $i <= 5; ++$i) {
+            if ($i <= 2) {
+                Chat::create([
+                    'purchase_id' => 3,
+                    'sender_id' => 2,
+                    'is_read' => false,
+                    'is_text' => false,
+                    'message' => $this->imageArray[array_rand($this->imageArray)],
+                ]);
+            } else {
+                Chat::create([
+                    'purchase_id' => 3,
+                    'sender_id' => 2,
+                    'is_read' => false,
+                    'is_text' => true,
+                    'message' => $faker->realText(100),
+                ]);
+            }
+
+            if ($i <= 2) {
+                Chat::create([
+                    'purchase_id' => 3,
+                    'sender_id' => 1,
+                    'is_read' => false,
+                    'is_text' => false,
+                    'message' => $this->imageArray[array_rand($this->imageArray)],
+                ]);
+            } else {
+                Chat::create([
+                    'purchase_id' => 3,
+                    'sender_id' => 1,
+                    'is_read' => false,
+                    'is_text' => true,
+                    'message' => $faker->realText(100),
+                ]);
+            }
+        }
+
+        for ($i = 1; $i <= 5; ++$i) {
+            if ($i <= 2) {
+                Chat::create([
+                    'purchase_id' => 4,
+                    'sender_id' => 1,
+                    'is_read' => false,
+                    'is_text' => false,
+                    'message' => $this->imageArray[array_rand($this->imageArray)],
+                ]);
+            } else {
+                Chat::create([
+                    'purchase_id' => 4,
+                    'sender_id' => 1,
+                    'is_read' => false,
+                    'is_text' => true,
+                    'message' => $faker->realText(100),
+                ]);
+            }
+
+            if ($i <= 2) {
+                Chat::create([
+                    'purchase_id' => 4,
+                    'sender_id' => 2,
+                    'is_read' => false,
+                    'is_text' => false,
+                    'message' => $this->imageArray[array_rand($this->imageArray)],
+                ]);
+            } else {
+                Chat::create([
+                    'purchase_id' => 4,
+                    'sender_id' => 2,
+                    'is_read' => false,
+                    'is_text' => true,
+                    'message' => $faker->realText(100),
+                ]);
+            }
+        }
+
+        // if (! Chat::exists()) {
+        //     $faker = Faker::create('ja_JP');
+
+        //     $max = 3;
+        //     for($i = 1; $i <= 5; ++$i ) {
+        //         $item = Item::find($i);
+
+        //         for ($j = 0; $j < $max; ++$j) {
+        //             // 購入者
+        //             Chat::insert([
+        //                 [
+        //                     'purchase_id' => $i,
+        //                     'sender_id' => $i + 1,
+        //                     'is_read' => false,
+        //                     'is_text' => false,
+        //                     'message' => $this->imageArray[array_rand($this->imageArray)],
+        //                     'created_at' => now()->addMinutes($j),
+        //                     'updated_at' => now()->addMinutes($j)
+        //                 ],
+        //             ]);
+
+        //             // 出品者
+        //             Chat::insert([
+        //                 [
+        //                     'purchase_id' => $i,
+        //                     'sender_id' => $item->seller_id,
+        //                     'is_read' => false,
+        //                     'message' => $faker->realText(100),
+        //                     'created_at' => now()->addMinutes($j),
+        //                     'updated_at' => now()->addMinutes($j)
+        //                 ],
+        //             ]);
+        //         }
+        //         ++$max;
+        //     }
+
+        //     $max = 8;
+        //     for($i = 1; $i <= 3; ++$i ) {
+        //         $item = Item::find($i);
+
+        //         for ($j = 0; $j < $max; ++$j) {
+        //             // 購入者
+        //             Chat::insert([
+        //                 [
+        //                     'purchase_id' => $i + 5,
+        //                     'sender_id' => $i + 1,
+        //                     'is_read' => false,
+        //                     'message' => $faker->realText(100),
+        //                     'created_at' => now()->addMinutes($j),
+        //                     'updated_at' => now()->addMinutes($j)
+        //                 ],
+        //             ]);
+
+        //             // 出品者
+        //             Chat::insert([
+        //                 [
+        //                     'purchase_id' => $i + 5,
+        //                     'sender_id' => $item->seller_id,
+        //                     'is_read' => false,
+        //                     'message' => $faker->realText(100),
+        //                     'created_at' => now()->addMinutes($j),
+        //                     'updated_at' => now()->addMinutes($j)
+        //                 ],
+        //             ]);
+        //         }
+        //         ++$max;
+        //     }
+        // }
     }
 }
