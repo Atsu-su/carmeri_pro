@@ -120,9 +120,11 @@ class PurchaseController extends Controller
         Stripe::setApiKey(config('stripe.stripe_secret_key'));
         $session = Session::create([
             // 必要最小限の情報のみ
-            'metadata' => [
-                'user_id' => $user->id,
-                'order_id' => $purchase->id
+            'payment_intent_data' => [
+                'metadata' => [
+                    'user_id' => $user->id,
+                    'purchase_id' => $purchase->id
+                ],
             ],
             'line_items' => [[
                 'price_data' => [

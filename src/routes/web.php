@@ -10,6 +10,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SellerController;
+use App\Http\Controllers\Api\StripeApiController;
 use App\Http\Controllers\UserController;
 use GuzzleHttp\Psr7\Request;
 use Illuminate\Support\Facades\Route;
@@ -24,6 +25,8 @@ use Illuminate\Support\Facades\Route;
 | contains the "web" middleware group. Now create something great!
 |
 */
+
+Route::post('webhook', [StripeApiController::class, 'handleWebhook'])->name('webhook');
 
 Route::middleware('header')->group(function () {
     // 詳細検索表示のために必要なデータを取得するミドルウェア
