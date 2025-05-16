@@ -15,25 +15,27 @@ class HomeController extends Controller
     public function index()
     {
         if (auth()->check()) {
-            $user = auth()->user();
-
-            $likedItems = Like::query()
-                ->with('item')
-                ->filterByUserStatus('likes')
-                ->where('user_id', $user->id)
-                ->whereHas('item', function ($query) use ($user) {
-                    $query->where('items.seller_id', '!=', $user->id);
-                })
-                ->orderBy('item_id', 'desc')
-                ->get();
-
             $message = MessageSession::exists('message');
-
-            return view('index', compact('likedItems', 'message'));
+            return view('index', compact('message'));
         } else {
             $items = Item::orderBy('id', 'desc')->get();
             return view('index', compact('items'));
         }
+    }
+
+    public function favorite() {
+        $user = auth()->user();
+        $likedItems = Like::query()
+            ->with('item')
+            ->filterByUserStatus('likes')
+            ->where('user_id', $user->id)
+            ->whereHas('item', function ($query) use ($user) {
+                $query->where('items.seller_id', '!=', $user->id);
+            })
+            ->orderBy('item_id', 'desc')
+            ->paginate(10);
+
+        return view('favorite', compact('likedItems'));
     }
 
     public function myPageIndex()
@@ -132,38 +134,57 @@ class HomeController extends Controller
         );
     }
 
-    // 次ここから
-    public function search(Request $request)
-    {
-        $keyword = $request->input('keyword');
+    // public function search(Request $request)
+    // {
+    //     // middlewareに変更予定（Middleware/Search.phpを作成済み）
+    //     // 詳細検索用のデータ
+    //     $conditions = Condition::all();
+    //     $categories = Category::all();
 
-        if (auth()->check()) {
-            $user = auth()->user();
+    //     // 検索の場合はスクロールなし、ページネーションありにする
+    //     $searchFlag = true;
+    //     $keyword = $request->input('keyword');
 
-            $items = Item::query()
-                ->where('name', 'like', "%$keyword%")
-                ->where('seller_id', '!=', $user->id)
-                ->orderBy('id', 'desc')
-                ->get();
+    //     if (auth()->check()) {
+    //         $user = auth()->user();
 
-            $likedItems = Like::query()
-                ->with('item')
-                ->where('user_id', $user->id)
-                ->whereHas('item', function ($query) use ($keyword, $user) {
-                    $query->where('name', 'like', "%$keyword%")
-                          ->where('seller_id', '!=', $user->id);
-                })
-                ->orderBy('item_id', 'desc')
-                ->get();
+    //         $items = Item::query()
+    //             ->filterByUserStatus('items', 'seller_id')
+    //             ->where('items.name', 'like', "%$keyword%")
+    //             ->where('items.seller_id', '!=', $user->id)
+    //             ->orderBy('id', 'desc')
+    //             ->paginate(10);
 
-            return view('index', compact('items', 'likedItems', 'keyword'));
-        } else {
-            $items = Item::query()
-            ->where('name', 'like', "%$keyword%")
-            ->orderBy('id', 'desc')
-            ->get();
+    //         $likedItems = Like::query()
+    //             ->with('item')
+    //             ->filterByUserStatus('likes')
+    //             ->where('likes.user_id', $user->id)
+    //             ->whereHas('item', function ($query) use ($keyword, $user) {
+    //                 $query->where('items.name', 'like', "%$keyword%")
+    //                       ->where('items.seller_id', '!=', $user->id);
+    //             })
+    //             ->orderBy('item_id', 'desc')
+    //             ->paginate(10);
 
-            return view('index', compact('items', 'keyword'));
-        }
-    }
+    //         return view('index', compact('items', 'likedItems', 'keyword', 'searchFlag'))
+    //             // middleware導入後削除予定
+    //             ->with([
+    //                 'conditions' => $conditions,
+    //                 'categories' => $categories,
+    //             ]);
+    //         } else {
+    //             $items = Item::query()
+    //                 ->filterByUserStatus('items', 'seller_id')
+    //                 ->where('items.name', 'like', "%$keyword%")
+    //                 ->orderBy('items.id', 'desc')
+    //                 ->paginate(10);
+
+    //             return view('index', compact('items', 'keyword', 'searchFlag'))
+    //             ->with([
+    //                 // middleware導入後削除予定
+    //                 'conditions' => $conditions,
+    //                 'categories' => $categories,
+    //             ]);
+    //     }
+    // }
 }

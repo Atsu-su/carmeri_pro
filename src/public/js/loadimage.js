@@ -1,31 +1,5 @@
 "use strict";
 
-// タブの切り替え処理
-const titles = document.querySelectorAll('.title');
-const tabs = document.querySelectorAll('.tab');
-
-titles.forEach(title => {
-  title.addEventListener('click', (e) => {
-    if (! e.target.classList.contains('js-active-title')) {
-      e.target.classList.add('js-active-title');
-
-      titles.forEach(title => {
-        if (e.target !== title) {
-          title.classList.remove('js-active-title');
-        }
-      })
-
-      tabs.forEach(tab => {
-        if (tab.classList.contains(e.target.dataset.tab)) {
-          tab.classList.remove('js-hidden');
-        } else {
-          tab.classList.add('js-hidden');
-        }
-      });
-    }
-  })
-})
-
 // 画像の無限スクロール読込処理
 const itemRoute = document.getElementById('values').dataset.itemroute;
 const imagePath = document.getElementById('values').dataset.imagepath;
@@ -66,37 +40,42 @@ class InfiniteImageLoader {
   }
 
   async loadImages() {
-    const aTagArray = [];
-    const imgTagArray = [];
-    const pTagArray = [];
-
     // ローディング中にスクロールしても処理を行わない
     this.loading = true;
 
+    const elementArray = [];
     const count = await fetch(`${url}/api/count?page=${this.currentPage}&limit=${this.pageSize}`);
     const countJson = await count.json();
 
     for (let i = 0; i < countJson; i++) {
-      const divTag = document.createElement('div');
+      // const divTag = document.createElement('div');
       const aTag = document.createElement('a');
+      const pTag = document.createElement('p'); // 価格表示用
       const imgTag = document.createElement('img');
-      const pTag = document.createElement('p');
+      const pTag2 = document.createElement('p');  // 商品名表示用
       const spinnerTag = document.createElement('div');
 
       aTag.classList.add('c-item');
-      divTag.classList.add('first-tab-img-container');
       imgTag.setAttribute('width', '290');
       imgTag.setAttribute('height', '281');
       spinnerTag.classList.add('c-spinner');
-      this.container.appendChild(aTag);
-      aTag.appendChild(divTag);
-      divTag.appendChild(imgTag);
-      divTag.appendChild(spinnerTag);
-      aTag.appendChild(pTag);
+      pTag.classList.add('price');
+      pTag.style.display = 'none'; // 初期状態では非表示
+      pTag2.style.display = 'none'; // 初期状態では非表示
 
-      aTagArray.push(aTag);
-      imgTagArray.push(imgTag);
-      pTagArray.push(pTag);
+      this.container.appendChild(aTag);
+      aTag.appendChild(spinnerTag);
+      aTag.appendChild(pTag);
+      aTag.appendChild(imgTag);
+      aTag.appendChild(pTag2);
+
+      elementArray.push({
+        aTag,
+        imgTag,
+        pTag,
+        pTag2,
+        spinnerTag
+      });
     }
 
     try {
@@ -108,7 +87,7 @@ class InfiniteImageLoader {
       }
 
       if (json.data && json.data.length > 0) {
-        await this.displayImages(json.data, aTagArray, imgTagArray, pTagArray);
+        await this.displayImages(json.data, elementArray);
         this.currentPage++;
       }
     } catch (error) {
@@ -118,33 +97,41 @@ class InfiniteImageLoader {
     }
   }
 
-  async displayImages(dataArray, aTagArray, imgTagArray, pTagArray) {
-
+  async displayImages(dataArray, elementArray) {
     // ここの設定から開始
     for (const [index, data] of dataArray.entries()) {
+      const element = elementArray[index];
+
       // aタグ
       let segments = itemRoute.split('/');
       segments[segments.length - 1] = data.id;
-      aTagArray[index].href = segments.join('/');
+      element.aTag.href = segments.join('/');
 
       // imgタグ
       if (data.image) {
-        imgTagArray[index].src = imagePath + data.image;
-        imgTagArray[index].alt = data.name + 'の画像' || '';
+        element.imgTag.src = imagePath + data.image;
+        element.imgTag.alt = data.name + 'の画像' || '';
       } else {
-        imgTagArray[index].classList.add('c-no-image');
-        imgTagArray[index].src = noImagePath;
-        imgTagArray[index].alt = '商品の画像がありません';
+        element.imgTag.classList.add('c-no-image');
+        element.imgTag.src = noImagePath;
+        element.imgTag.alt = '商品の画像がありません';
       }
 
       // pタグ
-      pTagArray[index].textContent = data.id + data.name;
-      if (!data.on_sale) {
-        pTagArray[index].classList.add('sold');
-      }
+      element.pTag.textContent = data.price + '円';
+      element.pTag2.textContent = data.name;
 
       // スピナーを削除
-      imgTagArray[index].parentElement.querySelector('.c-spinner').classList.remove('c-spinner');
+      element.spinnerTag.classList.remove('c-spinner');
+
+      // スピナーの位置が変わらないように最後に表示
+      // 価格・商品名を表示
+      element.pTag.style.display = 'block';
+      element.pTag2.style.display = 'block';
+      // soldマークを表示
+      if (!data.on_sale) {
+        element.pTag2.classList.add('sold');
+      }
     }
   }
 }

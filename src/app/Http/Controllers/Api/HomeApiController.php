@@ -8,7 +8,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
-class ItemApiController extends Controller
+class HomeApiController extends Controller
 {
     public function getImageApi(Request $request)
     {
@@ -54,13 +54,13 @@ class ItemApiController extends Controller
                     $items = Item::query()
                         ->filterByUserStatusWithoutSelect('items', 'seller_id')
                         ->where('seller_id', '!=', $user->id)
-                        ->select('items.id', 'items.name', 'items.image', 'items.on_sale')
+                        ->select('items.id', 'items.name', 'items.image', 'items.on_sale', 'items.price')
                         ->orderBy('id', 'asc')
                         ->paginate($request->limit);
                 } else {
                     $items = Item::query()
                         ->filterByUserStatus('items', 'seller_id')
-                        ->select('items.id', 'items.name', 'items.image', 'items.on_sale')
+                        ->select('items.id', 'items.name', 'items.image', 'items.on_sale', 'items.price')
                         ->orderBy('id', 'asc')
                         ->paginate($request->limit);
                 }

@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Api\ItemApiController;
+use App\Http\Controllers\Api\HomeApiController;
 use App\Http\Controllers\ChatController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -21,8 +21,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 // 画像スクロールロードのためのAPIルーティング（api/は自動で付与されるので不要）
-Route::get('images', [ItemApiController::class, 'getImageApi']);
-Route::get('count', [ItemApiController::class, 'getImageApi']);
+Route::get('images', [HomeApiController::class, 'getImageApi']);
+Route::get('count', [HomeApiController::class, 'getImageApi']);
 
 // 認証済みのユーザのみapiにアクセス可能
 Route::middleware(['auth:web', 'verified'])->group(function () {

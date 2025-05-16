@@ -37,8 +37,8 @@
     </div>
     <div class="c-items">
       <div class="titles">
-        <h2 class="title title-recommend js-active-title" data-tab="first-tab">出品した商品</h2>
-        <h2 class="title title-mylist" data-tab="second-tab">購入した商品</h2>
+        <h2 class="title title-listed js-active-title" data-tab="first-tab">出品した商品</h2>
+        <h2 class="title title-purchased" data-tab="second-tab">購入した商品</h2>
         @php $result = $sellingItems->sum(function ($purchase) {return $purchase->chats->count();}) @endphp
         <h2 class="title title-processing" data-tab="third-tab">取引中の出品商品
           @if ($result > 0)
