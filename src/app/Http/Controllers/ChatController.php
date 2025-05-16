@@ -436,7 +436,7 @@ class ChatController extends Controller
         $message->receiverId = $receiver_id;   // 受信者のユーザID
         $message->purchaseId = $purchase_id;   // 購入ID
         $message->username = $user->name;
-        $message->message = Storage::disk('public')->url('chat_images/' . $fileName);
+        $message->message = Storage::url('chat_images/' . $fileName);
         $message->datetime = $now->format('Y/m/d H:i');
         $message->image = $user->image;
         $message->isText = false;              // 画像送信の場合はfalse

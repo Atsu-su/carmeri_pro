@@ -568,7 +568,6 @@ function deleteAddEvents() {
   const deleteLinks = document.querySelectorAll('.chat-content-list-edit-delete');
   deleteLinks.forEach(function(link) {
     link.addEventListener('click', function(e) {
-      linkParent = link.parentElement;
       const isText = link.parentElement.dataset.istext;
       if (parseInt(isText)) {
         // テキストの場合

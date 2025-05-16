@@ -100,7 +100,7 @@
           @foreach ($sellingItems as $purchase)
             <a class="c-item" href="{{ route('chat', $purchase->id) }}">
               <div class="image-container">
-                @if ($purchase->item->image && Storage::disk('public')->exists('item_images/'.$purchase->item->image))
+                @if ($purchase->item->image && Storage::exists('item_images/'.$purchase->item->image))
                   <img src="{{ asset('storage/item_images/'.$purchase->item->image) }}" width="290" height="281" alt="{{ $purchase->name }}の画像">
                 @else
                   <img class="c-no-image" src="{{ asset('img/'.'no_image.jpg') }}" width="290" height="281" alt="商品の画像がありません">
@@ -122,7 +122,7 @@
           @foreach ($purchasingItems as $index => $purchase)
             <a class="c-item" href="{{ route('chat', $purchase->id) }}">
               <div class="image-container">
-                @if ($purchase->item->image && Storage::disk('public')->exists('item_images/'.$purchase->item->image))
+                @if ($purchase->item->image && Storage::exists('item_images/'.$purchase->item->image))
                   <img src="{{ asset('storage/item_images/'.$purchase->item->image) }}" width="290" height="281" alt="{{ $purchase->name }}の画像">
                 @else
                   <img class="c-no-image" src="{{ asset('img/'.'no_image.jpg') }}" width="290" height="281" alt="商品の画像がありません">
