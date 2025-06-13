@@ -16,14 +16,12 @@
   @include('components.header')
 @endsection
 @section('content')
+  <h1 style="font-size: 50px;">Under construction</h1>
   {{-- jsで取得する定数を定義 --}}
-  <div id="values"
+  {{-- <div id="values"
   data-item-show-url="{{ route('item.show', ['item_id' => 'id']) }}"
   data-sell-edit-url="{{ route('sell.edit', ['item_id' => 'id']) }}"
   data-chat-url="{{ route('chat', ['purchase_id' => 'id']) }}"
-  data-seller-info-url="{{ route('seller.show', ['purchase_id' => 'id']) }}"
-  data-buyer-info-url="{{ route('buyer.show', ['purchase_id' => 'id']) }}"
-  data-delivery-url="{{ route('delivery.show', ['purchase_id' => 'id']) }}"
   ></div>
   <div id="mypage">
     <div class="user">
@@ -70,8 +68,7 @@
           @endif
         </h2>
       </div>
-      <div class="tab table js-first-tab js-active">
-        {{-- 出品した商品 --}}
+      <div class="tab table js-first-tab">
         @if ($listedItems->isEmpty())
           <p class="no-listed-item">出品された商品はありません</p>
         @else
@@ -82,7 +79,7 @@
                   <th>画像</th>
                   <th class="name c-message-show-detail">商品名</th>
                   <th>価格</th>
-                  <th>出品日／<br>取引完了日</th>
+                  <th>出品日</th>
                   <th>ステータス</th>
                   <th>アクション</th>
                 </tr>
@@ -101,7 +98,7 @@
                     </td>
                     <td class="name"><a href="{{ route('item.show', $item->id) }}">{{ $item->name }}</a></td>
                     <td class="price">{{ $item->price }}円</td>
-                    <td class="date"><span>{{ $item->created_at->format('Y/m/d') }}</span><span>yyyy/mm/dd</span></td>
+                    <td class="date">{{ $item->created_at->format('Y/m/d') }}</td>
                     <td class="status">{{ $item->on_sale_text }}</td>
                     <td class="edit">
                       <a href="{{ route('sell.edit', ['item_id' => $item->id]) }}">編集</a>
@@ -147,7 +144,7 @@
                     <td class="name"><a href="{{ route('item.show', $item->item->id) }}">{{ $item->item->name }}</a></td>
                     <td class="price">{{ $item->item->price }}円</td>
                     <td class="date">{{ $item->created_at->format('Y/m/d') }}</td>
-                    <td class="seller"><a href="{{ route('seller.show', ['purchase_id'=> $item->id]) }}">{{ $item->item->user->name }}</a></td>
+                    <td class="seller"><a href="{{ route('seller.show', ['purchase_id'=> $item->id])}}">{{ $item->item->user->name }}</a></td>
                     <td class="chat">
                       <a href="{{ route('chat', ['purchase_id' => $item->id]) }}">表示</a>
                     </td>
@@ -183,16 +180,16 @@
                     <td class="img">
                       <a href="{{ route('item.show', $purchase->item->id) }}">
                         @if ($purchase->item->image && Storage::exists('item_images/'.$purchase->item->image))
-                          <img src="{{ Storage::url('item_images/').$purchase->item->image }}" width="80" height="80" alt="{{ $purchase->name }}の画像">
+                          <img src="{{ Storage::url('item_images/').$purchase->item->image }}" width="290" height="281" alt="{{ $purchase->name }}の画像">
                         @else
-                          <img class="c-no-image" src="{{ asset('img/'.'no_image.jpg') }}" width="80" height="80" alt="商品の画像がありません">
+                          <img class="c-no-image" src="{{ asset('img/'.'no_image.jpg') }}" width="290" height="281" alt="商品の画像がありません">
                         @endif
                       </a>
                     </td>
                     <td class="name"><a href="{{ route('item.show', $purchase->item->id) }}">{{ $purchase->item->name }}</a></td>
                     <td class="chat">
                       <a href="{{ route('chat', ['purchase_id' => $purchase->id]) }}">表示（
-                        @php $result = $purchase->chats->chats_count @endphp
+                        @php $result = $purchase->chats->count() @endphp
                         @if ($result > 0)
                           <span>{{ $result < 100 ? $result : '99+' }}</span>
                         @elseif ($result == 0)
@@ -200,9 +197,11 @@
                         @endif
                       件）</a>
                     </td>
-                    <td class="delivery-status"><a href="{{ route('delivery.show', ['purchase_id' => $purchase->id]) }}">{{ $purchase->status_text}}</a></td>
+                    <td class="delivery-status">
+                      <a href="{{ route('delivery.show', ['purchase_id' => $purchase->id]) }}">{{ $purchase->status_text}}</a>
+                    </td>
                     <td class="date">{{ $purchase->created_at->format('Y/m/d') }}</td>
-                    <td class="buyer"><a href="{{ route('buyer.show', ['purchase_id' => $purchase->id]) }}">{{ $purchase->user->name }}</a></td>
+                    <td class="seller"><a href="">{{ $purchase->user->name }}</a></td>
                   </tr>
                 @endforeach
               </tbody>
@@ -213,58 +212,28 @@
           </div>
         @endif
       </div>
-      <div class="tab table js-forth-tab js-hidden">
+      <div class="tab js-forth-tab js-hidden">
         @if ($purchasingItems->isEmpty())
           <p class="no-purchased-item">購入した商品のうち、取引中の商品はありません</p>
         @else
-          <div class="table-container">
-            <table class="c-table c-table--purchasing-items">
-              <thead>
-                <tr class="header">
-                  <th>画像</th>
-                  <th class="name c-message-show-detail">商品名</th>
-                  <th>チャット<br>（未読件数）</th>
-                  <th>発送ステータス</th>
-                  <th>購入日</th>
-                  <th>出品者者情報</th>
-                </tr>
-              </thead>
-              <tbody id="purchasing-items-tbody">
-                @foreach ($purchasingItems as $purchase)
-                  <tr class="data">
-                    <td class="img">
-                      <a href="{{ route('item.show', $purchase->item->id) }}">
-                        @if ($purchase->item->image && Storage::exists('item_images/'.$purchase->item->image))
-                          <img src="{{ Storage::url('item_images/').$purchase->item->image }}" width="80" height="80" alt="{{ $purchase->name }}の画像">
-                        @else
-                          <img class="c-no-image" src="{{ asset('img/'.'no_image.jpg') }}" width="80" height="80" alt="商品の画像がありません">
-                        @endif
-                      </a>
-                    </td>
-                    <td class="name"><a href="{{ route('item.show', $purchase->item->id) }}">{{ $purchase->item->name }}</a></td>
-                    <td class="chat">
-                      <a href="{{ route('chat', ['purchase_id' => $purchase->id]) }}">表示（
-                        @php $result = $purchase->chats->chats_count @endphp
-                        @if ($result > 0)
-                          <span>{{ $result < 100 ? $result : '99+' }}</span>
-                        @elseif ($result == 0)
-                          <span>{{ $result }}</span>
-                        @endif
-                      件）</a>
-                    </td>
-                    <td class="delivery-status"><a href="{{ route('delivery.show', ['purchase_id' => $purchase->id]) }}">{{ $purchase->status_text}}</a></td>
-                    <td class="date">{{ $purchase->created_at->format('Y/m/d') }}</td>
-                    <td class="seller"><a href="{{ route('seller.show', ['purchase_id' => $purchase->id]) }}">{{ $purchase->item->user->name }}</a></td>
-                  </tr>
-                @endforeach
-              </tbody>
-            </table>
-          </div>
-          <div id="purchasing-items-pagination">
-            {{ ($purchasingItems->links('vendor.pagination.default')) }}
-          </div>
+          @foreach ($purchasingItems as $index => $purchase)
+            <a class="c-item" href="{{ route('chat', $purchase->id) }}">
+              <div class="image-container">
+                @if ($purchase->item->image && Storage::exists('item_images/'.$purchase->item->image))
+                  <img src="{{ Storage::url('item_images/').$purchase->item->image }}" width="290" height="281" alt="{{ $purchase->name }}の画像">
+                @else
+                  <img class="c-no-image" src="{{ asset('img/'.'no_image.jpg') }}" width="290" height="281" alt="商品の画像がありません">
+                @endif
+                @php $result = $purchase->chats->count() @endphp
+                @if ($result > 0)
+                  <span class="new-message-icon2">{{ $result < 100 ? $result : '99+' }}</span>
+                @endif
+              </div>
+              <p>{{ $purchase->item->name }}</p>
+            </a>
+          @endforeach
         @endif
       </div>
     </div>
-  </div>
+  </div> --}}
 @endsection

@@ -9,6 +9,7 @@ use App\Http\Controllers\LikeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\SearchController;
+use App\Http\Controllers\SellerController;
 use App\Http\Controllers\UserController;
 use GuzzleHttp\Psr7\Request;
 use Illuminate\Support\Facades\Route;
@@ -72,6 +73,15 @@ Route::middleware('header')->group(function () {
         Route::put('user/deactivate', [UserController::class, 'deactivateUser'])->name('user.deactivate');
         // チャット関連
         Route::get('chat/{purchase_id}', [ChatController::class, 'index'])->name('chat');
+        // 出品者・購入者情報
+        Route::get('seller/{purchase_id}', [UserController::class, 'show'])->name('seller.show');
+        Route::get('buyer/{purchase_id}', function ($purchase_id) {
+            return view('user');
+        })->name('buyer.show');
+        // 配送状況
+        Route::get('delivery/{purchase_id}', function ($purchase_id) {
+            return view('delivery_status');
+        })->name('delivery.show');
         // ------------------------------------------------------------------------------------------------
         // stripeの成功・キャンセル用ルーティング
         Route::get('payment/success/{purchase_id}', [PurchaseController::class, 'success'])->name('payment.success');

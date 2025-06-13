@@ -28,6 +28,11 @@ class UserController extends Controller
 {
     use DeleteItem;
 
+    public function show()
+    {
+        return view('user');
+    }
+
     public function deactivateUser()
     {
         $user = auth()->user();

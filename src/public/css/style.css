@@ -209,12 +209,15 @@ iframe {
   --color-bg-btn-gray: #EEEFEB;
   --color-bg-modal-light-red: #FDFCE6;
   --color-bg-price-white: #fff;
+  --color-bg-table-header: #f56e6e;
+  --color-bg-table-data: #fff;
   --color-font-base: #000;
   --color-font-blue: #0073CC;
   --color-font-gray: #5F5F5F;
   --color-font-red: #FF5555;
   --color-font-light-gray: #868686;
   --color-font-white: #fff;
+  --color-border-white: #fff;
   --color-border-black: #000;
   --color-border-gray: #5F5F5F;
   --color-border-red: #FF5555;
@@ -510,180 +513,10 @@ html {
 }
 
 /* ---------------------- */
-/* 商品紹介（写真＋商品名）
-/* ---------------------- */
-.c-item {
-  width: 290px;
-  display: block;
-  position: relative;
-}
-
-.c-item .image-container {
-  position: relative;
-}
-
-.c-item .price {
-  padding: 5px 10px;
-  width: fit-content;
-  position: absolute;
-  left: 2px;
-  z-index: 10;
-  font-weight: 700;
-  line-height: 1;
-  background-color: var(--color-bg-price-white);
-  border: 1px solid var(--color-border-light-gray);
-  border-radius: 5px;
-}
-
-.c-item img {
-  width: 100%;
-  height: 281px;
-  object-fit: cover;
-}
-
-.c-item img:hover {
-  opacity: 0.6;
-}
-
-.c-item .new-message-icon2 {
-  padding-bottom: 3px;
-  padding-left: 2px;
-  width: 27px;
-  height: 27px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: absolute;
-  top: 5px;
-  left: 5px;
-  color: var(--color-font-white);
-  font-size: 12px;
-  font-weight: 700;
-  line-height: 1;
-  background-color: var(--color-bg-icon);
-  border-radius: 50%;
-}
-
-.c-item p {
-  margin-top: 8px;
-  width: calc(100% - 45px);
-  font-size: 25px;
-  line-height: 1.2;
-}
-
-.c-item .text {
-  margin-top: 8px;
-  display: flex;
-  justify-content: space-between;
-  gap: 5px;
-  line-height: 1;
-}
-
-.c-item .text a {
-  width: 45px;
-  color: var(--color-font-blue);
-}
-
-.c-item .text a:hover {
-  opacity: 0.8;
-}
-
-.c-item .sold {
-  margin-top: 8px;
-}
-
-.c-item .sold::before {
-  content: "Sold";
-  margin-right: 5px;
-  padding: 3px 8px;
-  display: inline-block;
-  position: relative;
-  top: -3px;
-  color: var(--color-font-red);
-  font-size: 14px;
-  font-weight: 700;
-  line-height: 1;
-  background-color: var(--color-border-white);
-  border: 3px solid var(--color-border-red);
-  border-radius: 5px;
-}
-
-/* ---------------------- */
-/* 商品一覧・商品詳細
-/* ---------------------- */
-.c-no-image {
-  border: 1px solid var(--color-border-gray);
-}
-
-/* ---------------------- */
-/* カテゴリのラベル
-/* ---------------------- */
-.c-label-category {
-  padding: 0px 5%;
-  display: inline-block;
-  line-height: 1.6;
-  border-radius: 15px;
-}
-
-.c-label-category--gray {
-  font-size: 20px;
-  background-color: var(--color-bg-category-gray)
-}
-
-/* ---------------------- */
-/* デフォルトのフォーム
-/* ---------------------- */
-.c-default-form {
-  margin: 50px auto 114px;
-  width: 680px;
-  line-height: 1;
-}
-
-.c-default-form .title {
-  margin-bottom: 54px;
-  font-size: 1.5rem;  /* 36px */
-  font-weight: 700;
-  text-align: center;
-}
-
-.c-default-form .form-title {
-  margin-bottom: 8px;
-  display: block;
-  font-weight: 700;
-}
-
-.c-default-form .form-title:not(:first-of-type) {
-  margin-top: 38px;
-}
-
-.c-default-form .form-input {
-  padding-left: 20px;
-  width: 100%;
-  height: 59px;
-  font-size: 20px;
-  border: 1px solid var(--color-border-gray)
-}
-
-.c-default-form .form-btn {
-  margin-top: 67px;
-  margin-bottom: 35px;
-}
-
-.c-default-form .login-link {
-  display: block;
-  color: var(--color-font-blue);
-  text-align: center;
-}
-
-.c-default-form .login-link:hover {
-  opacity: 0.6;
-}
-
-/* ---------------------- */
 /* 商品一覧
 /* ---------------------- */
 .c-items .titles {
-  margin-bottom: 76px;
+  margin-bottom: 40px;
   width: 100%;
   border-bottom: 2px solid var(--color-border-gray);
 }
@@ -759,11 +592,11 @@ html {
 
 .c-items .new-message-icon {
   margin-left: 8px;
-  width: 35px;
-  height: 35px;
+  width: 25px;
+  height: 25px;
   display: inline-block;
   position: relative;
-  top: 8px;
+  top: 4px;
   color: var(--color-font-white);
   line-height: 1;
   background-color: var(--color-bg-icon);
@@ -771,13 +604,14 @@ html {
 }
 
 .c-items .new-message-icon span {
-  padding-left: 1px;
+  padding-left: 2px;
+  padding-bottom: 2px;
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   font-size: 14px;
-  font-weight: 700;
+  font-weight: normal;
 }
 
 /* column-gapは縦の余白 */
@@ -785,28 +619,39 @@ html {
 .c-items .tab {
   margin: 0 auto 50px;
   width: calc(100% - 70px);
-  display: flex;
+  /* display: flex;
   flex-wrap: wrap;
-  gap: 76px calc((100% - 290px * 4) / 3);
+  gap: 76px calc((100% - 210px * 4) / 3); */
 }
 
-@media screen and (max-width: 1570px) {
+/* @media screen and (max-width: 1280px) {
   .c-items .tab {
-    column-gap: calc((100% - 290px * 3) / 2)
+    column-gap: calc((100% - 210px * 3) / 2)
   }
-}
+} */
 
-@media screen and (max-width: 1250px) {
+@media screen and (max-width: 1000px) {
   .c-items .tab {
     width: calc(100% - 250px);
-    column-gap: calc((100% - 290px * 2))
+    /* column-gap: calc((100% - 210px * 2)) */
   }
 }
 
-@media screen and (max-width: 1110px) {
+/* @media screen and (max-width: 1000px) {
   .c-items .tab {
-    width: 290px;
+    column-gap: calc((100% - 230px * 2))
   }
+} */
+
+@media screen and (max-width: 960px) {
+  .c-items .tab {
+    width: 210px;
+  }
+}
+
+.c-items .table {
+  margin: 0 auto 50px;
+  width: calc(100% - 200px);
 }
 
 .c-items .tab-message {
@@ -817,6 +662,313 @@ html {
 .c-items .no-listed-item,
 .c-items .no-purchased-item {
   margin: 0 auto;
+}
+
+/* ---------------------- */
+/* 商品紹介（写真＋商品名）
+/* ---------------------- */
+.c-item {
+  width: 210px;
+  display: block;
+  position: relative;
+}
+
+.c-item .image-container {
+  position: relative;
+}
+
+.c-item .price {
+  padding: 5px 10px;
+  width: fit-content;
+  position: absolute;
+  left: 2px;
+  z-index: 10;
+  font-weight: 700;
+  line-height: 1;
+  background-color: var(--color-bg-price-white);
+  border: 1px solid var(--color-border-light-gray);
+  border-radius: 5px;
+}
+
+.c-item img {
+  width: 100%;
+  height: 203px;
+  object-fit: cover;
+}
+
+.c-item img:hover {
+  opacity: 0.6;
+}
+
+.c-item .new-message-icon2 {
+  padding-bottom: 3px;
+  padding-left: 2px;
+  width: 27px;
+  height: 27px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  color: var(--color-font-white);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  background-color: var(--color-bg-icon);
+  border-radius: 50%;
+}
+
+.c-item p {
+  margin-top: 8px;
+  width: 100%;
+  font-size: 18px;
+  line-height: 1.2;
+}
+
+.c-item .text {
+  margin-top: 8px;
+  display: flex;
+  justify-content: space-between;
+  gap: 5px;
+  line-height: 1;
+}
+
+.c-item .text a {
+  width: 45px;
+  color: var(--color-font-blue);
+}
+
+.c-item .text a:hover {
+  opacity: 0.8;
+}
+
+.c-item .sold {
+  margin-top: 8px;
+}
+
+.c-item .sold::before {
+  content: "Sold";
+  margin-right: 5px;
+  padding: 3px 8px;
+  display: inline-block;
+  position: relative;
+  top: -3px;
+  color: var(--color-font-red);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  background-color: var(--color-border-white);
+  border: 3px solid var(--color-border-red);
+  border-radius: 5px;
+}
+
+/* ---------------------- */
+/* 商品一覧・商品詳細
+/* ---------------------- */
+.c-no-image {
+  border: 1px solid var(--color-border-gray);
+}
+
+/* ---------------------- */
+/* 商品テーブル
+/* ---------------------- */
+
+.table-container {
+  margin-bottom: 10px;
+  width: 100%;
+  height: 439px;
+}
+
+/* テーブル全体のスタイル */
+.c-table {
+  margin-bottom: 20px;
+  width: 100%;
+  border-collapse: separate; /* separateにして角丸を効かせる */
+  border-spacing: 0; /* セル間のスペースを0に */
+  border-radius: 5px; /* 角丸 */
+  overflow: hidden; /* 角丸を内側のセルにも適用 */
+  font-size: 18px;
+}
+
+/* ヘッダー（th）のスタイル */
+.c-table .header th {
+  height: 84px;
+  background-color: var(--color-bg-table-header); /* 指定された背景色 */
+  border-right: 1px solid var(--color-border-white); /* 中の縦線：白 */
+  padding: 10px;
+  color: var(--color-font-white);
+  text-align: left;
+}
+
+/* ヘッダーの最後の列（右端）の縦線を削除 */
+.c-table .header th:last-child {
+  border-right: none;
+}
+
+/* データセル（td）のスタイル */
+.c-table .data td {
+  padding: 10px 30px;
+  height: 71px;
+  border-right: 1px solid var(--color-border-light-gray); /* 中の縦線：白 */
+  border-bottom: 1px solid var(--color-border-light-gray); /* 中の横線：白 */
+  background-color: var(--color-bg-table-data);
+}
+
+.c-table .data td:first-child {
+  border-left: 1px solid var(--color-border-light-gray); /* 左端の縦線 */
+}
+
+.c-table .data:last-child td:first-child {
+  border-radius: 0 0 0 5px;
+}
+
+.c-table .data:last-child td:last-child {
+  border-radius: 0 0 5px 0;
+}
+
+.c-table .data a {
+  text-decoration: underline;
+}
+
+/* img, name, price, dateは共通部分として扱う */
+.c-table .data .img {
+  width: 50px;
+}
+
+.c-table .data .img a {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.c-table .data img {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+}
+
+.c-table .data img:hover,
+.c-table .data a:hover {
+  opacity: 0.6;
+}
+
+.c-table .data .price {
+  width: 170px;
+}
+
+.c-table .data .date {
+  width: 175px;
+}
+
+/* ここからc-tableの個別設定 */
+/* listed items table */
+.c-table--listed-items .data .date {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.c-table--listed-items .data .date span {
+  display: block;
+}
+
+.c-table--listed-items .data .date span:first-child {
+  padding-bottom: 5px;
+}
+
+.c-table--listed-items .data .status {
+  width: 140px;
+}
+
+.c-table--listed-items .data .edit {
+  width: 150px;
+}
+
+/* purchased items table */
+.c-table--purchased-items .data .seller {
+  width: 180px;
+}
+
+.c-table--purchased-items .data .chat {
+  width: 150px;
+}
+
+/* selling items table */
+/* purchasing item table */
+.c-table--selling-items .data .delivery-status,
+.c-table--selling-items .data .chat,
+.c-table--purchasing-items .data .delivery-status,
+.c-table--purchasing-items .data .chat {
+  width: 200px;
+}
+
+.c-table--selling-items .data .buyer,
+.c-table--purchasing-items .data .seller {
+  width: 180px;
+}
+
+/* ---------------------- */
+/* カテゴリのラベル
+/* ---------------------- */
+.c-label-category {
+  padding: 0px 5%;
+  display: inline-block;
+  line-height: 1.6;
+  border-radius: 15px;
+}
+
+.c-label-category--gray {
+  font-size: 20px;
+  background-color: var(--color-bg-category-gray)
+}
+
+/* ---------------------- */
+/* デフォルトのフォーム
+/* ---------------------- */
+.c-default-form {
+  margin: 50px auto 114px;
+  width: 540px;
+  line-height: 1;
+}
+
+.c-default-form .title {
+  margin-bottom: 20px;
+  font-size: 1.5rem;  /* 36px */
+  font-weight: 700;
+  text-align: center;
+}
+
+.c-default-form .form-title {
+  margin-bottom: 8px;
+  display: block;
+  font-weight: 700;
+}
+
+.c-default-form .form-title:not(:first-of-type) {
+  margin-top: 28px;
+}
+
+.c-default-form .form-input {
+  padding-left: 20px;
+  width: 100%;
+  height: 45px;
+  font-size: 20px;
+  border: 1px solid var(--color-border-gray)
+}
+
+.c-default-form .form-btn {
+  margin-top: 30px;
+  margin-bottom: 35px;
+}
+
+.c-default-form .login-link {
+  display: block;
+  color: var(--color-font-blue);
+  text-align: center;
+}
+
+.c-default-form .login-link:hover {
+  opacity: 0.6;
 }
 
 /* ---------------------- */
@@ -1043,12 +1195,9 @@ html {
   resize: none;
 }
 
-/* =========================== */
-/*
+/* ---------------------- */
 /* laravel ページネイション（共通）
-/*
-/* =========================== */
-
+/* ---------------------- */
 .c-pagination {
   margin-bottom: 30px;
 }
@@ -1103,12 +1252,9 @@ html {
   color: var(--color-font-red);
 }
 
-/* =========================== */
-/*
+/* ---------------------- */
 /* 検索機能
-/*
-/* =========================== */
-
+/* ---------------------- */
 .c-search {
   margin-top: 20px;
 }
@@ -1197,12 +1343,29 @@ html {
   margin-top: 15px auto;
 }
 
-/* =========================== */
-/*
-/* js用クラス
-/*
-/* =========================== */
+/* ---------------------- */
+/* メッセージ（疑似要素）
+/* ---------------------- */
+.c-message-show-detail {
+  position: relative;
+}
 
+.c-message-show-detail::after {
+  content: 'クリックで詳細表示';
+  padding: 2px 5px;
+  position: absolute;
+  top: 18px;
+  left: 75px;
+  color: var(--color-font-white);
+  font-size: 10px;
+  line-height: 1;
+  border: 1px solid var(--color-border-white);
+  border-radius: 5px;
+}
+
+/* ---------------------- */
+/* js用クラス
+/* ---------------------- */
 .js-hidden {
   display: none !important;
 }
@@ -1376,9 +1539,42 @@ body {
   left: 50%;
 }
 
-#index .first-tab-no-item,
-#index .second-tab-no-item,
-#index .second-tab-login {
+/* ここから */
+#index .list-items {
+  margin: 0 auto 50px;
+  width: calc(100% - 70px);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 76px calc((100% - 210px * 4) / 3);
+}
+
+@media screen and (max-width: 1280px) {
+  #index .list-items {
+    column-gap: calc((100% - 210px * 3) / 2)
+  }
+}
+
+@media screen and (max-width: 1000px) {
+  #index .list-items {
+    width: calc(100% - 250px);
+    column-gap: calc((100% - 210px * 2))
+  }
+}
+
+@media screen and (max-width: 1000px) {
+  #index .list-items {
+    column-gap: calc((100% - 230px * 2))
+  }
+}
+
+@media screen and (max-width: 960px) {
+  #index .list-items {
+    width: 210px;
+  }
+}
+/* ここまで */
+
+#index .list-items-no-item {
   width: 100%;
   text-align: center;
 }
@@ -1408,27 +1604,6 @@ body {
   margin-top: 50px;
   width: 100%;
 }
-
-/* #favorite .first-tab-img-container {
-  position: relative;
-}
-
-#favorite .c-spinner {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-} */
-
-/* #favorite .first-tab-no-item,
-#favorite .second-tab-no-item,
-#favorite .second-tab-login {
-  width: 100%;
-  text-align: center;
-} */
-
-/* #favorite .second-tab-login a {
-  color: var(--color-font-blue);
-} */
 
 /* ----------------------- */
 /* item.blade.php

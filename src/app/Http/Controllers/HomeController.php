@@ -9,9 +9,19 @@ use App\Messages\Session as MessageSession;
 use App\Models\Chat;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class HomeController extends Controller
 {
+    public function getImageUrl($image)
+    {
+        // 画像の存在確認と画像URLの取得
+        if ($image && Storage::exists('item_images/'.$image)) {
+            return Storage::url('item_images/'.$image);
+        }
+        return asset('img/no_image.jpg'); // 画像が存在しない場合のURL
+    }
+
     public function index()
     {
         if (auth()->check()) {
@@ -45,13 +55,16 @@ class HomeController extends Controller
         $listedItems = Item::query()
             ->filterByUserStatus('items', 'seller_id')
             ->where('seller_id', $user->id)
-            ->get();
+            ->paginate(5, ['*'], 'listed_items_page');
 
         $purchasedItems = Purchase::query()
-            ->with('item:id,name,image')
+            ->with([
+                'item:id,name,image,price,seller_id',
+                'item.user:id,name,image'
+            ])
             ->filterByUserStatus('purchases', 'buyer_id')
             ->where('buyer_id', $user->id)
-            ->get();
+            ->paginate(5, ['*'], 'purchased_items_page');
 
         $message = MessageSession::exists('message');
 
@@ -87,12 +100,21 @@ class HomeController extends Controller
             ->toArray();
 
         $sellingItems = Purchase::query()
-            ->with(['item:id,name,price,image', 'chats' => function ($query) use ($user) {
+            ->with([
+                'item:id,name,price,image',
+                'chats' => function ($query) use ($user) {
                         $query->where('sender_id', '!=', $user->id)
                             ->where('is_read', false);
-            }])
+                },
+                'user:id,name,image'
+            ])
             ->whereIn('id', $sellingItemsPurchaseIds)
-            ->get();
+            ->paginate(5, ['*'], 'selling_items_page');
+
+        $sellingItems->getCollection()->transform(function ($purchase) {
+            $purchase->chats->chats_count = $purchase->chats->count();
+            return $purchase;
+        });
 
         // 2. 購入者の場合
         $buyerPurchases = Purchase::query()
@@ -115,13 +137,94 @@ class HomeController extends Controller
             ->toArray();
 
         $purchasingItems = Purchase::query()
-            ->with(['item:id,name,price,image', 'chats' => function ($query) use ($user) {
+            ->with([
+                'item:id,name,price,image,seller_id',
+                'item.user:id,name',
+                'chats' => function ($query) use ($user) {
                         $query->where('sender_id', '!=', $user->id)
                             ->where('is_read', false);
             }])
             ->whereIn('id', $purchasingItemsPurchaseIds)
-            ->get();
+            ->paginate(5, ['*'], 'purchasing_items_page');
 
+        $purchasingItems->getCollection()->transform(function ($purchase) {
+            $purchase->chats->chats_count = $purchase->chats->count();
+            return $purchase;
+        });
+
+        // ajaxリクエストの場合（mypageのページネーションからのリクエストなど）
+        if (request()->ajax()) {
+            if (request()->has('listed_items_page')) {
+                // 出品中の商品
+                $listedItems->getCollection()->transform(function ($item) {
+                    $item->image_url = $this->getImageUrl($item->image);
+                    $item->on_sale_text = $item->on_sale_text;
+                    return $item;
+                });
+
+                // ページネーションのHTMLを取得
+                $pagination = $listedItems->links('vendor.pagination.default')->toHtml();
+
+                return response()->json([
+                    'type' => 'listed_items',
+                    'items' => $listedItems,
+                    'pagination' => $pagination,
+                ]);
+            } elseif (request()->has('purchased_items_page')) {
+                // 購入済み商品
+                $purchasedItems->getCollection()->transform(function ($item){
+                    $item->item->image_url = $this->getImageUrl($item->item->image);    // imageUrlプロパティを追加
+                    return $item;
+                });
+
+                // ページネーションのHTMLを取得
+                $pagination = $purchasedItems->links('vendor.pagination.default')->toHtml();
+
+                return response()->json([
+                    'type' => 'purchased_items',
+                    'items' => $purchasedItems,
+                    'pagination' => $pagination
+                ]);
+            } elseif (request()->has('selling_items_page')) {
+                // 購入手続き中の出品商品
+                $sellingItems->getCollection()->transform(function ($purchase) {
+                    $purchase->item->image_url = $this->getImageUrl($purchase->item->image);
+                    $purchase->status_text = $purchase->status_text;
+                    $purchase->chats->chats_count = $purchase->chats->count();
+                    return $purchase;
+                });
+
+                // ページネーションのHTMLを取得
+                $pagination = $sellingItems->links('vendor.pagination.default')->toHtml();
+
+                return response()->json([
+                    'type' => 'selling_items',
+                    'items' => $sellingItems,
+                    'pagination' => $pagination
+                ]);
+            } elseif (request()->has('purchasing_items_page')) {
+                // 購入手続き中の商品
+                $purchasingItems->getCollection()->transform(function ($purchase) {
+                    $purchase->item->image_url = $this->getImageUrl($purchase->item->image);
+                    $purchase->status_text = $purchase->status_text;
+                    $purchase->chats->chats_count = $purchase->chats->count();
+                    return $purchase;
+                });
+
+                // ページネーションのHTMLを取得
+                $pagination = $purchasingItems->links('vendor.pagination.default')->toHtml();
+
+                return response()->json([
+                    'type' => 'purchasing_items',
+                    'items' => $purchasingItems,
+                    'pagination' => $pagination
+                ]);
+            } else {
+                return response()->json([]);
+            }
+        }
+
+        // 通常のリクエストの場合
         return view('mypage',
             compact(
                 'user',
@@ -133,58 +236,4 @@ class HomeController extends Controller
             )
         );
     }
-
-    // public function search(Request $request)
-    // {
-    //     // middlewareに変更予定（Middleware/Search.phpを作成済み）
-    //     // 詳細検索用のデータ
-    //     $conditions = Condition::all();
-    //     $categories = Category::all();
-
-    //     // 検索の場合はスクロールなし、ページネーションありにする
-    //     $searchFlag = true;
-    //     $keyword = $request->input('keyword');
-
-    //     if (auth()->check()) {
-    //         $user = auth()->user();
-
-    //         $items = Item::query()
-    //             ->filterByUserStatus('items', 'seller_id')
-    //             ->where('items.name', 'like', "%$keyword%")
-    //             ->where('items.seller_id', '!=', $user->id)
-    //             ->orderBy('id', 'desc')
-    //             ->paginate(10);
-
-    //         $likedItems = Like::query()
-    //             ->with('item')
-    //             ->filterByUserStatus('likes')
-    //             ->where('likes.user_id', $user->id)
-    //             ->whereHas('item', function ($query) use ($keyword, $user) {
-    //                 $query->where('items.name', 'like', "%$keyword%")
-    //                       ->where('items.seller_id', '!=', $user->id);
-    //             })
-    //             ->orderBy('item_id', 'desc')
-    //             ->paginate(10);
-
-    //         return view('index', compact('items', 'likedItems', 'keyword', 'searchFlag'))
-    //             // middleware導入後削除予定
-    //             ->with([
-    //                 'conditions' => $conditions,
-    //                 'categories' => $categories,
-    //             ]);
-    //         } else {
-    //             $items = Item::query()
-    //                 ->filterByUserStatus('items', 'seller_id')
-    //                 ->where('items.name', 'like', "%$keyword%")
-    //                 ->orderBy('items.id', 'desc')
-    //                 ->paginate(10);
-
-    //             return view('index', compact('items', 'keyword', 'searchFlag'))
-    //             ->with([
-    //                 // middleware導入後削除予定
-    //                 'conditions' => $conditions,
-    //                 'categories' => $categories,
-    //             ]);
-    //     }
-    // }
 }

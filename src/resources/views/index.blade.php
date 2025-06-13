@@ -42,48 +42,38 @@
         <h2 class="title title-favorite-list"><a href="{{ route('favorite') }}">お気に入り</a></h2>
       </div>
       {{-- HomeController内に$searchFlag, advancedSearchFlagは存在しない --}}
+      {{-- 一覧表示（スクロールでロード） --}}
       @if (!isset($searchFlag) && !isset($advancedSearchFlag))
-        <div id="first-tab" class="tab first-tab"></div>
+        <div id="load-image" class="list-items"></div>
       @else
-        <div class="first-tab-container">
-          <div id="first-tab" class="tab first-tab">
-            @if ($items->isEmpty())
-              <p class="first-tab-no-item">検索条件に一致する商品はありません</p>
-            @else
-              @foreach ($items as $item)
-                <a class="c-item" href="{{ route('item.show', $item->id) }}">
-                  <p class="price">{{ $item->price }}円</p>
-                  @if ($item->image && Storage::exists('item_images/'.$item->image))
-                    <img src="{{ Storage::url('item_images/').$item->image }}" width="290" height="281" alt="【商品名】の画像">
-                  @else
-                    <img class="c-no-image" src="{{ asset('img/'.'no_image.jpg') }}" width="290" height="281" alt="商品の画像がありません">
-                  @endif
-                  @if ($item->isOnSale())
-                    <p>{{ $item->name }}</p>
-                  @else
-                    <p class="sold">{{ $item->name }}</p>
-                  @endif
-                </a>
-              @endforeach
-            @endif
-          </div>
-          {{-- ページネーション --}}
-          @if (isset($searchFlag) && $searchFlag)
-            {{ ($items->appends(['keyword' => $keyword])->links('vendor.pagination.default')) }}
-          @elseif (isset($advancedSearchFlag) && $advancedSearchFlag)
-            @php
-            // $array = [
-            //   'keyword' => $searchArray['keyword'],
-            //   'category_id' => $searchArray['categoryId'],
-            //   'brand' => $searchArray['brand'],
-            //   'condition_id' => $searchArray['conditionId'],
-            //   'min_price' => $searchArray['minPrice'],
-            //   'max_price' => $searchArray['maxPrice']
-            // ];
-            @endphp
-            {{ ($items->appends($searchArray)->links('vendor.pagination.default')) }}
+        {{-- 検索結果表示 --}}
+        <div class="list-items">
+          @if ($items->isEmpty())
+            <p class="list-items-no-item">検索条件に一致する商品はありません</p>
+          @else
+            @foreach ($items as $item)
+              <a class="c-item" href="{{ route('item.show', $item->id) }}">
+                <p class="price">{{ $item->price }}円</p>
+                @if ($item->image && Storage::exists('item_images/'.$item->image))
+                  <img src="{{ Storage::url('item_images/').$item->image }}" width="250" height="242" alt="【商品名】の画像">
+                @else
+                  <img class="c-no-image" src="{{ asset('img/'.'no_image.jpg') }}" width="250" height="242" alt="商品の画像がありません">
+                @endif
+                @if ($item->isOnSale())
+                  <p>{{ $item->name }}</p>
+                @else
+                  <p class="sold">{{ $item->name }}</p>
+                @endif
+              </a>
+            @endforeach
           @endif
-          </div>
+        </div>
+        {{-- ページネーション --}}
+        @if (isset($searchFlag) && $searchFlag)
+          {{ ($items->appends(['keyword' => $keyword])->links('vendor.pagination.default')) }}
+        @elseif (isset($advancedSearchFlag) && $advancedSearchFlag)
+          {{ ($items->appends($searchArray)->links('vendor.pagination.default')) }}
+        @endif
       @endif
     </div>
   </div>

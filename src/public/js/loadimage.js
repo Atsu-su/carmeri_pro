@@ -8,7 +8,7 @@ const url = document.getElementById('values').dataset.url;
 
 class InfiniteImageLoader {
   constructor(options = {}) {
-    this.container = options.container || document.getElementById('first-tab');
+    this.container = options.container || document.getElementById('load-image');
     this.pageSize = options.pageSize || 10;
     this.currentPage = 1;
     this.threshold = options.threshold || 200;
@@ -137,7 +137,8 @@ class InfiniteImageLoader {
 }
 
 const urlBasedLoader = new InfiniteImageLoader({
-    container: document.getElementById('first-tab'),
+    // デフォルトが document.getElementById('load-imageなので
+    // container: document.getElementById('load-image'),
     pageSize: 10,
     threshold: 300,
 });

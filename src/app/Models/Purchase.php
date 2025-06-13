@@ -17,6 +17,22 @@ class Purchase extends Model
         return $this->status === 'purchased';
     }
 
+    public function getStatusTextAttribute()
+    {
+        switch ($this->status) {
+            case 'purchased':
+                return '購入済み';
+            case 'processing':
+                return '発送待ち';
+            case 'shipped':
+                return '発送済み';
+            case 'completed':
+                return '取引完了';
+            default:
+                return '不明なステータス';
+        }
+    }
+
     public function item()
     {
         return $this->belongsTo(Item::class);

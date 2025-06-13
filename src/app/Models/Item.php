@@ -25,7 +25,10 @@ class Item extends Model
         return $this->hasMany(CategoryItem::class);
     }
 
-    // 修正
+    public function getOnSaleTextAttribute() {
+        return $this->on_sale ? '出品中' : '販売済み';
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class, 'seller_id');
