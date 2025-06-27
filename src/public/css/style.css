@@ -1159,6 +1159,7 @@ html {
 /* テキストエリア
 /* ---------------------- */
 .c-flex {
+  max-height: 800px;
   position: relative;
   font-size: 20px;
   line-height: 1.8;

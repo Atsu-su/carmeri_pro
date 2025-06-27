@@ -600,13 +600,16 @@ function saveTextAreaToCookie(textarea, cookieName, id, expirationHours = 1) {
 
 // Cookieからtextareaの値を取得して設定する関数
 function loadTextAreaFromCookie(textarea, cookieName) {
-    // Cookieから値を取得
-    const value = getCookie(cookieName);
+  // dummy要素にも値をセットする
+  const dummy = document.getElementById('input-dummy');
+  // Cookieから値を取得
+  const value = getCookie(cookieName);
 
-    // textareaに値をセット
-    if (value) {
-        textarea.value = decodeURIComponent(value);
-    }
+  // textareaとdummy要素に値をセット
+  if (value) {
+      textarea.value = decodeURIComponent(value);
+      dummy.textContent = textarea.value + '\u200b'; // ダミー要素に値をセットして高さを調整
+  }
 }
 
 // 指定したCookieの値を取得する関数
@@ -768,6 +771,18 @@ function closeImageModal() {
 }
 
 // ================================================
+// Ctrl+Enterでメッセージ送信
+// ================================================
+
+function sendMessageWithEnterCtrl(event) {
+  if (event.key === 'Enter' && event.ctrlKey) {
+    event.preventDefault(); // Enterキーで改行しない
+    if (isSending) return
+    sendMessage();
+  }
+}
+
+// ================================================
 // DOM読み込み後の処理
 // ================================================
 
@@ -828,12 +843,8 @@ document.addEventListener('DOMContentLoaded', function() {
     sendMessage();
   });
 
-  document.addEventListener('keydown', function(event) {
-    if (event.key === 'Enter' && !event.ctrKey) {
-      event.preventDefault(); // Enterキーで改行しない
-      if (isSending) return
-      sendMessage();
-    }
+  document.addEventListener('keydown', (event) => {
+    sendMessageWithEnterCtrl(event);
   });
 
   // 画像プレビュー関連のイベント
