@@ -661,7 +661,7 @@ html {
 
 .c-items .no-listed-item,
 .c-items .no-purchased-item {
-  margin: 0 auto;
+  text-align: center;
 }
 
 /* ---------------------- */
@@ -895,9 +895,9 @@ html {
 
 /* selling items table */
 /* purchasing item table */
-.c-table--selling-items .data .delivery-status,
+.c-table--selling-items .data .item-status,
 .c-table--selling-items .data .chat,
-.c-table--purchasing-items .data .delivery-status,
+.c-table--purchasing-items .data .item-status,
 .c-table--purchasing-items .data .chat {
   width: 200px;
 }
@@ -3049,4 +3049,133 @@ body {
   margin-top: 20px;
   display: flex;
   gap: 40px;
+}
+
+/* ----------------------- */
+/* chat.blade.php
+/* チャット画面（#item_status）
+/* ----------------------- */
+#item-status {
+  margin: 50px auto 114px;
+  width: 80%;
+  display: flex;
+  justify-content: space-between;
+  line-height: 1;
+}
+
+#item-status .detail {
+  width: 50%;
+  border: 1px solid var(--color-border-gray);
+  border-radius: 5px;
+}
+
+#item-status .detail-label {
+  font-weight: bold;
+}
+#item-status .detail-label:not(:first-of-type) {
+  margin-top: 25px;
+}
+
+/* （ここから）------- padding関連 ------- */
+#item-status .detail {  /* 上下のpaddingを追加 */
+  padding: 20px 0;
+}
+
+#item-status .grid-container .grid-item,
+#item-status .img-container {
+  padding: 10px 15px;
+}
+/* （ここまで）------- padding関連 ------- */
+
+#item-status .grid-container {
+  margin-top: 30px;
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* 2列で設定 */
+  row-gap: 10px;
+}
+
+#item-status .grid-container > *:nth-child(n+3) {
+  grid-column: 1 / -1; /* 3番目以降の要素を全幅に */
+}
+
+#item-status .grid-item {
+  border-top: 1px solid var(--color-border-gray);
+}
+
+#item-status .grid-item-name,
+#item-status .grid-item-price {
+  width: 100%;
+}
+
+#item-status .grid-container .grid-item .detail-value {
+  margin-top: 15px;
+  padding-left: 20px;
+}
+
+#item-status .detail-value-img {
+  margin: 0 auto;
+  width: 200px;
+  height: 200px;
+  display: block;
+}
+
+#item-status .status {
+  width: 40%;
+  align-self: flex-start;
+}
+
+#item-status .status dl {
+  padding: 30px 15px;
+  border: 3px solid var(--color-border-gray);
+  border-radius: 5px;
+}
+
+#item-status .status-label {
+  font-size: 28px;
+  font-weight: bold;
+}
+
+#item-status .status-label:not(:first-of-type) {
+  margin-top: 25px;
+}
+
+#item-status .status-value {
+  margin-top: 20px;
+  padding-left: 20px;
+  color: var(--color-font-red);
+  font-size: 24px;
+  font-weight: bold;
+}
+
+#item-status .change-status-button {
+  margin-top: 30px;
+}
+
+#item-status .item-status-dialog {
+  padding: 30px;
+  width: 420px;
+  border: 1px solid var(--color-border-gray);
+}
+
+#item-status .item-status-dialog-grid-container {
+  margin: 25px auto;
+  width: 320px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 16px;
+}
+
+#item-status .item-status-dialog-grid-container > p:nth-child(odd) {
+  white-space: nowrap;
+}
+
+#item-status .item-status-dialog-title {
+  font-size: 20px;
+  font-weight: 700;
+  text-align: center;
+}
+
+#item-status .item-status-dialog-buttons {
+  display: flex;
+  gap: 10px;
 }

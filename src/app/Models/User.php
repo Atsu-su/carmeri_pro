@@ -5,6 +5,8 @@ namespace App\Models;
 use App\Notifications\CustomCompleteEmail;
 use App\Notifications\CustomVerifyEmail;
 use App\Notifications\CustomResetPasswordNotification;
+use App\Notifications\CustomStatusChangedToCompletedEmail;
+use App\Notifications\CustomStatusChangedToShippedEmail;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -55,6 +57,16 @@ class User extends Authenticatable implements MustVerifyEmail
     public function sendEmailCompleteNotification()
     {
         $this->notify(new CustomCompleteEmail($this));
+    }
+
+    public function sendEmailStatusChangedToShippedNotification($purchase)
+    {
+        $this->notify(new CustomStatusChangedToShippedEmail($purchase, $this));
+    }
+
+    public function sendEmailStatusChangedToCompletedNotification($purchase)
+    {
+        $this->notify(new CustomStatusChangedToCompletedEmail($purchase, $this));
     }
 
     public function items()

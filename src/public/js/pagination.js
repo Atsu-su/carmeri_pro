@@ -257,10 +257,10 @@ function renderSellingItems(purchases) {
 
     // 発送ステータスセル
     const deliveryStatusTd = document.createElement('td');
-    deliveryStatusTd.className = 'delivery-status';
+    deliveryStatusTd.className = 'item-status';
     const deliveryLink = document.createElement('a');
-    const deliveryUrl = document.getElementById('values').dataset.deliveryUrl;
-    deliveryLink.href = formatUrl(deliveryUrl, purchase.id, 4); // route('delivery.show', ['purchase_id' => $purchase->id])相当
+    const statusSellerUrl = document.getElementById('values').dataset.statusSellerUrl;
+    deliveryLink.href = formatUrl(statusSellerUrl, purchase.id, 4); // route('delivery.show', ['purchase_id' => $purchase->id])相当
     deliveryLink.textContent = purchase.status_text;
     deliveryStatusTd.appendChild(deliveryLink);
 
@@ -346,10 +346,10 @@ function renderPurchasingItems(purchases) {
 
     // 発送ステータスセル
     const deliveryStatusTd = document.createElement('td');
-    deliveryStatusTd.className = 'delivery-status';
+    deliveryStatusTd.className = 'item-status';
     const deliveryLink = document.createElement('a');
-    const deliveryUrl = document.getElementById('values').dataset.deliveryUrl;
-    deliveryLink.href = formatUrl(deliveryUrl, purchase.id, 4); // route('delivery.show', ['purchase_id' => $purchase->id])相当
+    const statusBuyerUrl = document.getElementById('values').dataset.statusBuyerUrl;
+    deliveryLink.href = formatUrl(statusBuyerUrl, purchase.id, 4); // route('delivery.show', ['purchase_id' => $purchase->id])相当
     deliveryLink.textContent = purchase.status_text;
     deliveryStatusTd.appendChild(deliveryLink);
 

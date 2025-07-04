@@ -21,27 +21,31 @@ class PurchaseSeeder extends Seeder
             'buyer_id' => 2,
             'payment_method_id' => 1,
             'status' => 'processing',
+            'shipped_at' => null,
         ]);
 
         Purchase::create([
             'item_id' => 2,
             'buyer_id' => 1,
             'payment_method_id' => 2,
-            'status' => 'processing',
+            'status' => 'paid',
+            'shipped_at' => null,
         ]);
 
         Purchase::create([
             'item_id' => 6,
             'buyer_id' => 2,
             'payment_method_id' => 1,
-            'status' => 'processing',
+            'status' => 'shipped',
+            'shipped_at' => now()->addDay(2),
         ]);
 
         Purchase::create([
             'item_id' => 7,
             'buyer_id' => 1,
             'payment_method_id' => 2,
-            'status' => 'processing',
+            'shipped_at' => now()->addDay(7),
+            'status' => 'completed',
         ]);
 
         // $faker = Faker::create();

@@ -86,7 +86,7 @@ class HomeController extends Controller
                 $query->on('purchases.item_id', '=', 'valid_items.id');
             })
             ->where('valid_items.seller_id', '=', $user->id)
-            ->where('purchases.status', Purchase::PROCESSING);
+            ->where('purchases.status', '!=', Purchase::COMPLETED);
 
         $sellingItemsPurchaseIds = DB::query()
             ->select('vp.id')
@@ -123,7 +123,7 @@ class HomeController extends Controller
                 $query->on('purchases.item_id', '=', 'valid_items.id');
             })
             ->where('purchases.buyer_id', '=', $user->id)
-            ->where('purchases.status', Purchase::PROCESSING);
+            ->where('purchases.status', '!=', Purchase::COMPLETED);
 
         $purchasingItemsPurchaseIds = DB::query()
             ->select('vp.id')

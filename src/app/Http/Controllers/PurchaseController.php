@@ -7,6 +7,7 @@ use App\Models\Purchase;
 use App\Models\User;
 use App\Messages\Session as MessageSession;
 use App\Messages\Message;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -43,6 +44,7 @@ class PurchaseController extends Controller
 
             // nameのみ必要
             $item = Item::query()
+                ->filterByUserStatus('items', 'seller_id')
                 ->where('id', $item_id)
                 ->where('on_sale', true)
                 ->lockForUpdate()
@@ -57,7 +59,7 @@ class PurchaseController extends Controller
             $purchase = Purchase::create([
                 'item_id' => $item->id,
                 'buyer_id' => $user->id,
-                'status' => 'processing',
+                'status' => Purchase::PROCESSING,
             ]);
 
             DB::commit();
@@ -106,7 +108,7 @@ class PurchaseController extends Controller
             ->first();
 
         try {
-            $item->update(['status' => 'purchased']);
+            $item->update(['status' => Purchase::PAID]);
         } catch (Exception $e) {
             Log::error('==========お客様支払い完了後のDB更新に失敗==========');
             Log::error('purchasesテーブルのstatusがprocessingのままです');
@@ -132,7 +134,8 @@ class PurchaseController extends Controller
             $item->delete();
             $item->item->update(['on_sale' => true]);
         } catch (Exception $e) {
-            Log::error('==========お客様支払い完了後のDB更新に失敗==========');
+            Log::error('==========お客様支払いキャンセルのDB更新に失敗==========');
+            Log::error('支払いがキャンセルされましたが、その後のDB更新処理に失敗しました');
             Log::error('purchasesテーブルのstatusがprocessingのままの可能性があります');
             Log::error('itemsテーブルのon_saleが0（false）のままの可能性があります');
             Log::error('purchasesテーブルの情報');
@@ -189,7 +192,6 @@ class PurchaseController extends Controller
                     $query->where('seller_id', $receiverId);
                 })
                 ->where('buyer_id', $user->id)
-                // ->where('id', $purchase_id)
                 ->findOrFail($purchase_id);
         } catch (Exception $e) {
             abort(403);
@@ -205,11 +207,153 @@ class PurchaseController extends Controller
         try {
             Purchase::query()
                 ->where('id', $purchase_id)
-                ->update(['status' => 'complete']);
+                ->update(['status' => Purchase::COMPLETED]);
             return response()->json(['success' => true]);
         } catch(Exception $e) {
             Log::error($e->getMessage());
             return response()->json(['success' => false], 500);
         }
+    }
+
+    public function showStatus($purchase_id)
+    {
+        $user = auth()->user();
+
+        // アクセスするURLによって場合分け
+        if (request()->routeIs('status.seller.show')) {
+            // 出品者閲覧用の購入者情報を取得
+            $purchase = Purchase::query()
+                ->filterByUserStatus('purchases', 'buyer_id')
+                ->with(['user', 'item'])
+                ->whereHas('item', function ($query) use ($user) {
+                    $query->where('items.seller_id', $user->id);
+                })
+                ->findOrFail($purchase_id);
+
+            $purchase->formattedCreatedAt = Carbon::parse($purchase->created_at)->format('Y年m月d日 H:i');
+            $purchase->formattedShippedAt = $purchase->shipped_at == null ? '未発送' : Carbon::parse($purchase->shipped_at)->format('Y年m月d日 H:i');
+            $purchase->isStatusChangeable = $purchase->status === key(Purchase::PAID) ? true : false;
+
+            return view('item_status', compact('purchase'));
+        } elseif (request()->routeIs('status.buyer.show')) {
+            Log::info('購入者用：販売者の情報を表示');
+            // 購入者閲覧用の販売者情報を取得
+            $purchase = Purchase::query()
+                ->filterByUserStatus('purchases', 'buyer_id')
+                ->with(['item', 'item.user'])
+                ->where('buyer_id', $user->id)
+                ->findOrFail($purchase_id);
+
+            $purchase->formattedCreatedAt = Carbon::parse($purchase->created_at)->format('Y年m月d日 H:i');
+            $purchase->formattedShippedAt = $purchase->shipped_at == null ? '未発送' : Carbon::parse($purchase->shipped_at)->format('Y年m月d日 H:i');
+            $purchase->isStatusChangeable = $purchase->status === key(Purchase::SHIPPED) ? true : false;
+
+            return view('item_status_buyer', compact('purchase'));
+        } else {
+            abort(404);
+        }
+    }
+
+    public function changeStatusToShipped($purchase_id)
+    {
+        $user = auth()->user();
+
+        // ステータスを発送済みに変更
+        $purchase = Purchase::query()
+            ->filterByUserStatus('purchases', 'buyer_id')
+            ->with(['item'])
+            ->whereHas('item', function ($query) use ($user) {
+                $query->where('items.seller_id', $user->id);
+            })
+            ->find($purchase_id);
+
+        if (!$purchase) {
+            return response()->json([
+                'success' => false,
+                'message' => '取引情報が見つかりません。'
+            ], 404);
+        }
+
+        if ($purchase->status !== key(Purchase::PAID)) {
+            return response()->json([
+                'success' => false,
+                'message' => '取引ステータスが「支払済」ではありません。'
+            ], 400);
+        }
+
+        try {
+            DB::beginTransaction();
+            $purchase->update([
+                'status' => key(Purchase::SHIPPED),
+                'shipped_at' => Carbon::now() // 発送日時を現在時刻に設定
+            ]);
+
+            // 購入者に発送完了のメールを送る
+            $buyer = User::find($purchase->buyer_id);
+            $buyer->sendEmailStatusChangedToShippedNotification($purchase);
+
+            DB::commit();
+
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error($e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'サーバエラーです。しばらくしてから再度お試しください。'
+            ], 500);
+        }
+
+        return response()->json([
+            'success' => true,
+            'status' => $purchase->status_text,
+            'shipped_at' => Carbon::parse($purchase->shipped_at)->format('Y年m月d日 H:i'),
+        ]);
+    }
+
+    public function changeStatusToCompleted($purchase_id)
+    {
+        $user = auth()->user();
+
+        // ステータスを発送済みに変更
+            $purchase = Purchase::query()
+                ->filterByUserStatus('purchases', 'buyer_id')
+                ->with(['item.user', 'item'])
+                ->where('buyer_id', $user->id)
+                ->find($purchase_id);
+
+            if (!$purchase) {
+                return response()->json([
+                    'success' => false,
+                    'message' => '取引情報が見つかりません。'
+                ], 404);
+            }
+
+            if ($purchase->status !== key(Purchase::SHIPPED)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => '取引ステータスが「発送済」ではありません。'
+                ], 400);
+            }
+
+        try {
+            $purchase->update([
+                'status' => key(Purchase::COMPLETED),
+            ]);
+
+            // 出品者に発送完了のメールを送る
+            $purchase->item->user->sendEmailStatusChangedToCompletedNotification($purchase);
+
+        } catch (Exception $e) {
+            Log::error($e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'サーバエラーです。しばらくしてから再度お試しください。'
+            ], 500);
+        }
+
+        return response()->json([
+            'success' => true,
+            'status' => $purchase->status_text,
+        ]);
     }
 }

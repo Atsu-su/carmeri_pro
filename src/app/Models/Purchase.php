@@ -10,7 +10,10 @@ class Purchase extends Model
 
     protected $guarded = ['id'];
 
-    const PROCESSING = 'processing';
+    const PROCESSING = ['processing' => '支払中'];
+    const PAID = ['paid' => '支払済'];
+    const SHIPPED = ['shipped' => '発送済み'];
+    const COMPLETED = ['completed' => '取引完了'];
 
     public function isPurchased()
     {
@@ -20,16 +23,30 @@ class Purchase extends Model
     public function getStatusTextAttribute()
     {
         switch ($this->status) {
-            case 'purchased':
-                return '購入済み';
-            case 'processing':
-                return '発送待ち';
-            case 'shipped':
-                return '発送済み';
-            case 'completed':
-                return '取引完了';
+            case key(self::PROCESSING):
+                return self::PROCESSING[key(self::PROCESSING)];
+            case key(self::PAID):
+                return self::PAID[key(self::PAID)];
+            case key(self::SHIPPED):
+                return self::SHIPPED[key(self::SHIPPED)];
+            case key(self::COMPLETED):
+                return self::COMPLETED[key(self::COMPLETED)];
             default:
                 return '不明なステータス';
+        }
+    }
+
+    public function nextStatus()
+    {
+        switch ($this->status) {
+            case key(self::PROCESSING):
+                return self::PAID[key(self::PAID)];
+            case key(self::PAID):
+                return self::SHIPPED[key(self::SHIPPED)];
+            case key(self::SHIPPED):
+                return self::COMPLETED[key(self::COMPLETED)];
+            default:
+                return null; // 取引完了後は次のステータスはない
         }
     }
 

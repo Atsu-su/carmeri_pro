@@ -79,9 +79,8 @@ Route::middleware('header')->group(function () {
             return view('user');
         })->name('buyer.show');
         // 配送状況
-        Route::get('delivery/{purchase_id}', function ($purchase_id) {
-            return view('delivery_status');
-        })->name('delivery.show');
+        Route::get('status/seller/{purchase_id}', [PurchaseController::class, 'showStatus'])->name('status.seller.show');
+        Route::get('status/buyer/{purchase_id}', [PurchaseController::class, 'showStatus'])->name('status.buyer.show');
         // ------------------------------------------------------------------------------------------------
         // stripeの成功・キャンセル用ルーティング
         Route::get('payment/success/{purchase_id}', [PurchaseController::class, 'success'])->name('payment.success');

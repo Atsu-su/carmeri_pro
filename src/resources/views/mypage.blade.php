@@ -23,7 +23,8 @@
   data-chat-url="{{ route('chat', ['purchase_id' => 'id']) }}"
   data-seller-info-url="{{ route('seller.show', ['purchase_id' => 'id']) }}"
   data-buyer-info-url="{{ route('buyer.show', ['purchase_id' => 'id']) }}"
-  data-delivery-url="{{ route('delivery.show', ['purchase_id' => 'id']) }}"
+  data-status-seller-url="{{ route('status.seller.show', ['purchase_id' => 'id']) }}"
+  data-status-buyer-url="{{ route('status.buyer.show', ['purchase_id' => 'id']) }}"
   ></div>
   <div id="mypage">
     <div class="user">
@@ -200,7 +201,7 @@
                         @endif
                       件）</a>
                     </td>
-                    <td class="delivery-status"><a href="{{ route('delivery.show', ['purchase_id' => $purchase->id]) }}">{{ $purchase->status_text}}</a></td>
+                    <td class="item-status"><a href="{{ route('status.seller.show', ['purchase_id' => $purchase->id]) }}">{{ $purchase->status_text}}</a></td>
                     <td class="date">{{ $purchase->created_at->format('Y/m/d') }}</td>
                     <td class="buyer"><a href="{{ route('buyer.show', ['purchase_id' => $purchase->id]) }}">{{ $purchase->user->name }}</a></td>
                   </tr>
@@ -252,7 +253,7 @@
                         @endif
                       件）</a>
                     </td>
-                    <td class="delivery-status"><a href="{{ route('delivery.show', ['purchase_id' => $purchase->id]) }}">{{ $purchase->status_text}}</a></td>
+                    <td class="item-status"><a href="{{ route('status.buyer.show', ['purchase_id' => $purchase->id]) }}">{{ $purchase->status_text}}</a></td>
                     <td class="date">{{ $purchase->created_at->format('Y/m/d') }}</td>
                     <td class="seller"><a href="{{ route('seller.show', ['purchase_id' => $purchase->id]) }}">{{ $purchase->item->user->name }}</a></td>
                   </tr>
