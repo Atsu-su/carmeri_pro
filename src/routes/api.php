@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\HomeApiController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\PurchaseController;
+use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -35,8 +36,11 @@ Route::middleware(['auth:web', 'verified'])->group(function () {
     Route::post('chat/{purchase_id}/{receiver_id}', [ChatController::class, 'sendMessage'])->name('chat.send')
         ->whereNumber('purchase_id')
         ->whereNumber('receiver_id');
-
     // 購入ステータス変更のAPIルーティング
     Route::post('status/seller/{purchase_id}/shipped', [PurchaseController::class, 'changeStatusToShipped'])->name('status.shipped');
     Route::post('status/buyer/{purchase_id}/completed', [PurchaseController::class, 'changeStatusToCompleted'])->name('status.completed');
+    // 評価のためのルート
+    Route::post('rating/{seller_id}', [UserController::class, 'rating'])->name('user.rating');
+    // チャット終了のためのルート
+    Route::post('chat/close/{purchase_id}', [PurchaseController::class, 'closeChat'])->name('chat.close');
 });

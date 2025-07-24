@@ -55,7 +55,9 @@ Route::middleware('header')->group(function () {
         Route::post('item/{item_id}/comment/update/{comment_id}', [CommentController::class, 'update'])->name('comment.update');
         Route::post('item/{item_id}/comment/delete/{comment_id}', [CommentController::class, 'delete'])->name('comment.delete');
         Route::post('item/{item_id}/comment', [CommentController::class, 'store'])->name('comment.store');
-        Route::post('purchase/{purchase_id}/complete/{is_seller}/{receiver_id}', [PurchaseController::class, 'complete'])->name('purchase.complete');
+
+        // Route::post('purchase/{purchase_id}/complete/{is_seller}/{receiver_id}', [PurchaseController::class, 'complete'])->name('purchase.complete');
+
         Route::get('purchase/address/{item_id}', [AddressController::class, 'edit'])->name('address.edit');
         Route::post('purchase/address/{item_id}', [AddressController::class, 'update'])->name('address.update');
         Route::get('purchase/{item_id}', [PurchaseController::class, 'index'])->name('purchase');
@@ -65,8 +67,6 @@ Route::middleware('header')->group(function () {
         Route::delete('sell/delete/{item_id}', [ItemController::class, 'delete'])->name('sell.delete');
         Route::get('sell', [ItemController::class, 'create'])->name('sell.create');
         Route::post('sell', [ItemController::class, 'store'])->name('sell.store');
-        // 評価のためのルート
-        Route::post('rating/{seller_id}', [UserController::class, 'rating'])->name('user.rating');
         // ユーザ無効化・有効化
         Route::get('activate/profile/password', [UserController::class, 'editPassword'])->name('activate.profile.edit');
         Route::put('activate/profile/password', [UserController::class, 'updatePassword'])->name('activate.profile.update');

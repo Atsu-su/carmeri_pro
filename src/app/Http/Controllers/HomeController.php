@@ -7,6 +7,7 @@ use App\Models\Like;
 use App\Models\Purchase;
 use App\Messages\Session as MessageSession;
 use App\Models\Chat;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -54,8 +55,23 @@ class HomeController extends Controller
         $user->rating = $user->evaluations > 0 ? round($user->rating_sum / $user->evaluations) : 0;
         $listedItems = Item::query()
             ->filterByUserStatus('items', 'seller_id')
+            ->with('purchase')
             ->where('seller_id', $user->id)
             ->paginate(5, ['*'], 'listed_items_page');
+
+        $listedItems->getCollection()->transform(function ($item) {
+            // on_sale == falseかつpurchase->status != completedの場合、「取引中」
+            if (!$item->on_sale && $item->purchase->status !== key(Purchase::COMPLETED)) {
+                $item->status_text = '取引中';
+            // on_sale == falseかつpurchase->status == completedの場合、「取引完了」
+            } elseif (!$item->on_sale && $item->purchase->status === key(Purchase::COMPLETED)) {
+                $item->status_text = '取引完了';
+                $item->transaction_completed_at = $item->purchase->updated_at->format('Y/m/d');
+            } elseif ($item->on_sale) {
+                $item->status_text = '出品中';
+            }
+            return $item;
+        });
 
         $purchasedItems = Purchase::query()
             ->with([
@@ -86,7 +102,7 @@ class HomeController extends Controller
                 $query->on('purchases.item_id', '=', 'valid_items.id');
             })
             ->where('valid_items.seller_id', '=', $user->id)
-            ->where('purchases.status', '!=', Purchase::COMPLETED);
+            ->where('purchases.status', '!=', key(Purchase::COMPLETED));
 
         $sellingItemsPurchaseIds = DB::query()
             ->select('vp.id')

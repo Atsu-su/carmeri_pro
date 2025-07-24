@@ -133,20 +133,23 @@ class UserController extends Controller
         }
     }
 
-    public function rating(RatingRequest $request, $seller_id)
+    public function rating(Request $request, $seller_id)
     {
-        // $seller_idは出品者のID
         $user = User::find($seller_id);
 
         try {
+            DB::beginTransaction();
+
             $user->update([
                 'rating_sum' => $user->rating_sum + $request->input('rating'),
                 'evaluations' => $user->evaluations + 1,
             ]);
+
+            DB::commit();
+            return response()->json(['success' => true], 200);
         } catch (Exception $e) {
-            Log::error($e->getMessage());
-        } finally {
-            return redirect()->route('index');
+            DB::rollBack();
+            return response()->json(['success' => false], 500);
         }
     }
 }

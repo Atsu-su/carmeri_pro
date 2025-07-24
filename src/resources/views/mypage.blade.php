@@ -102,10 +102,14 @@
                     </td>
                     <td class="name"><a href="{{ route('item.show', $item->id) }}">{{ $item->name }}</a></td>
                     <td class="price">{{ $item->price }}円</td>
-                    <td class="date"><span>{{ $item->created_at->format('Y/m/d') }}</span><span>yyyy/mm/dd</span></td>
-                    <td class="status">{{ $item->on_sale_text }}</td>
-                    <td class="edit">
-                      <a href="{{ route('sell.edit', ['item_id' => $item->id]) }}">編集</a>
+                    <td class="date"><span>{{ $item->created_at->format('Y/m/d') }}</span><span>{{ isset($item->transaction_completed_at) ? $item->transaction_completed_at : '-'}}</span></td>
+                    <td class="status">{{ $item->status_text }}</td>
+                    <td class="edit-chat">
+                      @if (!isset($item->purchase))
+                        <a href="{{ route('sell.edit', ['item_id' => $item->id]) }}">編集</a>
+                      @else
+                        <a href="{{ route('chat', ['purchase_id' => $item->purchase->id]) }}">チャット</a>
+                      @endif
                     </td>
                   </tr>
                 @endforeach
@@ -174,7 +178,7 @@
                   <th class="name c-message-show-detail">商品名</th>
                   <th>チャット<br>（未読件数）</th>
                   <th>発送ステータス</th>
-                  <th>購入日</th>
+                  <th>販売日</th>
                   <th>購入者情報</th>
                 </tr>
               </thead>

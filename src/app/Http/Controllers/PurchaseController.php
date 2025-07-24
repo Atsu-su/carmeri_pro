@@ -18,6 +18,48 @@ use Stripe\Checkout\Session;
 
 class PurchaseController extends Controller
 {
+    public function checkValidPurchase($type, $purchase_id, $userId, $expectedStatus)
+    {
+        if ($type === 'seller') {
+            // 出品者がステータスを変更する場合（支払済みから発送済みへ）
+            $purchase = Purchase::query()
+                ->filterByUserStatus('purchases', 'buyer_id')
+                ->with(['item'])
+                ->whereHas('item', function ($query) use ($userId) {
+                    $query->where('items.seller_id', $userId);
+                })
+                ->find($purchase_id);
+        } elseif ($type === 'buyer') {
+            // 購入者がステータスを変更する場合（発送済みから完了へ）
+            $purchase = Purchase::query()
+                ->filterByUserStatus('purchases', 'buyer_id')
+                ->with(['item.user', 'item'])
+                ->where('buyer_id', $userId)
+                ->find($purchase_id);
+        }
+
+        if (!$purchase) {
+            return [
+                'success' => false,
+                'message' => '取引情報が見つかりません。',
+                'status_code' => 404
+            ];
+        }
+
+        if ($purchase->status !== key($expectedStatus)) {
+            return [
+                'success' => false,
+                'message' => "取引ステータスが「{$expectedStatus[key($expectedStatus)]}」ではありません。",
+                'status_code' => 400
+            ];
+        }
+        return [
+            'success' => true,
+            'purchase' => $purchase,
+            'status_code' => 200
+        ];
+    }
+
     public function index($item_id)
     {
         $user = auth()->user();
@@ -45,8 +87,8 @@ class PurchaseController extends Controller
             // nameのみ必要
             $item = Item::query()
                 ->filterByUserStatus('items', 'seller_id')
-                ->where('id', $item_id)
-                ->where('on_sale', true)
+                ->where('items.id', $item_id)
+                ->where('items.on_sale', true)
                 ->lockForUpdate()
                 ->first();
 
@@ -59,11 +101,10 @@ class PurchaseController extends Controller
             $purchase = Purchase::create([
                 'item_id' => $item->id,
                 'buyer_id' => $user->id,
-                'status' => Purchase::PROCESSING,
+                'status' => key(Purchase::PROCESSING),
             ]);
 
             DB::commit();
-
             return $this->stripe($item, $user, $purchase);
 
         } catch (Exception $e) {
@@ -108,7 +149,10 @@ class PurchaseController extends Controller
             ->first();
 
         try {
-            $item->update(['status' => Purchase::PAID]);
+            $item->update([
+                'status' => key(Purchase::PAID),
+                'is_chat_enabled' => true, // チャットを有効化
+            ]);
         } catch (Exception $e) {
             Log::error('==========お客様支払い完了後のDB更新に失敗==========');
             Log::error('purchasesテーブルのstatusがprocessingのままです');
@@ -149,72 +193,6 @@ class PurchaseController extends Controller
             ->with('message', Message::get('purchase.cancel'));
     }
 
-    public function complete($purchase_id, $is_seller, $receiver_id)
-    {
-        $input = [
-            'purchaseId' => $purchase_id,
-            'isSeller' => $is_seller,
-            'receiverId' => $receiver_id
-        ];
-
-        $rules = [
-            'purchaseId' => 'required|integer|exists:purchases,id',
-            'isSeller' => 'required|integer',
-            'receiverId' => 'required|integer'
-        ];
-
-        $messages = [
-            'purchaseId.required' => '値がありません',
-            'purchaseId.integer' => '値が不正です',
-            'purchaseId.exists' => '取引情報が見つかりません',
-            'isSeller.required' => '値がありません',
-            'isSeller.boolean' => '値が不正です',
-            'receiverId.required' => '値がありません',
-            'receiverId.integer' => '値が不正です'
-        ];
-
-        $validator = Validator::make($input, $rules, $messages);
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
-        $isSeller = $is_seller;
-        $receiverId = $receiver_id;
-        $user = auth()->user();
-
-        // 対象の商品が自分が購入し相手が出品しているか確認
-        try {
-            Purchase::query()
-                ->whereHas('item', function ($query) use ($receiverId) {
-                    $query->where('seller_id', $receiverId);
-                })
-                ->where('buyer_id', $user->id)
-                ->findOrFail($purchase_id);
-        } catch (Exception $e) {
-            abort(403);
-        }
-
-        // 出品者メールを送る処理
-        if (!$isSeller) {
-            // 出品者にメールを送る
-            $seller = User::find($receiverId);
-            $seller->sendEmailCompleteNotification();
-        }
-
-        try {
-            Purchase::query()
-                ->where('id', $purchase_id)
-                ->update(['status' => Purchase::COMPLETED]);
-            return response()->json(['success' => true]);
-        } catch(Exception $e) {
-            Log::error($e->getMessage());
-            return response()->json(['success' => false], 500);
-        }
-    }
-
     public function showStatus($purchase_id)
     {
         $user = auth()->user();
@@ -236,7 +214,6 @@ class PurchaseController extends Controller
 
             return view('item_status', compact('purchase'));
         } elseif (request()->routeIs('status.buyer.show')) {
-            Log::info('購入者用：販売者の情報を表示');
             // 購入者閲覧用の販売者情報を取得
             $purchase = Purchase::query()
                 ->filterByUserStatus('purchases', 'buyer_id')
@@ -257,29 +234,18 @@ class PurchaseController extends Controller
     public function changeStatusToShipped($purchase_id)
     {
         $user = auth()->user();
+        $expectedStatus = Purchase::PAID;
+        $type = 'seller';
+        $result = $this->checkValidPurchase($type, $purchase_id, $user->id, $expectedStatus);
 
-        // ステータスを発送済みに変更
-        $purchase = Purchase::query()
-            ->filterByUserStatus('purchases', 'buyer_id')
-            ->with(['item'])
-            ->whereHas('item', function ($query) use ($user) {
-                $query->where('items.seller_id', $user->id);
-            })
-            ->find($purchase_id);
-
-        if (!$purchase) {
+        if (!$result['success']) {
             return response()->json([
-                'success' => false,
-                'message' => '取引情報が見つかりません。'
-            ], 404);
+                'success' => $result['success'],
+                'message' => $result['message']
+            ], $result['status_code']);
         }
 
-        if ($purchase->status !== key(Purchase::PAID)) {
-            return response()->json([
-                'success' => false,
-                'message' => '取引ステータスが「支払済」ではありません。'
-            ], 400);
-        }
+        $purchase = $result['purchase'];
 
         try {
             DB::beginTransaction();
@@ -313,34 +279,28 @@ class PurchaseController extends Controller
     public function changeStatusToCompleted($purchase_id)
     {
         $user = auth()->user();
+        $expectedStatus = Purchase::SHIPPED;
+        $type = 'buyer';
+        $result = $this->checkValidPurchase($type, $purchase_id, $user->id, $expectedStatus);
 
-        // ステータスを発送済みに変更
-            $purchase = Purchase::query()
-                ->filterByUserStatus('purchases', 'buyer_id')
-                ->with(['item.user', 'item'])
-                ->where('buyer_id', $user->id)
-                ->find($purchase_id);
+        if (!$result['success']) {
+            return response()->json([
+                'success' => $result['success'],
+                'message' => $result['message']
+            ], $result['status_code']);
+        }
 
-            if (!$purchase) {
-                return response()->json([
-                    'success' => false,
-                    'message' => '取引情報が見つかりません。'
-                ], 404);
-            }
-
-            if ($purchase->status !== key(Purchase::SHIPPED)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => '取引ステータスが「発送済」ではありません。'
-                ], 400);
-            }
+        $purchase = $result['purchase'];
 
         try {
-            $purchase->update([
-                'status' => key(Purchase::COMPLETED),
-            ]);
+            $purchase->update(['status' => key(Purchase::COMPLETED)]);
 
-            // 出品者に発送完了のメールを送る
+            // あわせてチャットを終了する場合、チャットを終了する
+            if (request()->has('close_chat_checkbox')) {
+                $purchase->update(['is_chat_enabled' => false]);
+            }
+
+            // 出品者に取引完了のメールを送る
             $purchase->item->user->sendEmailStatusChangedToCompletedNotification($purchase);
 
         } catch (Exception $e) {
@@ -355,5 +315,38 @@ class PurchaseController extends Controller
             'success' => true,
             'status' => $purchase->status_text,
         ]);
+    }
+
+    public function closeChat($purchase_id)
+    {
+        $user = auth()->user();
+        $expectedStatus = Purchase::COMPLETED;
+        $type = 'buyer'; // チャットを終了するのは購入者なので、buyerを指定
+        $result = $this->checkValidPurchase($type, $purchase_id, $user->id, $expectedStatus);
+
+        if (!$result['success']) {
+            return response()->json([
+                'success' => $result['success'],
+                'message' => $result['message']
+            ], $result['status_code']);
+        }
+
+        $purchase = $result['purchase'];
+
+        try {
+            // チャットを終了する
+            $purchase->update(['is_chat_enabled' => false]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'チャットを終了しました。',
+            ]);
+        } catch (Exception $e) {
+            Log::error($e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'サーバエラーです。しばらくしてから再度お試しください。'
+            ], 500);
+        }
     }
 }

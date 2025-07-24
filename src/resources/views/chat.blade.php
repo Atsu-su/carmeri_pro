@@ -30,32 +30,10 @@
     data-chatread="{{ route("chat.read", ['chat_id' => ':chatid', 'purchase_id' => $purchase->id, 'receiver_id' => $receiverId]) }}"
     data-chatupdate="{{ route("chat.update", ['receiver_id' => $receiverId, 'chat_id' => ':chatid']) }}"
     data-chatdelete="{{ route("chat.delete", ['receiver_id' => $receiverId, 'chat_id' => ':chatid']) }}"
-    data-transactioncomplete="{{ route('purchase.complete', ['purchase_id' => $purchase->id, 'is_seller' => $isSeller ? 1 : 0, 'receiver_id' => $receiverId]) }}"
+    data-closechat="{{ route('chat.close', ['purchase_id' => $purchase->id]) }}"
     data-chatsendimage="{{ route('chat.send.image', ['purchase_id' => $purchase->id, 'receiver_id' => $receiverId]) }}"
     ></div>
   <div id="chat" data-purchaseid="{{ $purchase->id }}" data-receiverid="{{ $receiverId }}">
-    @if (!$isSeller)
-      <div id="modal" class="modal js-hidden">
-        @if (!$isSeller)
-          <form class="modal-content" action="{{ route('user.rating', $purchase->item->user->id) }}" method="POST">
-        @else
-          <form class="modal-content" action="{{ route('user.rating', $purchase->user->id) }}" method="POST">
-        @endif
-          @csrf
-          <h2 class="modal-content-title">取引が完了しました</h2>
-          <p class="modal-content-text">今回の取引相手はいかがでしたか？</p>
-          <div id="stars" class="modal-content-stars">
-            <div class="modal-content-stars-star" data-number="1"></div>
-            <div class="modal-content-stars-star" data-number="2"></div>
-            <div class="modal-content-stars-star" data-number="3"></div>
-            <div class="modal-content-stars-star" data-number="4"></div>
-            <div class="modal-content-stars-star" data-number="5"></div>
-          </div>
-          <input id="modal-input" type="hidden" name="rating" value="">
-          <button id="modal-button" class="modal-content-btn c-btn c-btn--modal-send" type="submit" disabled>送信する</a>
-        </form>
-      </div>
-    @endif
     <div class="container">
       <aside class="sidebar">
         <h3 class="sidebar-title">取引チャット</h3>
@@ -95,8 +73,17 @@
             @endif
           </div>
           <h1 class="chat-title-content"><span>{{ $isSeller ? $purchase->user->name : $purchase->item->user->name }}さんとの</span>取引画面</h1>
-          @if (!$isSeller)
-            <button id="transaction-complete" class="c-btn c-btn--chat-complete-transaction">取引完了</button>
+          @if (!$isSeller && $purchase->status === 'completed' && $purchase->is_chat_enabled)
+            <button id="close-chat-button" class="c-btn c-btn--chat-close">チャットを終了</button>
+            <dialog id="close-chat-dialog" class="chat-close-dialog">
+              <p>チャットを終了しますか？</p>
+              <p>※ 終了後、メッセージの送受信はできなくなります。</p>
+              <p>※ 終了後もチャットの閲覧は可能です。</p>
+              <div class="chat-close-dialog-flex-container">
+                <button id="close-chat-confirmed" class="c-btn c-btn--modal-edit" type="button">終了</button>
+                <a id="close-chat-cancelled" class="c-btn c-btn--modal-edit-cancel">キャンセル</a>
+              </div>
+            </dialog>
           @endif
         </div>
         <div class="chat-item">
@@ -195,29 +182,31 @@
             <a id="enlarge-img-close" class="c-btn c-btn--modal-enlarge-img-close">閉じる</a>
           </dialog>
           {{-- データ送信用操作盤 --}}
-          <div class="chat-content-send">
-            <p id="validation-error" class="c-error-message-top"></p>
-            <form id="form">
-              @csrf
-              <div id="input-container" class="chat-content-send-textarea c-flex">
-                <div id="input-dummy" class="c-flex-dummy"></div>
-                <textarea id="input" class="chat-content-send-input c-flex-textarea" type="text" name="message" value="" placeholder="取引メッセージを入力してください（Enter+Ctrlで送信）"></textarea>
-              </div>
-              <label id="label" class="c-btn c-btn--chat-add-image" for="img-input">画像を追加</label>
-              <input id="img-input" class="chat-content-send-img-input" type="file" name="image" accept="image/*"/>
-              <button id="submit-text" class="chat-content-send-submit" type="button"></button>
-            </form>
-            <dialog id="preview-img" class="chat-content-send-modal">
-              <form id="preview-img-form">
-                <img id="preview-img-img" src="">
-                <input id="preview-img-input" type="hidden" name="base64" value=""/>
-                <div class="chat-content-send-modal-buttons">
-                  <button id="submit-image" class="c-btn c-btn--modal-preview-img-send" type="button">送信</button>
-                  <button id="preview-img-cancel" class="c-btn c-btn--modal-preview-img-cancel" type="button">キャンセル</button>
+          @if ($purchase->is_chat_enabled)
+            <div class="chat-content-send">
+              <p id="validation-error" class="c-error-message-top"></p>
+              <form id="form">
+                @csrf
+                <div id="input-container" class="chat-content-send-textarea c-flex">
+                  <div id="input-dummy" class="c-flex-dummy"></div>
+                  <textarea id="input" class="chat-content-send-input c-flex-textarea" type="text" name="message" value="" placeholder="取引メッセージを入力してください（Enter+Ctrlで送信）"></textarea>
                 </div>
+                <label id="label" class="c-btn c-btn--chat-add-image" for="img-input">画像を追加</label>
+                <input id="img-input" class="chat-content-send-img-input" type="file" name="image" accept="image/*"/>
+                <button id="submit-text" class="chat-content-send-submit" type="button"></button>
               </form>
-            </dialog>
-          </div>
+              <dialog id="preview-img" class="chat-content-send-modal">
+                <form id="preview-img-form">
+                  <img id="preview-img-img" src="">
+                  <input id="preview-img-input" type="hidden" name="base64" value=""/>
+                  <div class="chat-content-send-modal-buttons">
+                    <button id="submit-image" class="c-btn c-btn--modal-preview-img-send" type="button">送信</button>
+                    <button id="preview-img-cancel" class="c-btn c-btn--modal-preview-img-cancel" type="button">キャンセル</button>
+                  </div>
+                </form>
+              </dialog>
+            </div>
+          @endif
         </div>
       </div>
     </div>

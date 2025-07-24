@@ -20,7 +20,8 @@ class PurchaseSeeder extends Seeder
             'item_id' => 1,
             'buyer_id' => 2,
             'payment_method_id' => 1,
-            'status' => 'processing',
+            'status' => key(Purchase::PROCESSING),
+            'is_chat_enabled' => false,
             'shipped_at' => null,
         ]);
 
@@ -28,7 +29,8 @@ class PurchaseSeeder extends Seeder
             'item_id' => 2,
             'buyer_id' => 1,
             'payment_method_id' => 2,
-            'status' => 'paid',
+            'status' => key(Purchase::PAID),
+            'is_chat_enabled' => true,
             'shipped_at' => null,
         ]);
 
@@ -36,7 +38,8 @@ class PurchaseSeeder extends Seeder
             'item_id' => 6,
             'buyer_id' => 2,
             'payment_method_id' => 1,
-            'status' => 'shipped',
+            'status' => key(Purchase::SHIPPED),
+            'is_chat_enabled' => true,
             'shipped_at' => now()->addDay(2),
         ]);
 
@@ -44,8 +47,9 @@ class PurchaseSeeder extends Seeder
             'item_id' => 7,
             'buyer_id' => 1,
             'payment_method_id' => 2,
+            'status' => key(Purchase::COMPLETED),
+            'is_chat_enabled' => false,
             'shipped_at' => now()->addDay(7),
-            'status' => 'completed',
         ]);
 
         // $faker = Faker::create();

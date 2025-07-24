@@ -644,19 +644,16 @@ function cookieAddEvents() {
 // 評価
 // ================================================
 
-let isChangingStatus = false;
+let isClosingChat = false;
 
-function showRatingModal() {
-  const modal = document.getElementById('modal');
-  modal.classList.remove('js-hidden');
-}
-
-async function changeStatus(){
-  isChangingStatus = true;
-  const url = document.getElementById('values').dataset.transactioncomplete;
+async function closeChat(){
+  isClosingChat = true;
+  const closeChatDialog = document.getElementById('close-chat-dialog');
+  const url = document.getElementById('values').dataset.closechat;
+  let response;
 
   try {
-    const response = await fetch(url, {
+    response = await fetch(url, {
       headers: {
         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
       },
@@ -666,53 +663,15 @@ async function changeStatus(){
     if (!response.ok) {
       throw new Error('Network response was not ok');
     }
-
-    showRatingModal();
+    alert('チャットを終了しました。');
   } catch (error) {
     console.log(error);
+    const data = await response.json();
+    alert(`チャットを終了できませんでした。\n${data.message}\nしばらく経ってから再度お試しください。`);
   }
 
-  isChangingStatus = false;
-}
-
-// イベント設定用の関数
-function evaluationAddEvents(stars){
-  stars.forEach(star => {
-    // マウスオーバー時の処理
-    star.addEventListener('mouseover', function(e) {
-      const number = parseInt(this.dataset.number);
-      for (let i = 0; i < number; i++) {
-        stars[i].classList.add('filled');
-      }
-    });
-
-    // マウスクリック時の処理
-    star.addEventListener('click', function(e) {
-      const rating = parseInt(this.dataset.number);
-      const input = document.getElementById('modal-input');
-
-      // 一旦全て削除
-      stars.forEach(star => {
-        star.classList.remove('clicked');
-      });
-
-      for (let i = 0; i < rating; i++) {
-        stars[i].classList.add('clicked');
-      }
-
-      input.value = rating;
-
-      const button = document.getElementById('modal-button');
-      button.disabled = false;
-    });
-
-    // マウスアウト時の処理
-    star.addEventListener('mouseout', (e) => {
-      stars.forEach(star => {
-        star.classList.remove('filled');
-      });
-    });
-  });
+  closeChatDialog.close();
+  isClosingChat = false;
 }
 
 // ================================================
@@ -860,14 +819,22 @@ document.addEventListener('DOMContentLoaded', function() {
   // クッキー関連のイベント
   cookieAddEvents();
 
-  // 取引完了ボタンのイベント
-  const transactionComplete = document.getElementById('transaction-complete');
-  if (transactionComplete) {
-    transactionComplete.addEventListener('click', function() {
-      if (isChangingStatus) return
-      changeStatus();
+  // チャット終了ボタンのイベント
+  const closeChatButton = document.getElementById('close-chat-button');
+  if (closeChatButton) {
+    closeChatButton.addEventListener('click', function() {
+      document.getElementById('close-chat-dialog').showModal();
     });
   }
+
+  document.getElementById('close-chat-confirmed').addEventListener('click', function() {
+    if (isClosingChat) return;
+    closeChat();
+  });
+
+  document.getElementById('close-chat-cancelled').addEventListener('click', function() {
+    document.getElementById('close-chat-dialog').close();
+  });
 
   // 評価関連のイベント
   const stars = document.querySelectorAll('.modal-content-stars-star');

@@ -96,8 +96,6 @@ class ChatController extends Controller
         $isBuyer = false; // true: 購入者, false: 出品者
         $isSeller = false;  // true: 出品者, false: 購入者
 
-        // 購入IDが不正な場合
-
         // このユーザが出品者かどうかを判定
         try {
             // 出品者
@@ -162,7 +160,7 @@ class ChatController extends Controller
             $purchase = Purchase::query()
                 ->with(['item:id,name,price,image', 'user:id,name,image'])
                 ->where('id', $purchase_id)
-                ->select('id', 'item_id', 'buyer_id')
+                ->select('id', 'item_id', 'buyer_id', 'status', 'is_chat_enabled')
                 ->first();
             $receiverId = $purchase->buyer_id;
         } elseif ($isBuyer && !$isSeller) {
@@ -170,7 +168,7 @@ class ChatController extends Controller
             $purchase = Purchase::query()
                 ->with(['item:id,seller_id,name,price,image', 'item.user:id,name,image'])
                 ->where('id', $purchase_id)
-                ->select('id', 'item_id')
+                ->select('id', 'item_id', 'status', 'is_chat_enabled')
                 ->first();
             $receiverId = $purchase->item->seller_id;
         }
@@ -186,7 +184,7 @@ class ChatController extends Controller
                 $query->filterByUserStatusWithoutSelect('items', 'seller_id')
                     ->where('seller_id', $user->id);
             })
-            ->where('status', Purchase::PROCESSING)
+            ->where('status','!=', 'completed')
             ->where('id', '!=', $purchase_id)
             ->select('id', 'item_id')
             ->get();
@@ -203,7 +201,7 @@ class ChatController extends Controller
             ->with('item:id,name')
             ->filterByUserStatusWithoutSelect('purchases', 'buyer_id')
             ->where('purchases.buyer_id', $user->id)
-            ->where('purchases.status', Purchase::PROCESSING)
+            ->where('purchases.status', '!=', 'completed')
             ->where('purchases.id', '!=', $purchase_id)
             ->select('purchases.id', 'purchases.item_id')
             ->get();

@@ -366,7 +366,7 @@ html {
   border: 1px solid var(--color-border-gray);
 }
 
-.c-btn--chat-complete-transaction {
+.c-btn--chat-close {
   margin-left: auto;
   width: 172px;
   height: 54px;
@@ -614,41 +614,6 @@ html {
   font-weight: normal;
 }
 
-/* column-gapは縦の余白 */
-/* 1行に5商品表示する場合は明示的にcolumn-gapを変更すること */
-.c-items .tab {
-  margin: 0 auto 50px;
-  width: calc(100% - 70px);
-  /* display: flex;
-  flex-wrap: wrap;
-  gap: 76px calc((100% - 210px * 4) / 3); */
-}
-
-/* @media screen and (max-width: 1280px) {
-  .c-items .tab {
-    column-gap: calc((100% - 210px * 3) / 2)
-  }
-} */
-
-@media screen and (max-width: 1000px) {
-  .c-items .tab {
-    width: calc(100% - 250px);
-    /* column-gap: calc((100% - 210px * 2)) */
-  }
-}
-
-/* @media screen and (max-width: 1000px) {
-  .c-items .tab {
-    column-gap: calc((100% - 230px * 2))
-  }
-} */
-
-@media screen and (max-width: 960px) {
-  .c-items .tab {
-    width: 210px;
-  }
-}
-
 .c-items .table {
   margin: 0 auto 50px;
   width: calc(100% - 200px);
@@ -775,9 +740,8 @@ html {
 /* ---------------------- */
 
 .table-container {
-  margin-bottom: 10px;
   width: 100%;
-  height: 439px;
+  min-height: 439px;
 }
 
 /* テーブル全体のスタイル */
@@ -870,6 +834,7 @@ html {
 
 .c-table--listed-items .data .date span {
   display: block;
+  text-align: center;
 }
 
 .c-table--listed-items .data .date span:first-child {
@@ -878,10 +843,6 @@ html {
 
 .c-table--listed-items .data .status {
   width: 140px;
-}
-
-.c-table--listed-items .data .edit {
-  width: 150px;
 }
 
 /* purchased items table */
@@ -2524,91 +2485,32 @@ body {
   display: flex;
 }
 
-
 @media screen and (max-width: 1030px) {
   #chat .container {
     flex-direction: column-reverse;
   }
 }
 
-#chat .modal {
-  margin-top: -80px;
-  width: 100vw;
-  height: 100vh;
-  position: fixed;
-  z-index: 10;
-}
-
-#chat .modal-content {
-  width: 598px;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+#chat .chat-close-dialog {
+  padding: 30px;
   line-height: 1;
-  border: 1px solid var(--color-border-black);
-  border-radius: 15px;
-  background-color: var(--color-bg-modal-light-red);
+  border: 1px solid var(--color-border-gray);
 }
 
-#chat .modal-content-title {
-  padding: 20px;
-  font-size: 35px;
-  border-bottom: 1px solid var(--color-border-black);
+#chat .chat-close-dialog p:first-child,
+#chat .chat-close-dialog p:nth-child(3) {
+  margin-bottom: 20px;
 }
 
-#chat .modal-content-text {
-  padding: 20px;
-  color: var(--color-font-light-gray);
-  font-size: 20px;
-}
+#chat .chat-close-dialog p:nth-child(2) {
+  margin-bottom: 12px;
+} 
 
-#chat .modal-content-stars {
-  padding-bottom: 20px;
+#chat .chat-close-dialog-flex-container {
   display: flex;
   justify-content: center;
-  gap: 12px;
-  border-bottom: 1px solid var(--color-border-black);
-}
-
-/* svgを使わないパターン */
-#chat .modal-content-stars-star {
-  width: 100px;
-  height: 100px;
-  background-image: url(../img/icon_star.svg);
-  background-size: cover;
-  background-repeat: no-repeat;
-}
-
-#chat .modal-content-stars-star.filled {
-  background-image: url(../img/icon_star_filled.svg);
-}
-
-#chat .modal-content-stars-star.clicked {
-  background-image: url(../img/icon_star_filled.svg);
-}
-
-/* svgを使ったパターン */
-/* #chat .modal-content-stars-star {
-  width: 100px;
-  height: 100px;
-  fill: #D9D9D9;
-}
-
-#chat .modal-content-stars-star.filled {
-  fill: #FFD700;
-}
-
-#chat .modal-content-stars-star.clicked {
-  fill: #FFD700;
-} */
-
-#chat .modal-content-btn {
-  margin: 15px 20px 20px auto;
-}
-
-#chat .modal-content-btn:disabled {
-  opacity: 0.5;
+  align-items: center;
+  gap: 20px;
 }
 
 #chat .sidebar {
@@ -3052,8 +2954,8 @@ body {
 }
 
 /* ----------------------- */
-/* chat.blade.php
-/* チャット画面（#item_status）
+/* item_status.blade.php
+/* 商品ステータス画面（#item_status）
 /* ----------------------- */
 #item-status {
   margin: 50px auto 114px;
@@ -3178,4 +3080,77 @@ body {
 #item-status .item-status-dialog-buttons {
   display: flex;
   gap: 10px;
+}
+
+#item-status .item-status-dialog-checkbox {
+  margin-bottom: 25px;
+  position: relative;
+  display: block;
+  font-size: 16px;
+  text-align: center;
+}
+
+#item-status .item-status-dialog-checkbox input {
+  margin-right: 10px;;
+}
+
+#item-status .item-status-dialog-checkbox span {
+  position: relative;
+  top: -3px;
+}
+
+#item-status .modal {
+  width: 598px;
+  padding: 0;
+  border: none;
+  outline: none;
+  line-height: 1;
+  border: 1px solid var(--color-border-black);
+  border-radius: 15px;
+  background-color: var(--color-bg-modal-light-red);
+
+}
+
+#item-status .modal-content-title {
+  padding: 20px;
+  font-size: 35px;
+  border-bottom: 1px solid var(--color-border-black);
+}
+
+#item-status .modal-content-text {
+  padding: 20px;
+  color: var(--color-font-light-gray);
+  font-size: 20px;
+}
+
+#item-status .modal-content-stars {
+  padding-bottom: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  border-bottom: 1px solid var(--color-border-black);
+}
+
+#item-status .modal-content-stars-star {
+  width: 100px;
+  height: 100px;
+  background-image: url(../img/icon_star.svg);
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+#item-status .modal-content-stars-star.filled {
+  background-image: url(../img/icon_star_filled.svg);
+}
+
+#item-status .modal-content-stars-star.clicked {
+  background-image: url(../img/icon_star_filled.svg);
+}
+
+#item-status .modal-content-btn {
+  margin: 15px 20px 20px auto;
+}
+
+#item-status .modal-content-btn:disabled {
+  opacity: 0.5;
 }

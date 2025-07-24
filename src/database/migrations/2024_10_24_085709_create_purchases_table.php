@@ -19,6 +19,7 @@ class CreatePurchasesTable extends Migration
             $table->unsignedBigInteger('buyer_id');
             $table->unsignedBigInteger('payment_method_id')->nullable();
             $table->string('status')->nullable();
+            $table->boolean('is_chat_enabled')->default(false);
             $table->dateTime('shipped_at')->nullable();
             $table->timestamps();
 

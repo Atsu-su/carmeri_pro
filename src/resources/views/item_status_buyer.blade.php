@@ -2,7 +2,7 @@
 @section('title', '商品ステータス')
 @push('javascripts')
   @php
-    $javascripts = ['change_status.js'];
+    $javascripts = ['change_status.js', 'rating.js'];
     $publicPath = asset('js');
   @endphp
   @foreach ($javascripts as $javascript)
@@ -19,7 +19,8 @@
   <div id="values"
     data-changestatustocompleted="{{ route('status.completed', $purchase->id) }}"
     data-type="{{ request()->routeIs('status.seller.show') ? 'seller' : 'buyer' }}"
-  ></div>
+    data-rating="{{ route('user.rating', $purchase->item->user->id) }}"
+    ></div>
   <div id="item-status">
     <div class="detail">
       <dl>
@@ -76,10 +77,31 @@
         <p>次のステータス:</p>
         <p>{{ $purchase->nextStatus() }}</p>
       </div>
+      <form id="close-chat-form" method="POST">
+        <label for="close-chat" class="item-status-dialog-checkbox">
+          <input id="close-chat" type="checkbox" name="close_chat_checkbox" value="1"><span>取引完了と同時にチャットも終了する</span>
+        </label>
+      </form>
       <div class="item-status-dialog-buttons">
         <button id="change-status" class="c-btn c-btn--modal-edit item-status-dialog-buttons-confirm" type="button">変更</button>
         <a id="change-status-cancel" class="c-btn c-btn--modal-edit-cancel items-status-dialog-buttons-cancel">キャンセル</a>
       </div>
+    </dialog>
+    <dialog id="rating-dialog" class="modal">
+      <form id="rating-form">
+        <h2 class="modal-content-title">取引が完了しました</h2>
+        <p class="modal-content-text">今回の取引相手はいかがでしたか？</p>
+        <div id="stars" class="modal-content-stars">
+          <div class="modal-content-stars-star" data-number="1"></div>
+          <div class="modal-content-stars-star" data-number="2"></div>
+          <div class="modal-content-stars-star" data-number="3"></div>
+          <div class="modal-content-stars-star" data-number="4"></div>
+          <div class="modal-content-stars-star" data-number="5"></div>
+          {{-- 評価の値をvalueにいれる --}}
+        </div>
+        <input id="modal-input" type="hidden" name="rating" value="">
+        <button id="modal-button" class="modal-content-btn c-btn c-btn--modal-send" type="button" disabled>送信する</button>
+      </form>
     </dialog>
   </div>
 @endsection
