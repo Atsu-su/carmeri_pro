@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Purchase;
 use Faker\Factory as Faker;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 
 class PurchaseSeeder extends Seeder
@@ -17,6 +18,7 @@ class PurchaseSeeder extends Seeder
     public function run()
     {
         Purchase::create([
+            'session_id' => 'cs_'.Str::random(20),
             'item_id' => 1,
             'buyer_id' => 2,
             'payment_method_id' => 1,
@@ -26,6 +28,7 @@ class PurchaseSeeder extends Seeder
         ]);
 
         Purchase::create([
+            'session_id' => 'cs_'.Str::random(20),
             'item_id' => 2,
             'buyer_id' => 1,
             'payment_method_id' => 2,
@@ -35,6 +38,7 @@ class PurchaseSeeder extends Seeder
         ]);
 
         Purchase::create([
+            'session_id' => 'cs_'.Str::random(20),
             'item_id' => 6,
             'buyer_id' => 2,
             'payment_method_id' => 1,
@@ -44,6 +48,7 @@ class PurchaseSeeder extends Seeder
         ]);
 
         Purchase::create([
+            'session_id' => 'cs_'.Str::random(20),
             'item_id' => 7,
             'buyer_id' => 1,
             'payment_method_id' => 2,

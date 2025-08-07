@@ -104,9 +104,12 @@ class PurchaseController extends Controller
                 'status' => key(Purchase::PROCESSING),
             ]);
 
-            DB::commit();
-            return $this->stripe($item, $user, $purchase);
+            $session = $this->stripe($item, $user, $purchase);
 
+            $purchase->update(['session_id' => $session->id]);
+
+            DB::commit();
+            return redirect($session->url);
         } catch (Exception $e) {
             Log::error($e->getMessage());
             DB::rollBack();
@@ -141,11 +144,12 @@ class PurchaseController extends Controller
             'cancel_url' => route('payment.cancel', ['purchase_id' => $purchase->id]),
         ]);
 
-        return redirect($session->url);
+        return $session;
     }
 
     public function success($purchase_id)
     {
+        // ここのテーブル更新はWebhookで行うようにする
         $item = Purchase::query()
             ->where('id', $purchase_id)
             ->first();
@@ -171,27 +175,27 @@ class PurchaseController extends Controller
 
     public function cancel($purchase_id)
     {
-            $item = Purchase::query()
+            $purchase = Purchase::query()
             ->with('item')
             ->where('id', $purchase_id)
             ->first();
 
         try {
-            $item->delete();
-            $item->item->update(['on_sale' => true]);
+            $purchase->delete();
+            $purchase->item->update(['on_sale' => true]);
         } catch (Exception $e) {
             Log::error('==========お客様支払いキャンセルのDB更新に失敗==========');
             Log::error('支払いがキャンセルされましたが、その後のDB更新処理に失敗しました');
             Log::error('purchasesテーブルのstatusがprocessingのままの可能性があります');
             Log::error('itemsテーブルのon_saleが0（false）のままの可能性があります');
             Log::error('purchasesテーブルの情報');
-            Log::error('id: '. $item->id . ' user_id: '. $item->buyer_id . ' item_id: '. $item->item_id);
+            Log::error('id: '. $purchase->id . ' user_id: '. $purchase->buyer_id . ' item_id: '. $purchase->item_id);
             Log::error($e->getMessage());
             Log::error('=================================================');
         }
 
         return redirect()
-            ->route('mypage')
+            ->route('index')
             ->with('message', Message::get('purchase.cancel'));
     }
 

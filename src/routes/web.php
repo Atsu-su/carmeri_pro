@@ -26,8 +26,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::post('webhook', [StripeApiController::class, 'handleWebhook'])->name('webhook');
-
 Route::middleware('header')->group(function () {
     // 詳細検索表示のために必要なデータを取得するミドルウェア
     Route::middleware('search')->group(function () {
@@ -40,6 +38,7 @@ Route::middleware('header')->group(function () {
     Route::get('/item/{item_id}', [ItemController::class, 'show'])->name('item.show');
     Route::get('activate', [UserController::class, 'inputEmail'])->name('activate.index');
     Route::post('activate', [UserController::class, 'activateUser'])->name('activate');
+
     Route::middleware(['auth', 'verified'])->group(function () {
         // 詳細検索表示のために必要なデータを取得するミドルウェア
         Route::middleware('search')->group(function () {
@@ -91,3 +90,8 @@ Route::middleware('header')->group(function () {
         // ------------------------------------------------------------------------------------------------
     });
 });
+// 認証ミドルウェアの外側に置く
+Route::post('stripe/test', [StripeApiController::class, 'test'])->name('stripe.test');
+// Route::post('stripe/test', function () {
+//     \Log::info('正しくアクセスできています');
+// });
