@@ -14,6 +14,7 @@ class Purchase extends Model
     const PAID = ['paid' => '支払済'];
     const SHIPPED = ['shipped' => '発送済み'];
     const COMPLETED = ['completed' => '取引完了'];
+    const EXPIRED = ['expired' => '期限切れ'];
 
     public function isPurchased()
     {

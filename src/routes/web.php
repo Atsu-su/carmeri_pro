@@ -90,8 +90,3 @@ Route::middleware('header')->group(function () {
         // ------------------------------------------------------------------------------------------------
     });
 });
-// 認証ミドルウェアの外側に置く
-Route::post('stripe/test', [StripeApiController::class, 'test'])->name('stripe.test');
-// Route::post('stripe/test', function () {
-//     \Log::info('正しくアクセスできています');
-// });

@@ -16,9 +16,9 @@ class CreatePurchasesTable extends Migration
         Schema::create('purchases', function (Blueprint $table) {
             $table->id();
             $table->string('session_id')->nullable();
-            $table->unsignedBigInteger('item_id')->unique();
+            $table->unsignedBigInteger('item_id');
             $table->unsignedBigInteger('buyer_id');
-            $table->unsignedBigInteger('payment_method_id')->nullable();
+            $table->unsignedBigInteger('payment_method_id')->nullable()->comment('1: konbini, 2: card');
             $table->string('status')->nullable();
             $table->boolean('is_chat_enabled')->default(false);
             $table->dateTime('shipped_at')->nullable();

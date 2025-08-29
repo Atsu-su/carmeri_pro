@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\HomeApiController;
+use App\Http\Controllers\Api\StripeApiController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\UserController;
@@ -25,6 +26,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // 画像スクロールロードのためのAPIルーティング（api/は自動で付与されるので不要）
 Route::get('images', [HomeApiController::class, 'getImageApi']);
 Route::get('count', [HomeApiController::class, 'getImageApi']);
+// 認証ミドルウェアの外側に置く
+Route::post('stripe/webhook', [StripeApiController::class, 'handleWebhook'])->name('stripe.webhook');
 
 // 認証済みのユーザのみapiにアクセス可能
 Route::middleware(['auth:web', 'verified'])->group(function () {

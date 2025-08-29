@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Notifications\CustomCompleteEmail;
+use App\Notifications\CustomCheckoutCompletedEmailToBuyer;
+use App\Notifications\CustomCheckoutCompletedEmailToSeller;
 use App\Notifications\CustomVerifyEmail;
 use App\Notifications\CustomResetPasswordNotification;
 use App\Notifications\CustomStatusChangedToCompletedEmail;
@@ -12,6 +14,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Support\Facades\Log;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -67,6 +70,16 @@ class User extends Authenticatable implements MustVerifyEmail
     public function sendEmailStatusChangedToCompletedNotification($purchase)
     {
         $this->notify(new CustomStatusChangedToCompletedEmail($purchase, $this));
+    }
+
+    public function sendEmailCheckoutCompletedToSellerNotification($purchase)
+    {
+        $this->notify(new CustomCheckoutCompletedEmailToSeller($purchase, $this));
+    }
+
+    public function sendEmailCheckoutToCompletedToBuyerNotification($purchase)
+    {
+        $this->notify(new CustomCheckoutCompletedEmailToBuyer($purchase, $this));
     }
 
     public function items()

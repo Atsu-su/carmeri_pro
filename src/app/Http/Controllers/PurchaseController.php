@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Api\StripeApiController;
 use App\Models\Item;
 use App\Models\Purchase;
 use App\Models\User;
@@ -12,6 +13,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Stripe\Stripe;
 use Stripe\Checkout\Session;
@@ -126,21 +128,28 @@ class PurchaseController extends Controller
             'payment_intent_data' => [
                 'metadata' => [
                     'user_id' => $user->id,
-                    'purchase_id' => $purchase->id
+                    'purchase_id' => $purchase->id,
+                ],
+            ],
+            'payment_method_types' => ['card', 'konbini'],
+            'payment_method_options' => [
+                'konbini' => [
+                    'expires_after_days' => 7,
                 ],
             ],
             'line_items' => [[
                 'price_data' => [
                     'currency' => 'jpy',
                     'product_data' => [
-                        'name' => $item->name
+                        'name' => $item->name,
+                        // 'image' => Storage::url('item/images/').$item->image // 画像のURLを取得
                     ],
                     'unit_amount' => $item->price
                 ],
                 'quantity' => 1
             ]],
             'mode' => 'payment',
-            'success_url' => route('payment.success', ['purchase_id' => $purchase->id]),
+            'success_url' => route('payment.success', ['purchase_id' => $purchase->id]).'?session_id={CHECKOUT_SESSION_ID}',
             'cancel_url' => route('payment.cancel', ['purchase_id' => $purchase->id]),
         ]);
 
@@ -149,24 +158,15 @@ class PurchaseController extends Controller
 
     public function success($purchase_id)
     {
-        // ここのテーブル更新はWebhookで行うようにする
-        $item = Purchase::query()
-            ->where('id', $purchase_id)
-            ->first();
+        // ここでもfulfillCheckoutを実行する（Stripe推奨）
+        $stripe = new StripeApiController();
+        $stripe->fulfillCheckout(request()->query('session_id'));
 
-        try {
-            $item->update([
-                'status' => key(Purchase::PAID),
-                'is_chat_enabled' => true, // チャットを有効化
-            ]);
-        } catch (Exception $e) {
-            Log::error('==========お客様支払い完了後のDB更新に失敗==========');
-            Log::error('purchasesテーブルのstatusがprocessingのままです');
-            Log::error('purchasesテーブルの情報');
-            Log::error('id: '. $item->id . ' user_id: '. $item->buyer_id . ' item_id: '. $item->item_id);
-            Log::error($e->getMessage());
-            Log::error('=================================================');
-        }
+        // ここでメールを送る処理を行う
+        $seller = User::find($this->getSeller($purchase_id));
+        $buyer = User::find($this->getBuyer($purchase_id));
+
+        // メール送信
 
         return redirect()
             ->route('mypage')
@@ -197,6 +197,43 @@ class PurchaseController extends Controller
         return redirect()
             ->route('index')
             ->with('message', Message::get('purchase.cancel'));
+    }
+
+    /**
+     * Get the buyer ID for a given purchase ID.
+     *
+     * @param int $id (id of purchases)
+     * @return int seller_id (seller_id of items)
+     */
+    public function getSeller($id)
+    {
+        try {
+            $seller = Purchase::with('item')
+                ->findOrFail($id);
+        } catch (Exception $e) {
+            Log::error('Error fetching seller: ' . $e->getMessage());
+            return response('', 400);
+        }
+
+        return $seller->item->seller_id;
+    }
+
+    /**
+     * Get the buyer ID for a given purchase ID.
+     *
+     * @param int $id (id of purchases)
+     * @return int buyer_id (buyer_id of purchases)
+     */
+    public function getBuyer($id)
+    {
+        try {
+            $buyer = Purchase::findOrFail($id);
+        } catch (Exception $e) {
+            Log::error('Error fetching buyer: ' . $e->getMessage());
+            return response('', 400);
+        }
+
+        return $buyer->buyer_id;
     }
 
     public function showStatus($purchase_id)

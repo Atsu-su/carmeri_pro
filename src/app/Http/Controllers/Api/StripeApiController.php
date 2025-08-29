@@ -12,18 +12,23 @@ use Stripe\Stripe;
 use Stripe\StripeClient;
 use Stripe\Webhook;
 use Stripe\Checkout\Session;
+use Stripe\PaymentIntent;
 use Stripe\Exception\SignatureVerificationException;
 use UnexpectedValueException;
 
 class StripeApiController extends Controller
 {
+    public function beginCheckout()
+    {
+        // 支払の開始
+        // 購入者にメールを送る（支払方法について）
+    }
+
+    // 支払完了後の処理
     public function fulfillCheckout($session_id)
     {
         $key = config('stripe.stripe_secret_key');
         $stripe = new StripeClient($key);
-
-        // TODO: Make sure fulfillment hasn't already been
-        // performed for this Checkout Session
 
         $session = $stripe
             ->checkout
@@ -32,45 +37,47 @@ class StripeApiController extends Controller
                 'expand' => ['line_items']
             ]);
 
-        // TODO: Make this function safe to run multiple times,
-        // even concurrently, with the same session ID
-        // ・レコードロックでpurchasesテーブルを更新する
-        // ・session_idとitem_idをキーにしてpurchaseのレコードを取得
-        // ・取得できない場合はreturn response('', 400);で処理を終了させる
         try {
             DB::beginTransaction();
             $purchase = Purchase::lockForUpdate()
                 ->where('session_id', $session_id)
-                // ->where('item_id', $session->line_items->data[0]->price->product)
                 ->first();
 
             if (!$purchase) {
                 throw new Exception('Purchase not found for session ID: ' . $session_id);
             }
 
-            // Check the Checkout Session's payment_status property
-            // to determine if fulfillment should be performed
-            if ($session->payment_status != 'unpaid') {
-                // TODO: Perform fulfillment of the line items
-                // ・取得したレコードのstatusをpaidに更新する
+            // 送られてきたセッションIDの取引の状態（purchasesテーブルのstatusではない）
+            if ($session->payment_status !== 'unpaid') {
                 $purchase->status = key(Purchase::PAID);
+                $purchase->is_chat_enabled = true;
+
+                // 同じ取引で複数回フルフィルメントが発生する可能性からsave()を使う
                 $purchase->save();
                 DB::commit();
             } else {
                 throw new Exception('Payment status is unpaid for session ID: ' . $session_id);
             }
         } catch (Exception $e) {
+            Log::error('error:'.$e->getMessage());
+            Log::error('==========お客様支払い完了後のDB更新に失敗==========');
+            Log::error('purchasesテーブルのstatusがprocessingのままです');
+            Log::error('purchasesテーブルの情報');
+            Log::error('id: '. $purchase->id . ' user_id: '. $purchase->buyer_id . ' item_id: '. $purchase->item_id);
+            Log::error($e->getMessage());
+            Log::error('=================================================');
             DB::rollBack();
         }
-
-        // 不要かもしれないのでまずは$sessionの中身を見る
-        // returnでsellerとbuyerのIDを返す（連想配列）
-        // return [
-        //     'seller_id' => $this->getSeller($purchase->id),
-        //     'buyer_id' => $this->getBuyer($purchase->id)
-        // ];
     }
 
+    public function failCheckout()
+    {
+        // コンビニ支払の有効期限切れの処理
+        // item_idがユニークなのを修正する（失敗時を考慮して複数OKとする）
+        // statusをexpiredにする
+    }
+
+    // コンビニ支払用
     public function handleWebhook(Request $request)
     {
         $payload = $request->getContent();
@@ -79,59 +86,46 @@ class StripeApiController extends Controller
         $event = null;
 
         try {
-            $event = \Stripe\Webhook::constructEvent(
-                $payload, $sig_header, $endpoint_secret
-            );
+            $event = Webhook::constructEvent($payload, $sig_header, $endpoint_secret);
         } catch (UnexpectedValueException $e) {
+            Log::error('UnexpectedValueException:'.$e->getMessage());
             return response('', 400);
         } catch (SignatureVerificationException $e) {
+            Log::error('SignatureVerificationException:'.$e->getMessage());
             return response('', 400);
         }
 
-        if ($event->type === 'checkout.session.completed' ||
-            $event->type === 'checkout.session.async_payment_succeeded') {
-            // purchasesテーブルのレコードを更新する
-            $users = $this->fulfillCheckout($event->data->object->id);
-            // 購入者と出品者にメールを送信する
-            // $eventの中にpurchase_idがあるかもしれないので、その場合は
-            // fulfillCheckoutの返り値はvoidにする
+        if ($event->type === 'checkout.session.completed') {
+            Stripe::setApiKey(config('stripe.stripe_secret_key'));
+
+            $paymentStatus = $event->data->object->payment_status ?? null;
+            if ($paymentStatus && $paymentStatus === 'paid') {
+                // カード支払完了
+                $this->fulfillCheckout($event->data->object->id);
+            } else {
+                // コンビニ決済準備完了
+                // buyerのインスタンスを作る
+                $purchase = Purchase::with('user')
+                    ->where('session_id', $event->data->object->id)->first();
+                $buyer = $purchase->user;
+                Log::info('buyer info.: '.$buyer);
+                if ($buyer) {
+                    Log::info('メール送信');
+                    $buyer->test();
+                }
+                // メールを送る
+            }
+
+        } else if ($event->type === 'checkout.session.async_payment_succeeded') {
+            // コンビニ支払完了
+            $this->fulfillCheckout($event->data->object->id);
+        } else if ($event->type === 'checkout.session.async_payment_failed') {
+            // コンビニ支払失敗（期限切れ）
+            Log::info('コンビニ決済支払失敗');
+            // メール送信
+        } else {
+            Log::error('不明なイベントタイプが検出されました: '.$event->type);
         }
         return response('', 200);
-    }
-    /**
-     * Get the buyer ID for a given purchase ID.
-     *
-     * @param int $id (id of purchases)
-     * @return int seller_id (seller_id of items)
-     */
-    public function getSeller($id)
-    {
-        try {
-            $seller = Purchase::with('item')
-                ->findOrFail($id);
-        } catch (Exception $e) {
-            Log::error('Error fetching seller: ' . $e->getMessage());
-            return response('', 400);
-        }
-
-        return $seller->item->seller_id;
-    }
-
-    /**
-     * Get the buyer ID for a given purchase ID.
-     *
-     * @param int $id (id of purchases)
-     * @return int buyer_id (buyer_id of purchases)
-     */
-    public function getBuyer($id)
-    {
-        try {
-            $buyer = Purchase::findOrFail($id);
-        } catch (Exception $e) {
-            Log::error('Error fetching buyer: ' . $e->getMessage());
-            return response('', 400);
-        }
-
-        return $buyer->buyer_id;
     }
 }
